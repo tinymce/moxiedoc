@@ -16,7 +16,8 @@
     "bin" : {"moxiedoc": "./bin/moxiedoc"},
     "dependencies": {
         "glob": ">= 3.1.12",
-        "commander": ">= 1.1.1"
+        "commander": ">= 1.1.1",
+        "xregexp": ">= 2.0.0"
     },
     "licenses":[
         {
