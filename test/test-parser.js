@@ -67,6 +67,39 @@ exports.parseStartSingleLine = function(test) {
 	test.done();
 };
 
+exports.parseStartSingleLineNoAsterix = function(test) {
+	var start = 0, tag = 0, end = 0;
+	var startText;
+
+	var parser = new Parser({
+		start: function(text) {
+			start++;
+			startText = text;
+		},
+
+		tag: function() {
+			tag++;
+		},
+
+		end: function() {
+			end++;
+		}
+	});
+
+	parser.parse([
+		"/**",
+		" a",
+		"*/"
+	].join('\n'));
+
+	test.equals(1, start);
+	test.equals("a", startText);
+	test.equals(0, tag);
+	test.equals(1, end);
+
+	test.done();
+};
+
 exports.parseStartMultipleLines = function(test) {
 	var start = 0, tag = 0, end = 0;
 	var startText, startInfo;
