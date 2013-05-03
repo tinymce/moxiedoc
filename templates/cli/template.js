@@ -1,7 +1,20 @@
 var clc = require('cli-color');
 
-exports.template = function(api) {
-	var types = api.getTypes();
+exports.template = function(types) {
+	//var types = api.getTypes();
+
+	console.log(JSON.stringify(types, null, ' '));
+
+/*	for (var className in types) {
+		var typeInfo = types[className];
+
+		console.log('Class: ' + className);
+		typeInfo.getMethods().forEach(function(memberInfo) {
+			console.log('Method: ' + memberInfo.name);
+		});
+	}*/
+
+/*
 	for (var typeName in types) {
 		var typeInfo = types[typeName];
 		var typeLine = '';
@@ -113,4 +126,5 @@ exports.template = function(api) {
 
 	//console.log(clc.red('APA'));
 	//console.log(JSON.stringify(api, null, '\t'));
+*/
 };

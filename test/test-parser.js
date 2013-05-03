@@ -139,11 +139,12 @@ exports.parseStartMultipleLines = function(test) {
 
 exports.parseTagSingleLine = function(test) {
 	var start = 0, tag = 0, end = 0;
-	var tagName, tagText, tagInfo;
+	var startText, tagName, tagText, tagInfo;
 
 	var parser = new Parser({
-		start: function() {
+		start: function(text) {
 			start++;
+			startText = text;
 		},
 
 		tag: function(name, text, info) {
@@ -165,6 +166,7 @@ exports.parseTagSingleLine = function(test) {
 	].join('\n'));
 
 	test.equals(1, start);
+	test.equals("", startText);
 	test.equals("a", tagName);
 	test.equals("b", tagText);
 	test.equals(1, tag);

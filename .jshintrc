@@ -7,7 +7,7 @@
 	"maxparams": 50,
 	"maxdepth": 8,
 	"maxstatements": 150,
-	"maxlen": 140,
+	"maxlen": 300,
 	//"maxcomplexity": 10,
 	"camelcase":false,
 	"browser": false,
