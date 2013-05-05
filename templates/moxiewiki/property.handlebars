@@ -1,0 +1,20 @@
+<div class="api propertydetails">
+	<div class="syntax"><span><?php echo $this->syntax; ?></span></div>
+	<div class="details"><?php echo htmlspecialchars($this->description); ?></div>
+
+	<?php if (count($this->examples)) { ?>
+		<div class="examples">
+		<h2>Examples</h2>
+<?php foreach ($this->examples as $example) { ?>
+<pre class="js"><?php echo htmlspecialchars($example); ?></pre>
+<?php } ?>
+		</div>
+	<?php } ?>
+
+	<div class="property">
+		<h2>Type</h2>
+		<div>
+		<?php echo $this->type; ?>
+		</div>
+	</div>
+</div>

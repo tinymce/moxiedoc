@@ -1,0 +1,58 @@
+<div class="api eventdetails">
+	<div class="syntax"><span><?php echo $this->syntax; ?></span></div>
+	<div class="details"><?php echo htmlspecialchars($this->description); ?></div>
+
+	<?php if (count($this->examples)) { ?>
+		<div class="examples">
+		<h2>Examples</h2>
+<?php foreach ($this->examples as $example) { ?>
+<pre class="js"><?php echo htmlspecialchars($example); ?></pre>
+<?php } ?>
+		</div>
+	<?php } ?>
+
+	<?php if (count($this->params) > 0) { ?>
+	<div class="params">
+		<h2>Params</h2>
+		<table>
+			<thead class="small">
+				<tr>
+					<th class="first">Name</th>
+					<th>Type</th>
+					<th class="last">Description</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php $count = 0; foreach ($this->params as &$param) { ?>
+				<tr class="<?php echo $count++ % 2 ? 'odd' : 'even'; ?>">
+					<td class="first"><?php echo htmlspecialchars($param["name"]); ?></td>
+					<td><?php echo $param["type"]; ?></td>
+					<td class="last"><?php echo htmlspecialchars($param["description"]); ?>
+					<?php if (count($param["options"]) > 0) { ?>
+						<table class="options">
+							<thead class="small">
+								<tr>
+									<th class="first">Name</th>
+									<th>Type</th>
+									<th class="last">Description</th>
+								</tr>
+							</thead>
+							<tbody>
+								<?php $ocount = 0; foreach ($param["options"] as &$option) { ?>
+									<tr class="<?php echo $ocount++ % 2 ? 'odd' : 'even'; ?>">
+										<td class="first"><?php echo htmlspecialchars($option["name"]); ?></td>
+										<td><?php echo $option["type"]; ?></td>
+										<td class="last"><?php echo htmlspecialchars($option["description"]); ?>
+									</tr>
+								<?php } ?>
+							</tbody>
+						</table>
+					<?php } ?>
+					</td>
+				</tr>
+				<?php } ?>
+			</tbody>
+		</table>
+	</div>
+	<?php } ?>
+</div>

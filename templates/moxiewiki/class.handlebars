@@ -1,0 +1,118 @@
+<div class="api classdetails">
+	<?php if (count($this->super_classes) || count($this->sub_classes)) { ?>
+		<div class="classinfo">
+			<table>
+				<tbody>
+					<?php if (count($this->super_classes)) { ?>
+					<tr>
+						<td class="first">Inheritance</td>
+						<td class="last">
+							<ul class="inherits">
+								<li class="first"><?php echo htmlspecialchars($this->name); ?></li>
+								<?php foreach ($this->super_classes as $class) { ?>
+								<li><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $class["fullname"]; ?>"><?php echo htmlspecialchars($class["name"]); ?></a></li>
+								<?php } ?>
+							</ul>
+						</td>
+					</tr>
+					<?php } ?>
+
+					<?php if (count($this->sub_classes)) { ?>
+					<tr>
+						<td class="first">Subclasses</td>
+						<td class="last">
+							<?php $count = 0; foreach ($this->sub_classes as $class) { ?><?php echo $count++ > 0 ? ', ' : ''; ?><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $class["fullname"]; ?>"><?php echo htmlspecialchars($class["name"]); ?></a><?php } ?>
+						</td>
+					</tr>
+					<?php } ?>
+				</tbody>
+			</table>
+		</div>
+	<?php } ?>
+
+	<div class="description"><?php echo htmlspecialchars($this->description); ?></div>
+
+	<?php if (count($this->examples)) { ?>
+		<div class="examples">
+		<h2>Examples</h2>
+<?php foreach ($this->examples as $example) { ?>
+<pre class="js"><?php echo htmlspecialchars($example); ?></pre>
+<?php } ?>
+		</div>
+	<?php } ?>
+
+	<?php if (count($this->properties) > 0) { ?>
+	<div class="properties">
+		<h2>Properties</h2>
+		<table>
+			<thead class="small">
+				<tr>
+					<th class="first">Property</th>
+					<th class="last">Defined By</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php $count = 0; foreach ($this->properties as $member) { ?>
+				<tr class="<?php echo $count++ % 2 ? 'odd' : 'even'; ?>">
+					<td class="first">
+						<div><a href="wiki://<?php echo $this->prefix; ?>:property.<?php echo htmlspecialchars($member["fullname"]); ?>" class="member"><?php echo htmlspecialchars($member["name"]); ?></a></div>
+						<div><?php echo htmlspecialchars($member["summary"]); ?></div>
+					</td>
+					<td class="last"><?php if ($member["definedin"] == $this->fullname) { ?><?php echo $member["definedin"]; ?><?php } else { ?><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $member["definedin"]; ?>"><?php echo $member["definedin"]; ?></a><?php } ?></td>
+				</tr>
+				<?php } ?>
+			</tbody>
+		</table>
+	</div>
+	<?php } ?>
+
+	<?php if (count($this->events) > 0) { ?>
+	<div class="events">
+		<h2>Events</h2>
+		<table>
+			<thead class="small">
+				<tr>
+					<th class="first">Event</th>
+					<th class="last">Defined By</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php $count = 0; foreach ($this->events as $member) { ?>
+				<tr class="<?php echo $count++ % 2 ? 'odd' : 'even'; ?>">
+					<td class="first">
+						<div><a href="wiki://<?php echo $this->prefix; ?>:event.<?php echo htmlspecialchars($member["fullname"]); ?>" class="member"><?php echo htmlspecialchars($member["name"]); ?></a></div>
+						<div><?php echo htmlspecialchars($member["summary"]); ?></div>
+					</td>
+					<td class="last"><?php if ($member["definedin"] == $this->fullname) { ?><?php echo $member["definedin"]; ?><?php } else { ?><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $member["definedin"]; ?>"><?php echo $member["definedin"]; ?></a><?php } ?></td>
+				</tr>
+				<?php } ?>
+			</tbody>
+		</table>
+	</div>
+	<?php } ?>
+
+	<?php if (count($this->methods) > 0) { ?>
+	<div class="methods">
+		<h2>Methods</h2>
+		<table>
+			<thead class="small">
+				<tr>
+					<th class="first">Method</th>
+					<th class="last">Defined By</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php $count = 0; foreach ($this->methods as $member) { ?>
+				<tr class="<?php echo $count++ % 2 ? 'odd' : 'even'; ?>">
+					<td class="first<?php echo $member["constructor"] ? " constructor" : ""; ?>">
+						<div><a href="wiki://<?php echo $this->prefix; ?>:method.<?php echo htmlspecialchars($member["fullname"]); ?>" class="member"><?php echo htmlspecialchars($member["name"]); ?></a></div>
+						<div><?php echo htmlspecialchars($member["summary"]); ?></div>
+					</td>
+					<td class="last"><?php if ($member["definedin"] == $this->fullname) { ?><?php echo $member["definedin"]; ?><?php } else { ?><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $member["definedin"]; ?>"><?php echo $member["definedin"]; ?></a><?php } ?></td>
+				</tr>
+				<?php } ?>
+			</tbody>
+		</table>
+	</div>
+	<?php } ?>
+</div>
