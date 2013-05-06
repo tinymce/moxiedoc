@@ -3,6 +3,10 @@ var path = require("path");
 var Handlebars = require("handlebars");
 
 exports.template = function(root, toPath) {
+	function createLink(url) {
+		return "wiki://api4:" + url;
+	}
+
 	function compileTemplate(filePath) {
 		return Handlebars.compile(fs.readFileSync(path.join(__dirname, filePath)).toString());
 	}
@@ -10,7 +14,7 @@ exports.template = function(root, toPath) {
 	// Precompile templates
 	var constructorTemplate = compileTemplate("constructor.handlebars");
 	var callbackTemplate = compileTemplate("callback.handlebars");
-	var classTemplate = compileTemplate("class.handlebars");
+	var typeTemplate = compileTemplate("type.handlebars");
 	var eventTemplate = compileTemplate("event.handlebars");
 	var indexTemplate = compileTemplate("index.handlebars");
 	var methodTemplate = compileTemplate("method.handlebars");
@@ -31,8 +35,9 @@ exports.template = function(root, toPath) {
 			namespaces.forEach(function(namespace) {
 				data.namespaces.push({
 					fullName: namespace.fullName,
+					summary: namespace.summary,
 					desc: namespace.desc,
-					link: "namespace." + namespace.fullName + ".html"
+					link: createLink("namespace." + namespace.fullName)
 				});
 			});
 		}
@@ -42,7 +47,10 @@ exports.template = function(root, toPath) {
 
 	function renderNamespaces() {
 		root.getNamespaces().forEach(function(namespace) {
-			var data = {};
+			var data = {
+				summary: namespace.summary,
+				desc: namespace.desc
+			};
 
 			var namespaces = namespace.namespaces;
 			if (namespaces.length) {
@@ -52,7 +60,8 @@ exports.template = function(root, toPath) {
 					data.namespaces.push({
 						fullName: namespace.fullName,
 						desc: namespace.desc,
-						link: "namespace." + namespace.fullName + ".html"
+						summary: namespace.summary,
+						link: createLink("namespace." + namespace.fullName)
 					});
 				});
 			}
@@ -65,7 +74,20 @@ exports.template = function(root, toPath) {
 					data.classes.push({
 						fullName: type.fullName,
 						summary: type.summary,
-						link: "class." + type.fullName + ".html"
+						link: createLink("class." + type.fullName)
+					});
+				});
+			}
+
+			var mixins = namespace.getMixins();
+			if (mixins.length) {
+				data.mixins = [];
+
+				mixins.forEach(function(type) {
+					data.mixins.push({
+						fullName: type.fullName,
+						summary: type.summary,
+						link: createLink("mixin." + type.fullName)
 					});
 				});
 			}
@@ -95,7 +117,7 @@ exports.template = function(root, toPath) {
 					var link, type = root.getTypeByFullName(fullName);
 
 					if (type) {
-						link = type.type + "." + type.fullName + ".html";
+						link = createLink(type.type + "." + type.fullName);
 					}
 
 					output.push({
@@ -193,6 +215,8 @@ exports.template = function(root, toPath) {
 				var data = {};
 
 				addExamples(member, data);
+				addParams(member, data);
+				data.syntax = getSyntaxString(member);
 
 				renderTemplate(eventTemplate, data, "event." + type.fullName + "." + member.name + ".html");
 			});
@@ -201,6 +225,9 @@ exports.template = function(root, toPath) {
 				var data = {};
 
 				addExamples(member, data);
+				data.types = createTypeList(member.dataTypes);
+				data.syntax = getSyntaxString(member);
+				data.isStatic = member.isStatic();
 
 				renderTemplate(propertyTemplate, data, "property." + type.fullName + "." + member.name + ".html");
 			});
@@ -219,7 +246,7 @@ exports.template = function(root, toPath) {
 				superTypes.forEach(function(type) {
 					data.superTypes.push({
 						name: type.name,
-						link: type.type + "." + type.fullName + ".html"
+						link: createLink(type.type + "." + type.fullName)
 					});
 				});
 			}
@@ -231,12 +258,36 @@ exports.template = function(root, toPath) {
 				subTypes.forEach(function(type) {
 					data.subTypes.push({
 						name: type.name,
-						link: type.type + "." + type.fullName + ".html"
+						link: createLink(type.type + "." + type.fullName)
 					});
 				});
 			}
 
-			data.subOrSuperTypes = data.superTypes || data.subTypes;
+			var mixesTypes = type.getMixes();
+			if (mixesTypes.length) {
+				data.mixesTypes = [];
+
+				mixesTypes.forEach(function(type) {
+					data.mixesTypes.push({
+						name: type.name,
+						link: createLink(type.type + "." + type.fullName)
+					});
+				});
+			}
+
+			var mixinTypes = type.getMixins();
+			if (mixinTypes.length) {
+				data.mixinTypes = [];
+
+				mixinTypes.forEach(function(type) {
+					data.mixinTypes.push({
+						name: type.name,
+						link: createLink(type.type + "." + type.fullName)
+					});
+				});
+			}
+
+			data.subMixinOrSuperTypes = data.superTypes || data.subTypes || data.mixinTypes;
 
 			function createMembers(members) {
 				if (members.length) {
@@ -246,12 +297,14 @@ exports.template = function(root, toPath) {
 						var definedinLink;
 
 						if (member.parentType != type) {
-							definedinLink = member.parentType.type + "." + member.parentType.fullName + ".html";
+							definedinLink = createLink(member.parentType.type + "." + member.parentType.fullName);
 						}
 
 						output.push({
 							name: member.name,
-							link: member.type + "." + member.parentType.fullName + "." + member.name + ".html",
+							link: createLink(member.type + "." + member.parentType.fullName + "." + member.name),
+							summary: member.summary,
+							isStatic: member.isStatic(),
 							definedin: member.parentType.fullName,
 							definedinLink: definedinLink
 						});
@@ -277,13 +330,27 @@ exports.template = function(root, toPath) {
 				});
 			}
 
-			renderTemplate(classTemplate, data, type.type + "." + type.fullName + ".html");
+			renderTemplate(typeTemplate, data, type.type + "." + type.fullName + ".html");
 			renderMembers(type);
 		});
 	}
 
 	function generateIndex() {
 		var index = [];
+
+		root.rootTypes.forEach(function(type) {
+			index.push([
+				"index",
+				type.type + "." + type.fullName
+			]);
+
+			type.getMembers().forEach(function(member) {
+				index.push([
+					type.type + type.fullName,
+					member.type + "." + member.parentType.fullName + "." + member.name
+				]);
+			});
+		});
 
 		root.getNamespaces().forEach(function(namespace) {
 			var parentPage = "index";
@@ -297,15 +364,15 @@ exports.template = function(root, toPath) {
 				"namespace." + namespace.fullName
 			]);
 
-			namespace.getClasses().forEach(function(type) {
+			namespace.getTypes().forEach(function(type) {
 				index.push([
 					"namespace." + namespace.fullName,
-					"class." + type.fullName
+					type.type + "." + type.fullName
 				]);
 
 				type.getMembers().forEach(function(member) {
 					index.push([
-						"class." + type.fullName,
+						type.type + "." + type.fullName,
 						member.type + "." + member.parentType.fullName + "." + member.name
 					]);
 				});

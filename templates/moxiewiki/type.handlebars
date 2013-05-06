@@ -1,5 +1,5 @@
 <div class="api classdetails">
-	{{#if subOrSuperTypes}}
+	{{#if subMixinOrSuperTypes}}
 		<div class="classinfo">
 			<table>
 				<tbody>
@@ -13,6 +13,28 @@
 								<li><a href="{{link}}">{{name}}</a></li>
 								{{/each}}
 							</ul>
+						</td>
+					</tr>
+					{{/if}}
+
+					{{#if mixesTypes}}
+					<tr>
+						<td class="first">Mixes</td>
+						<td class="last">
+							{{#each mixesTypes}}
+							<a href="{{link}}">{{name}}</a>
+							{{/each}}
+						</td>
+					</tr>
+					{{/if}}
+
+					{{#if mixinTypes}}
+					<tr>
+						<td class="first">Mixins</td>
+						<td class="last">
+							{{#each mixinTypes}}
+							<a href="{{link}}">{{name}}</a>
+							{{/each}}
 						</td>
 					</tr>
 					{{/if}}
@@ -57,7 +79,11 @@
 				{{#each properties}}
 				<tr>
 					<td class="first">
-						<div><a href="{{link}}" class="member">{{name}}</a></div>
+						{{#if isStatic}}
+							<div><a href="{{link}}" class="member">{{name}}</a> (static)</div>
+						{{else}}
+							<div><a href="{{link}}" class="member">{{name}}</a></div>
+						{{/if}}
 						<div>{{summary}}</div>
 					</td>
 					<td class="last">

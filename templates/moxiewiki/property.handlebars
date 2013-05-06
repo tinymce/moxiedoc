@@ -1,20 +1,28 @@
 <div class="api propertydetails">
-	<div class="syntax"><span><?php echo $this->syntax; ?></span></div>
-	<div class="details"><?php echo htmlspecialchars($this->description); ?></div>
+	<div class="syntax"><span>{{syntax}}</span></div>
+	<div class="details">{{desc}}</div>
 
-	<?php if (count($this->examples)) { ?>
+	{{#if examples}}
 		<div class="examples">
 		<h2>Examples</h2>
-<?php foreach ($this->examples as $example) { ?>
-<pre class="js"><?php echo htmlspecialchars($example); ?></pre>
-<?php } ?>
+		{{#each examples}}
+			<pre class="js">{{content}}</pre>
+		{{/each}}
 		</div>
-	<?php } ?>
+	{{/if}}
 
 	<div class="property">
 		<h2>Type</h2>
 		<div>
-		<?php echo $this->type; ?>
+			{{#each types}}
+				{{#if link}}
+					<a href="{{link}}">{{name}}</a>
+				{{else}}
+					{{name}}
+				{{/if}}
+			{{/each}}
+
+			{{desc}}
 		</div>
 	</div>
 </div>

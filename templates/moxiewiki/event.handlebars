@@ -1,17 +1,17 @@
 <div class="api eventdetails">
-	<div class="syntax"><span><?php echo $this->syntax; ?></span></div>
-	<div class="details"><?php echo htmlspecialchars($this->description); ?></div>
+	<div class="syntax"><span>{{syntax}}</span></div>
+	<div class="details">{{desc}}</div>
 
-	<?php if (count($this->examples)) { ?>
+	{{#if examples}}
 		<div class="examples">
 		<h2>Examples</h2>
-<?php foreach ($this->examples as $example) { ?>
-<pre class="js"><?php echo htmlspecialchars($example); ?></pre>
-<?php } ?>
+		{{#each examples}}
+			<pre class="js">{{content}}</pre>
+		{{/each}}
 		</div>
-	<?php } ?>
+	{{/if}}
 
-	<?php if (count($this->params) > 0) { ?>
+	{{#if params}}
 	<div class="params">
 		<h2>Params</h2>
 		<table>
@@ -23,36 +23,42 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count = 0; foreach ($this->params as &$param) { ?>
-				<tr class="<?php echo $count++ % 2 ? 'odd' : 'even'; ?>">
-					<td class="first"><?php echo htmlspecialchars($param["name"]); ?></td>
-					<td><?php echo $param["type"]; ?></td>
-					<td class="last"><?php echo htmlspecialchars($param["description"]); ?>
-					<?php if (count($param["options"]) > 0) { ?>
-						<table class="options">
-							<thead class="small">
-								<tr>
-									<th class="first">Name</th>
-									<th>Type</th>
-									<th class="last">Description</th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php $ocount = 0; foreach ($param["options"] as &$option) { ?>
-									<tr class="<?php echo $ocount++ % 2 ? 'odd' : 'even'; ?>">
-										<td class="first"><?php echo htmlspecialchars($option["name"]); ?></td>
-										<td><?php echo $option["type"]; ?></td>
-										<td class="last"><?php echo htmlspecialchars($option["description"]); ?>
-									</tr>
-								<?php } ?>
-							</tbody>
-						</table>
-					<?php } ?>
+				{{#each params}}
+				<tr>
+					<td class="first">{{name}}</td>
+					<td>
+						{{#each types}}
+							{{#if link}}
+								<a href="{{link}}">{{name}}</a>
+							{{else}}
+								{{name}}
+							{{/if}}
+						{{/each}}
 					</td>
+					<td class="last">{{desc}}</td>
 				</tr>
-				<?php } ?>
+				{{/each}}
 			</tbody>
 		</table>
 	</div>
-	<?php } ?>
+	{{/if}}
+
+	{{#if return}}
+	<div class="returns">
+		<h2>Returns</h2>
+		<div>
+			{{#with return}}
+				{{#each types}}
+					{{#if link}}
+						<a href="{{link}}">{{name}}</a>
+					{{else}}
+						{{name}}
+					{{/if}}
+				{{/each}}
+
+				{{desc}}
+			{{/with}}
+		</div>
+	</div>
+	{{/if}}
 </div>
