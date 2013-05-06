@@ -1,47 +1,49 @@
 <div class="api classdetails">
-	<?php if (count($this->super_classes) || count($this->sub_classes)) { ?>
+	{{#if subOrSuperTypes}}
 		<div class="classinfo">
 			<table>
 				<tbody>
-					<?php if (count($this->super_classes)) { ?>
+					{{#if superTypes}}
 					<tr>
 						<td class="first">Inheritance</td>
 						<td class="last">
 							<ul class="inherits">
-								<li class="first"><?php echo htmlspecialchars($this->name); ?></li>
-								<?php foreach ($this->super_classes as $class) { ?>
-								<li><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $class["fullname"]; ?>"><?php echo htmlspecialchars($class["name"]); ?></a></li>
-								<?php } ?>
+								<li class="first">{{name}}</li>
+								{{#each superTypes}}
+								<li><a href="{{link}}">{{name}}</a></li>
+								{{/each}}
 							</ul>
 						</td>
 					</tr>
-					<?php } ?>
+					{{/if}}
 
-					<?php if (count($this->sub_classes)) { ?>
+					{{#if subTypes}}
 					<tr>
 						<td class="first">Subclasses</td>
 						<td class="last">
-							<?php $count = 0; foreach ($this->sub_classes as $class) { ?><?php echo $count++ > 0 ? ', ' : ''; ?><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $class["fullname"]; ?>"><?php echo htmlspecialchars($class["name"]); ?></a><?php } ?>
+							{{#each subTypes}}
+							<a href="{{link}}">{{name}}</a>
+							{{/each}}
 						</td>
 					</tr>
-					<?php } ?>
+					{{/if}}
 				</tbody>
 			</table>
 		</div>
-	<?php } ?>
+	{{/if}}
 
-	<div class="description"><?php echo htmlspecialchars($this->description); ?></div>
+	<div class="description">{{desc}}</div>
 
-	<?php if (count($this->examples)) { ?>
+	{{#if examples}}
 		<div class="examples">
 		<h2>Examples</h2>
-<?php foreach ($this->examples as $example) { ?>
-<pre class="js"><?php echo htmlspecialchars($example); ?></pre>
-<?php } ?>
+{{#each examples}}
+<pre class="js">{{content}}</pre>
+{{/each}}
 		</div>
-	<?php } ?>
+	{{/if}}
 
-	<?php if (count($this->properties) > 0) { ?>
+{{#if properties}}
 	<div class="properties">
 		<h2>Properties</h2>
 		<table>
@@ -52,21 +54,27 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count = 0; foreach ($this->properties as $member) { ?>
-				<tr class="<?php echo $count++ % 2 ? 'odd' : 'even'; ?>">
+				{{#each properties}}
+				<tr>
 					<td class="first">
-						<div><a href="wiki://<?php echo $this->prefix; ?>:property.<?php echo htmlspecialchars($member["fullname"]); ?>" class="member"><?php echo htmlspecialchars($member["name"]); ?></a></div>
-						<div><?php echo htmlspecialchars($member["summary"]); ?></div>
+						<div><a href="{{link}}" class="member">{{name}}</a></div>
+						<div>{{summary}}</div>
 					</td>
-					<td class="last"><?php if ($member["definedin"] == $this->fullname) { ?><?php echo $member["definedin"]; ?><?php } else { ?><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $member["definedin"]; ?>"><?php echo $member["definedin"]; ?></a><?php } ?></td>
+					<td class="last">
+						{{#if definedinLink}}
+							<a href="{{definedinLink}}">{{definedin}}</a>
+						{{else}}
+							{{definedin}}
+						{{/if}}
+					</td>
 				</tr>
-				<?php } ?>
+				{{/each}}
 			</tbody>
 		</table>
 	</div>
-	<?php } ?>
+{{/if}}
 
-	<?php if (count($this->events) > 0) { ?>
+{{#if events}}
 	<div class="events">
 		<h2>Events</h2>
 		<table>
@@ -77,21 +85,58 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count = 0; foreach ($this->events as $member) { ?>
-				<tr class="<?php echo $count++ % 2 ? 'odd' : 'even'; ?>">
+				{{#each events}}
+				<tr>
 					<td class="first">
-						<div><a href="wiki://<?php echo $this->prefix; ?>:event.<?php echo htmlspecialchars($member["fullname"]); ?>" class="member"><?php echo htmlspecialchars($member["name"]); ?></a></div>
-						<div><?php echo htmlspecialchars($member["summary"]); ?></div>
+						<div><a href="{{link}}" class="member">{{name}}</a></div>
+						<div>{{summary}}</div>
 					</td>
-					<td class="last"><?php if ($member["definedin"] == $this->fullname) { ?><?php echo $member["definedin"]; ?><?php } else { ?><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $member["definedin"]; ?>"><?php echo $member["definedin"]; ?></a><?php } ?></td>
+					<td class="last">
+						{{#if definedinLink}}
+							<a href="{{definedinLink}}">{{definedin}}</a>
+						{{else}}
+							{{definedin}}
+						{{/if}}
+					</td>
 				</tr>
-				<?php } ?>
+				{{/each}}
 			</tbody>
 		</table>
 	</div>
-	<?php } ?>
+{{/if}}
 
-	<?php if (count($this->methods) > 0) { ?>
+{{#if constructors}}
+	<div class="constructors">
+		<h2>Constructors</h2>
+		<table>
+			<thead class="small">
+				<tr>
+					<th class="first">Method</th>
+					<th class="last">Defined By</th>
+				</tr>
+			</thead>
+			<tbody>
+				{{#each constructors}}
+				<tr>
+					<td class="first">
+						<div><a href="{{link}}" class="member">{{name}}</a></div>
+						<div>{{summary}}</div>
+					</td>
+					<td class="last">
+						{{#if definedinLink}}
+							<a href="{{definedinLink}}">{{definedin}}</a>
+						{{else}}
+							{{definedin}}
+						{{/if}}
+					</td>
+				</tr>
+				{{/each}}
+			</tbody>
+		</table>
+	</div>
+{{/if}}
+
+{{#if methods}}
 	<div class="methods">
 		<h2>Methods</h2>
 		<table>
@@ -102,17 +147,24 @@
 				</tr>
 			</thead>
 			<tbody>
-				<?php $count = 0; foreach ($this->methods as $member) { ?>
-				<tr class="<?php echo $count++ % 2 ? 'odd' : 'even'; ?>">
-					<td class="first<?php echo $member["constructor"] ? " constructor" : ""; ?>">
-						<div><a href="wiki://<?php echo $this->prefix; ?>:method.<?php echo htmlspecialchars($member["fullname"]); ?>" class="member"><?php echo htmlspecialchars($member["name"]); ?></a></div>
-						<div><?php echo htmlspecialchars($member["summary"]); ?></div>
+				{{#each methods}}
+				<tr>
+					<td class="first">
+						<div><a href="{{link}}" class="member">{{name}}</a></div>
+						<div>{{summary}}</div>
 					</td>
-					<td class="last"><?php if ($member["definedin"] == $this->fullname) { ?><?php echo $member["definedin"]; ?><?php } else { ?><a href="wiki://<?php echo $this->prefix; ?>:class.<?php echo $member["definedin"]; ?>"><?php echo $member["definedin"]; ?></a><?php } ?></td>
+					<td class="last">
+						{{#if definedinLink}}
+							<a href="{{definedinLink}}">{{definedin}}</a>
+						{{else}}
+							{{definedin}}
+						{{/if}}
+					</td>
 				</tr>
-				<?php } ?>
+				{{/each}}
 			</tbody>
 		</table>
 	</div>
-	<?php } ?>
+{{/if}}
+
 </div>
