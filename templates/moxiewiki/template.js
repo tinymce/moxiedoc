@@ -52,7 +52,7 @@ exports.template = function(root, toPath) {
 				desc: namespace.desc
 			};
 
-			var namespaces = namespace.namespaces;
+			var namespaces = namespace.getNamespaces();
 			if (namespaces.length) {
 				data.namespaces = [];
 
@@ -136,8 +136,8 @@ exports.template = function(root, toPath) {
 					params += (params ? ", " : "") + param.name + ":" + param.types.join('/');
 				});
 
-				if (member.data["return"]) {
-					returns = member.data["return"].types.join('/');
+				if (member["return"]) {
+					returns = member["return"].types.join('/');
 				}
 
 				switch (member.type) {
@@ -166,7 +166,7 @@ exports.template = function(root, toPath) {
 					params.forEach(function(param) {
 						data.params.push({
 							name: param.name,
-							desc: param.data.desc,
+							desc: param.desc,
 							types: createTypeList(param.types)
 						});
 					});
@@ -176,16 +176,16 @@ exports.template = function(root, toPath) {
 			type.getConstructors().forEach(function(member) {
 				var data = {};
 
-				data.desc = member.data.desc;
+				data.desc = member.desc;
 				data.syntax = getSyntaxString(member);
 
 				addExamples(member, data);
 				addParams(member, data);
 
-				if (member.data["return"]) {
+				if (member["return"]) {
 					data["return"] = {
-						types: createTypeList(member.data["return"].types),
-						desc: member.data["return"].desc
+						types: createTypeList(member["return"].types),
+						desc: member["return"].desc
 					};
 				}
 
@@ -195,16 +195,16 @@ exports.template = function(root, toPath) {
 			type.getMethods().forEach(function(member) {
 				var data = {};
 
-				data.desc = member.data.desc;
+				data.desc = member.desc;
 				data.syntax = getSyntaxString(member);
 
 				addExamples(member, data);
 				addParams(member, data);
 
-				if (member.data["return"]) {
+				if (member["return"]) {
 					data["return"] = {
-						types: createTypeList(member.data["return"].types),
-						desc: member.data["return"].desc
+						types: createTypeList(member["return"].types),
+						desc: member["return"].desc
 					};
 				}
 
@@ -237,7 +237,7 @@ exports.template = function(root, toPath) {
 			var data = {};
 
 			data.name = type.name;
-			data.desc = type.data.desc;
+			data.desc = type.desc;
 
 			var superTypes = type.getSuperTypes();
 			if (superTypes.length) {
@@ -296,16 +296,16 @@ exports.template = function(root, toPath) {
 					members.forEach(function(member) {
 						var definedinLink;
 
-						if (member.parentType != type) {
-							definedinLink = createLink(member.parentType.type + "." + member.parentType.fullName);
+						if (member.getParentType() != type) {
+							definedinLink = createLink(member.getParentType().type + "." + member.getParentType().fullName);
 						}
 
 						output.push({
 							name: member.name,
-							link: createLink(member.type + "." + member.parentType.fullName + "." + member.name),
+							link: createLink(member.type + "." + member.getParentType().fullName + "." + member.name),
 							summary: member.summary,
 							isStatic: member.isStatic(),
-							definedin: member.parentType.fullName,
+							definedin: member.getParentType().fullName,
 							definedinLink: definedinLink
 						});
 					});
@@ -338,7 +338,7 @@ exports.template = function(root, toPath) {
 	function generateIndex() {
 		var index = [];
 
-		root.rootTypes.forEach(function(type) {
+		root.getRootTypes().forEach(function(type) {
 			index.push([
 				"index",
 				type.type + "." + type.fullName
@@ -347,7 +347,7 @@ exports.template = function(root, toPath) {
 			type.getMembers().forEach(function(member) {
 				index.push([
 					type.type + type.fullName,
-					member.type + "." + member.parentType.fullName + "." + member.name
+					member.type + "." + member.getParentType().fullName + "." + member.name
 				]);
 			});
 		});
@@ -355,8 +355,8 @@ exports.template = function(root, toPath) {
 		root.getNamespaces().forEach(function(namespace) {
 			var parentPage = "index";
 
-			if (namespace.parent) {
-				parentPage = "namespace." + namespace.parent.fullName;
+			if (namespace.getParent()) {
+				parentPage = "namespace." + namespace.getParent().fullName;
 			}
 
 			index.push([
@@ -373,7 +373,7 @@ exports.template = function(root, toPath) {
 				type.getMembers().forEach(function(member) {
 					index.push([
 						type.type + "." + type.fullName,
-						member.type + "." + member.parentType.fullName + "." + member.name
+						member.type + "." + member.getParentType().fullName + "." + member.name
 					]);
 				});
 			});
