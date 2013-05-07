@@ -12,14 +12,10 @@ exports.template = function(root, toPath) {
 	}
 
 	// Precompile templates
-	var constructorTemplate = compileTemplate("constructor.handlebars");
-	var callbackTemplate = compileTemplate("callback.handlebars");
 	var typeTemplate = compileTemplate("type.handlebars");
-	var eventTemplate = compileTemplate("event.handlebars");
 	var indexTemplate = compileTemplate("index.handlebars");
-	var methodTemplate = compileTemplate("method.handlebars");
+	var memberTemplate = compileTemplate("member.handlebars");
 	var namespaceTemplate = compileTemplate("namespace.handlebars");
-	var propertyTemplate = compileTemplate("property.handlebars");
 
 	function renderTemplate(template, data, toFile) {
 		fs.writeFileSync(path.join(toPath, toFile), template(data));
@@ -154,7 +150,10 @@ exports.template = function(root, toPath) {
 						return "public event " + member.name + "(" + params + ")";
 
 					case "property":
-						return "public " + member.name + " : " + member.dataType;
+						return "public " + member.name + " : " + member.dataTypes.join('/');
+
+					case "setting":
+						return "public " + member.name + " : " + member.dataTypes.join('/');
 				}
 			}
 
@@ -173,63 +172,29 @@ exports.template = function(root, toPath) {
 				}
 			}
 
-			type.getConstructors().forEach(function(member) {
+			type.getMembers().forEach(function(member) {
 				var data = {};
 
 				data.desc = member.desc;
 				data.syntax = getSyntaxString(member);
-
-				addExamples(member, data);
-				addParams(member, data);
-
-				if (member["return"]) {
-					data["return"] = {
-						types: createTypeList(member["return"].types),
-						desc: member["return"].desc
-					};
-				}
-
-				renderTemplate(constructorTemplate, data, "constructor." + type.fullName + "." + member.name + ".html");
-			});
-
-			type.getMethods().forEach(function(member) {
-				var data = {};
-
-				data.desc = member.desc;
-				data.syntax = getSyntaxString(member);
-
-				addExamples(member, data);
-				addParams(member, data);
-
-				if (member["return"]) {
-					data["return"] = {
-						types: createTypeList(member["return"].types),
-						desc: member["return"].desc
-					};
-				}
-
-				renderTemplate(methodTemplate, data, "method." + type.fullName + "." + member.name + ".html");
-			});
-
-			type.getEvents().forEach(function(member) {
-				var data = {};
-
-				addExamples(member, data);
-				addParams(member, data);
-				data.syntax = getSyntaxString(member);
-
-				renderTemplate(eventTemplate, data, "event." + type.fullName + "." + member.name + ".html");
-			});
-
-			type.getProperties().forEach(function(member) {
-				var data = {};
-
-				addExamples(member, data);
-				data.types = createTypeList(member.dataTypes);
-				data.syntax = getSyntaxString(member);
+				data.type = member.type;
 				data.isStatic = member.isStatic();
 
-				renderTemplate(propertyTemplate, data, "property." + type.fullName + "." + member.name + ".html");
+				if (member.dataTypes) {
+					data.dataTypes = createTypeList(member.dataTypes);
+				}
+
+				addExamples(member, data);
+				addParams(member, data);
+
+				if (member["return"]) {
+					data["return"] = {
+						types: createTypeList(member["return"].types),
+						desc: member["return"].desc
+					};
+				}
+
+				renderTemplate(memberTemplate, data, data.type + "." + type.fullName + "." + member.name + ".html");
 			});
 		}
 
@@ -315,6 +280,7 @@ exports.template = function(root, toPath) {
 			}
 
 			data.constructors = createMembers(type.getConstructors(true));
+			data.settings = createMembers(type.getSettings(true));
 			data.methods = createMembers(type.getMethods(true));
 			data.events = createMembers(type.getEvents(true));
 			data.properties = createMembers(type.getProperties(true));

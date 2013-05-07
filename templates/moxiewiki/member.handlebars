@@ -1,4 +1,4 @@
-<div class="api methoddetails">
+<div class="api {{type}}details">
 	<div class="syntax"><span>{{syntax}}</span></div>
 	<div class="details">{{desc}}</div>
 
@@ -58,6 +58,21 @@
 
 				{{desc}}
 			{{/with}}
+		</div>
+	</div>
+	{{/if}}
+
+	{{#if dataTypes}}
+	<div class="types">
+		<h2>Type</h2>
+		<div>
+			{{#each dataTypes}}
+				{{#if link}}
+					<a href="{{link}}">{{name}}</a>
+				{{else}}
+					{{name}}
+				{{/if}}
+			{{/each}}
 		</div>
 	</div>
 	{{/if}}
