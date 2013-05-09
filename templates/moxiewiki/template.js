@@ -106,7 +106,7 @@ exports.template = function(root, toPath) {
 				}
 			}
 
-			function createTypeList(types) {
+			function createTypeList(types, currentType) {
 				var output = [];
 
 				types.forEach(function(fullName) {
@@ -114,6 +114,14 @@ exports.template = function(root, toPath) {
 
 					if (type) {
 						link = createLink(type.type + "." + type.fullName);
+					}
+
+					if (!link) {
+						var member = currentType.getMemberByName(fullName);
+
+						if (member) {
+							link = createLink(member.type + "." + currentType.fullName + "." + member.name);
+						}
 					}
 
 					output.push({
@@ -166,7 +174,7 @@ exports.template = function(root, toPath) {
 						data.params.push({
 							name: param.name,
 							desc: param.desc,
-							types: createTypeList(param.types)
+							types: createTypeList(param.types, type)
 						});
 					});
 				}
@@ -181,7 +189,7 @@ exports.template = function(root, toPath) {
 				data.isStatic = member.isStatic();
 
 				if (member.dataTypes) {
-					data.dataTypes = createTypeList(member.dataTypes);
+					data.dataTypes = createTypeList(member.dataTypes, type);
 				}
 
 				addExamples(member, data);
@@ -189,7 +197,7 @@ exports.template = function(root, toPath) {
 
 				if (member["return"]) {
 					data["return"] = {
-						types: createTypeList(member["return"].types),
+						types: createTypeList(member["return"].types, type),
 						desc: member["return"].desc
 					};
 				}
