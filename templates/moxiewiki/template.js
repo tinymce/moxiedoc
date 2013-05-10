@@ -149,7 +149,7 @@ exports.template = function(root, toPath) {
 						 return "function " + member.name + "(" + params + "):" + (returns ? returns : 'void');
 
 					case "constructor":
-						return "public constructor function " + member.name + "(" + params + "):" + (returns ? returns : 'void');
+						return "public constructor function " + type.name + "(" + params + "):" + (returns ? returns : 'void');
 
 					case "method":
 						return "public function " + member.name + "(" + params + "):" + (returns ? returns : 'void');
@@ -287,7 +287,7 @@ exports.template = function(root, toPath) {
 				}
 			}
 
-			data.constructors = createMembers(type.getConstructors(true));
+			data.constructors = createMembers(type.getConstructors());
 			data.settings = createMembers(type.getSettings(true));
 			data.methods = createMembers(type.getMethods(true));
 			data.events = createMembers(type.getEvents(true));
