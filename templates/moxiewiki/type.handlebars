@@ -80,7 +80,7 @@
 				<tr>
 					<td class="first">
 						{{#if isStatic}}
-							<div><a href="{{link}}" class="member">{{name}}</a> (static)</div>
+							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
 						{{else}}
 							<div><a href="{{link}}" class="member">{{name}}</a></div>
 						{{/if}}
@@ -115,7 +115,7 @@
 				<tr>
 					<td class="first">
 						{{#if isStatic}}
-							<div><a href="{{link}}" class="member">{{name}}</a> (static)</div>
+							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
 						{{else}}
 							<div><a href="{{link}}" class="member">{{name}}</a></div>
 						{{/if}}
@@ -149,7 +149,11 @@
 				{{#each events}}
 				<tr>
 					<td class="first">
-						<div><a href="{{link}}" class="member">{{name}}</a></div>
+						{{#if isStatic}}
+							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
+						{{else}}
+							<div><a href="{{link}}" class="member">{{name}}</a></div>
+						{{/if}}
 						<div>{{summary}}</div>
 					</td>
 					<td class="last">
@@ -180,7 +184,11 @@
 				{{#each constructors}}
 				<tr>
 					<td class="first">
-						<div><a href="{{link}}" class="member">{{name}}</a></div>
+						{{#if isStatic}}
+							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
+						{{else}}
+							<div><a href="{{link}}" class="member">{{name}}</a></div>
+						{{/if}}
 						<div>{{summary}}</div>
 					</td>
 					<td class="last">
@@ -211,7 +219,11 @@
 				{{#each methods}}
 				<tr>
 					<td class="first">
-						<div><a href="{{link}}" class="member">{{name}}</a></div>
+						{{#if isStatic}}
+							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
+						{{else}}
+							<div><a href="{{link}}" class="member">{{name}}</a></div>
+						{{/if}}
 						<div>{{summary}}</div>
 					</td>
 					<td class="last">
