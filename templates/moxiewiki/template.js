@@ -1,8 +1,11 @@
 var fs = require("fs");
 var path = require("path");
 var Handlebars = require("handlebars");
+var ZipWriter = require('moxie-zip').ZipWriter;
 
 exports.template = function(root, toPath) {
+	var archive = new ZipWriter();
+
 	function createLink(url) {
 		return "wiki://api4:" + url;
 	}
@@ -17,8 +20,9 @@ exports.template = function(root, toPath) {
 	var memberTemplate = compileTemplate("member.handlebars");
 	var namespaceTemplate = compileTemplate("namespace.handlebars");
 
-	function renderTemplate(template, data, toFile) {
-		fs.writeFileSync(path.join(toPath, toFile), template(data));
+	function renderTemplate(template, data, toFileName) {
+		//fs.writeFileSync(path.join(toPath, toFileName), template(data));
+		archive.addData(toFileName, template(data));
 	}
 
 	function renderIndex() {
@@ -353,11 +357,14 @@ exports.template = function(root, toPath) {
 			});
 		});
 
-		fs.writeFileSync(path.join(toPath, "index.json"), JSON.stringify(index, null, '  '));
+		//fs.writeFileSync(path.join(toPath, "index.json"), JSON.stringify(index, null, '  '));
+		archive.addData("index.json", JSON.stringify(index, null, '  '));
 	}
 
 	renderIndex();
 	renderNamespaces();
 	renderTypes();
 	generateIndex();
+
+	archive.saveAs(toPath);
 };
