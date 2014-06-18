@@ -351,7 +351,7 @@ exports.template = function(root, toPath) {
 				type.getMembers().forEach(function(member) {
 					index.push([
 						type.type + "." + type.fullName,
-						member.type + "." + member.getParentType().fullName + "." + member.name + (member.static ? '.static' : '')
+						member.type + "." + member.getParentType().fullName + "." + member.name
 					]);
 				});
 			});
