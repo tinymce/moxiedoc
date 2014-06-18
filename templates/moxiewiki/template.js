@@ -206,7 +206,7 @@ exports.template = function(root, toPath) {
 					};
 				}
 
-				renderTemplate(memberTemplate, data, data.type + "." + type.fullName + "." + member.name + ".html");
+				renderTemplate(memberTemplate, data, data.type + "." + type.fullName + "." + member.name + (member.static ? '.static' : '') + ".html");
 			});
 		}
 
@@ -279,7 +279,7 @@ exports.template = function(root, toPath) {
 
 						output.push({
 							name: member.name,
-							link: createLink(member.type + "." + member.getParentType().fullName + "." + member.name),
+							link: createLink(member.type + "." + member.getParentType().fullName + "." + member.name + (member.static ? '.static' : '')),
 							summary: member.summary,
 							isStatic: member.isStatic(),
 							definedin: member.getParentType().fullName,
@@ -325,7 +325,7 @@ exports.template = function(root, toPath) {
 			type.getMembers().forEach(function(member) {
 				index.push([
 					type.type + "." + type.fullName,
-					member.type + "." + member.getParentType().fullName + "." + member.name
+					member.type + "." + member.getParentType().fullName + "." + member.name + (member.static ? '.static' : '')
 				]);
 			});
 		});
@@ -351,7 +351,7 @@ exports.template = function(root, toPath) {
 				type.getMembers().forEach(function(member) {
 					index.push([
 						type.type + "." + type.fullName,
-						member.type + "." + member.getParentType().fullName + "." + member.name
+						member.type + "." + member.getParentType().fullName + "." + member.name + (member.static ? '.static' : '')
 					]);
 				});
 			});
