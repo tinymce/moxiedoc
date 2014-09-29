@@ -1,37 +1,43 @@
 {
-    "name": "moxiedoc",
-    "version": "0.0.1",
-    "description": "Documentation tool",
-    "author": "Johan Sörlin <spocke@moxiecode.com>",
-    "bugs": { "url" : "http://github.com/spocke/moxiedoc/issues" },
-    "contributors": [
-    ],
-    "engines": {
-        "node" : ">=0.8.0"
-    },
-    "keywords": [
-        "cli"
-    ],
-    "main": "./lib/moxiedoc",
-    "bin" : {"moxiedoc": "./bin/moxiedoc"},
-    "dependencies": {
-        "glob": ">= 3.1.12",
-        "commander": ">= 1.1.1",
-        "cli-color": ">= 0.2.2",
-        "handlebars": ">= 1.0.10",
-        "wildcard": ">= 0.1.4"
-    },
-    "devDependencies": {
-        "nodeunit": ">= 0.8.0"
-    },
-    "licenses":[
-        {
-            "type": "MIT",
-            "url": "https://github.com/spocke/moxiedoc/blob/master/LICENSE"
-        }
-    ],
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/spocke/moxiedoc.git"
+  "name": "moxiedoc",
+  "version": "0.0.1",
+  "description": "Documentation tool",
+  "author": "Johan Sörlin <spocke@moxiecode.com>",
+  "bugs": {
+    "url": "http://github.com/spocke/moxiedoc/issues"
+  },
+  "contributors": [],
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "keywords": [
+    "cli"
+  ],
+  "main": "./lib/moxiedoc",
+  "bin": {
+    "moxiedoc": "./bin/moxiedoc"
+  },
+  "dependencies": {
+    "glob": ">= 3.1.12",
+    "commander": ">= 1.1.1",
+    "cli-color": ">= 0.2.2",
+    "handlebars": ">= 1.0.10",
+    "wildcard": ">= 0.1.4"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-nodeunit": "^0.4.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "load-grunt-tasks": "^0.6.0"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/spocke/moxiedoc/blob/master/LICENSE"
     }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/spocke/moxiedoc.git"
+  }
 }

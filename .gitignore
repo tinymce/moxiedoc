@@ -7,10 +7,8 @@ lib-cov
 *.pid
 *.gz
 *.sublime*
-
+out
 pids
 logs
 results
 node_modules
-
-npm-debug.log
