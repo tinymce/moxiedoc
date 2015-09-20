@@ -22,7 +22,9 @@
     "commander": ">= 1.1.1",
     "cli-color": ">= 0.2.2",
     "handlebars": ">= 1.0.10",
-    "wildcard": ">= 0.1.4"
+    "wildcard": ">= 0.1.4",
+    "moxie-zip": ">= 0.0.4",
+    "js-yaml": ">= 3.4.2"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
