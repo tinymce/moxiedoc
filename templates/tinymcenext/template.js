@@ -8,8 +8,7 @@ exports.template = function(root, toPath) {
 	var archive = new ZipWriter();
 
 	function createLink(url) {
-		url = url.toLowerCase();
-		return "/docs/javascript-api/" + url;
+		return '/docs/javascript-api/' + url.toLowerCase();
 	}
 
 	function replaceDots(str) {
@@ -27,7 +26,6 @@ exports.template = function(root, toPath) {
 	var namespaceTemplate = compileTemplate("namespace.handlebars");
 
 	function renderTemplate(template, data, toFileName) {
-		//fs.writeFileSync(toFileName, template(data));
 		toFileName = toFileName.toLowerCase();
 		archive.addData(toFileName, template(data));
 	}
@@ -36,10 +34,10 @@ exports.template = function(root, toPath) {
 		var namePieces = namespace.fullName.split('.');
 		var slug = namePieces[namePieces.length - 1];
 		var hurr = {
-					title: namespace.fullName,
-					slug: slug,
-					pages: []
-				};
+			title: namespace.fullName,
+			slug: slug,
+			pages: []
+		};
 
 		var subNamespaces = namespace.getNamespaces();
 		if (subNamespaces.length) {
@@ -77,31 +75,28 @@ exports.template = function(root, toPath) {
 
 	function renderIndex() {
 		var data = {};
-
 		var blah = [];
-
 		var namespaces = root.getNamespaces();
-		if (namespaces.length) {
-			data.namespaces = [];
 
-			namespaces.forEach(function(namespace) {
-				data.namespaces.push({
+		if (namespaces.length) {
+			data.namespaces = namespaces.map(function (namespace) {
+				return {
 					fullName: namespace.fullName,
 					summary: namespace.summary,
 					desc: namespace.desc,
-					link: createLink(namespace.fullName)
-				});
-
+					link: createLink('namespace/' + namespace.fullName)
+				};
 			});
 
 			blah.push(generateSubNamespace(namespaces[0], false));
 		}
-		var yamlStr = yaml.safeDump(blah);
 
-		yamlStr = "    " + yamlStr;
-		yamlStr = yamlStr.replace(new RegExp('\n', 'g'), "\n    ");
-		yamlStr = yamlStr.replace(/\s*$/,"");
-		fs.writeFile("test.yml", yamlStr);
+		// TODO: generate nav.yml
+		// var yamlStr = yaml.safeDump(blah);
+		// yamlStr = "    " + yamlStr;
+		// yamlStr = yamlStr.replace(new RegExp('\n', 'g'), "\n    ");
+		// yamlStr = yamlStr.replace(/\s*$/,"");
+		// fs.writeFile("test.yml", yamlStr);
 
 		renderTemplate(indexTemplate, data, "index.html");
 	}
@@ -116,45 +111,39 @@ exports.template = function(root, toPath) {
 
 			var namespaces = namespace.getNamespaces();
 			if (namespaces.length) {
-				data.namespaces = [];
-
-				namespaces.forEach(function(namespace) {
-					data.namespaces.push({
+				data.namespaces = namespaces.map(function (namespace) {
+					return {
 						fullName: namespace.fullName,
 						desc: namespace.desc,
 						summary: namespace.summary,
-						link: createLink(replaceDots(namespace.fullName + "/"))
-					});
+						link: createLink(replaceDots('namespace.' + namespace.fullName + "/"))
+					};
 				});
 			}
 
 			var classes = namespace.getClasses();
 			if (classes.length) {
-				data.classes = [];
-
-				classes.forEach(function(type) {
-					data.classes.push({
+				data.classes = classes.map(function (type) {
+					return {
 						fullName: type.fullName,
 						summary: type.summary,
-						link: createLink(replaceDots(type.fullName + "/"))
-					});
+						link: createLink(replaceDots('namespace.' + type.fullName + "/"))
+					};
 				});
 			}
 
 			var mixins = namespace.getMixins();
 			if (mixins.length) {
-				data.mixins = [];
-
-				mixins.forEach(function(type) {
-					data.mixins.push({
+				data.mixins = mixins.map(function (type) {
+					return {
 						fullName: type.fullName,
 						summary: type.summary,
-						link: createLink(replaceDots(type.fullName + "/"))
-					});
+						link: createLink(replaceDots('namespace.' + type.fullName + "/"))
+					};
 				});
 			}
 
-			renderTemplate(namespaceTemplate, data, replaceDots(namespace.fullName) + ".html");
+			renderTemplate(namespaceTemplate, data, replaceDots('namespace.' + namespace.fullName) + ".html");
 		});
 	}
 
@@ -372,7 +361,7 @@ exports.template = function(root, toPath) {
 				});
 			}
 
-			renderTemplate(typeTemplate, data, replaceDots(type.fullName) + ".html");
+			renderTemplate(typeTemplate, data, replaceDots('namespace.' + type.fullName) + ".html");
 			renderMembers(type);
 		});
 	}
@@ -421,7 +410,6 @@ exports.template = function(root, toPath) {
 			});
 		});
 
-		//fs.writeFileSync(path.join(toPath, "index.json"), JSON.stringify(index, null, '  '));
 		archive.addData("index.json", JSON.stringify(index, null, '  '));
 	}
 
