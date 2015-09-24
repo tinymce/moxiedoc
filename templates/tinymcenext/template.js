@@ -3,12 +3,13 @@ var path = require("path");
 var yaml = require("js-yaml");
 var Handlebars = require("handlebars");
 var ZipWriter = require('moxie-zip').ZipWriter;
+var API_VERSION = 'v4.2.5'
 
 exports.template = function(root, toPath) {
 	var archive = new ZipWriter();
 
 	function createLink(url) {
-		return '/docs/javascript-api/' + url.toLowerCase();
+		return '/docs/' + API_VERSION + '/api/' + url.toLowerCase();
 	}
 
 	function replaceDots(str) {
