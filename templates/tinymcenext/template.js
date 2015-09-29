@@ -3,7 +3,8 @@ var path = require("path");
 var yaml = require("js-yaml");
 var Handlebars = require("handlebars");
 var ZipWriter = require('moxie-zip').ZipWriter;
-var API_VERSION = 'v4.2.5'
+var mkdirp = require('mkdirp');
+var API_VERSION = 'v4.2.5';
 
 exports.template = function(root, toPath) {
 	var archive = new ZipWriter();
@@ -418,6 +419,15 @@ exports.template = function(root, toPath) {
 	renderNamespaces();
 	renderTypes();
 	generateIndex();
+
+
+	mkdirp('tmp', function (err) {
+		if (err) {
+			console.error(err);
+		} else {
+			console.log('tmp created');
+		}
+	});
 
 	archive.saveAs(toPath);
 };
