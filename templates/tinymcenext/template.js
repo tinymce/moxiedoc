@@ -14,7 +14,7 @@ var BASE_PATH = process.env.BASE_PATH || '/api/';
  * @param  {[type]} toPath [description]
  * @return {[type]}        [description]
  */
-exports.template = function(root, toPath) {
+exports.template = function (root, toPath) {
 	var archive = new ZipWriter();
 	var template = compileTemplate('member.handlebars');
 
@@ -26,7 +26,7 @@ exports.template = function(root, toPath) {
 		if (a.fullName < b.fullName) return -1;
   	if (a.fullName > b.fullName) return 1;
   	return 0;
-	})
+	});
 
 	addPageToArchive({
 		filename: '_data/nav_api.yml',
@@ -89,8 +89,11 @@ function getMemberPages(template, data) {
 	data.methods = []
 	data.properties = []
 	data.events = []
+	data.keywords = []
 
 	data.members.forEach(function (member) {
+		data.keywords.push(member.name);
+
 		if ('property' === member.type) {
 			data.properties.push(member);
 			return;
@@ -107,6 +110,8 @@ function getMemberPages(template, data) {
 			return;
 		}
 	})
+
+	data.keywords = data.keywords.join(' ')
 
 	return [{
 		filename: createFileName(data, 'json'),
@@ -166,7 +171,7 @@ function getSyntaxString(member) {
 		return param.name + ':' + param.types[0]
 	}).join(', ')
 
-	var returnType = member.return ? member.return.types.join(', ') : 'void';
+	var returnType = member.return ? member.return.types.join(', ') : 'undefined';
 
 	switch (member.type) {
 		case 'callback':
