@@ -33,6 +33,8 @@ exports.template = function (root, toPath) {
 		content: YAML.safeDump(getNavFile(sortedTypes))
 	});
 
+	importMembersFromRootTypes(root, sortedTypes);
+
 	// create all yml and md for each item
 	var pages = sortedTypes.map(getMemberPages.bind(null, template));
 	flatten(pages).forEach(addPageToArchive);
@@ -40,6 +42,26 @@ exports.template = function (root, toPath) {
 	mkdirp('tmp');
 	archive.saveAs(toPath);
 };
+
+function getNameSpaceMembers(root, fullName) {
+	var members = [];
+
+	root.getRootTypes().forEach(function(type) {
+		if (type.fullName != fullName) {
+			return;
+		}
+
+		members.push(type.getMembers());
+	});
+
+	return flatten(members);
+}
+
+function importMembersFromRootTypes(root, types) {
+	types.forEach(function(type) {
+		type.addMembers(getNameSpaceMembers(root, type.fullName));
+	});
+}
 
 /**
  * [getNavFile description]
