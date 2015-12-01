@@ -37,7 +37,6 @@ exports.template = function (root, toPath) {
 	var pages = sortedTypes.map(getMemberPages.bind(null, template));
 	flatten(pages).forEach(addPageToArchive);
 
-	mkdirp('tmp');
 	archive.saveAs(toPath);
 };
 
