@@ -110,6 +110,11 @@ function getMemberPages(template, data) {
 		}
 	})
 
+	data.methods = sortMembers(data.methods)
+	data.properties = sortMembers(data.properties)
+	data.events = sortMembers(data.events)
+	data.keywords = sortMembers(data.keywords)
+
 	data.keywords = data.keywords.join(' ')
 
 	return [{
@@ -119,6 +124,19 @@ function getMemberPages(template, data) {
 		filename: createFileName(data, 'md'),
 		content: template(data)
 	}];
+}
+
+/**
+ * [sortMembers description]
+ * @param  {[type]} list [description]
+ * @return {[type]}      [description]
+ */
+function sortMembers(list) {
+	return list.sort(function (a, b) {
+		if (a.name < b.name) return -1;
+  	if (a.name > b.name) return 1;
+  	return 0;
+	});
 }
 
 /**
