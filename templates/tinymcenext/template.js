@@ -34,7 +34,7 @@ exports.template = function (root, toPath) {
 	});
 
 	// create all yml and md for each item
-	var pages = sortedTypes.map(getMemberPages.bind(null, template));
+	var pages = sortedTypes.map(getMemberPages.bind(null, root, template))
 	flatten(pages).forEach(addPageToArchive);
 
 	archive.saveAs(toPath);
@@ -80,7 +80,7 @@ function getNavFile(types) {
  * @param  {[type]} data [description]
  * @return {[type]}      [description]
  */
-function getMemberPages(template, data) {
+function getMemberPages(root, template, data) {
 	data = data.toJSON()
 	data.datapath = data.type + '_' + data.fullName.replace(/\./g, '_').toLowerCase();
 	data.desc = data.desc.replace(/\n/g, ' ');
@@ -89,25 +89,35 @@ function getMemberPages(template, data) {
 	data.properties = []
 	data.events = []
 	data.keywords = []
+	data.borrows = data.borrows || []
 
-	data.members.forEach(function (member) {
-		data.keywords.push(member.name);
+	var parents = [data].concat(data.borrows.map(function (parentName) {
+		return root.getTypes().find(function (type) {
+			return type.fullName === parentName
+		}).toJSON()
+	}))
 
-		if ('property' === member.type) {
-			data.properties.push(member);
-			return;
-		}
+	parents.forEach(function (parent) {
+		parent.members.forEach(function (member) {
+			data.keywords.push(member.name);
+			member.definedBy = parent.fullName
 
-		if ('method' === member.type) {
-			data.methods.push(member);
-			member.signature = getSyntaxString(member);
-			return;
-		}
+			if ('property' === member.type) {
+				data.properties.push(member);
+				return;
+			}
 
-		if ('event' === member.type) {
-			data.events.push(member);
-			return;
-		}
+			if ('method' === member.type) {
+				data.methods.push(member);
+				member.signature = getSyntaxString(member);
+				return;
+			}
+
+			if ('event' === member.type) {
+				data.events.push(member);
+				return;
+			}
+		})
 	})
 
 	data.methods = sortMembers(data.methods)
