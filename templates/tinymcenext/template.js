@@ -118,6 +118,7 @@ function getMemberPages(root, template, data) {
 	data.datapath = data.type + '_' + data.fullName.replace(/\./g, '_').toLowerCase();
 	data.desc = data.desc.replace(/\n/g, ' ');
 
+	data.constructors = []
 	data.methods = []
 	data.properties = []
 	data.settings = []
@@ -149,6 +150,12 @@ function getMemberPages(root, template, data) {
 			return;
 		}
 
+		if ('constructor' === member.type) {
+			data.constructors.push(member);
+			member.signature = getSyntaxString(member);
+			return;
+		}
+
 		if ('method' === member.type) {
 			data.methods.push(member);
 			member.signature = getSyntaxString(member);
@@ -161,6 +168,7 @@ function getMemberPages(root, template, data) {
 		}
 	});
 
+	data.constructors = sortMembers(data.constructors)
 	data.methods = sortMembers(data.methods)
 	data.properties = sortMembers(data.properties)
 	data.settings = sortMembers(data.settings)
@@ -257,7 +265,7 @@ function getSyntaxString(member) {
 			return 'function ' + member.name + '(' + params + ')' + returnType;
 
 		case 'constructor':
-			return 'public constructor function ' + type.name + '(' + params + ')' + returnType;
+			return 'public constructor function ' + member.name + '(' + params + ')' + returnType;
 
 		case 'method':
 			return '' + member.name + '(' + params + ')' + returnType;
