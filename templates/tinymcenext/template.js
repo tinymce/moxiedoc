@@ -40,7 +40,7 @@ exports.template = function (root, toPath) {
 	flatten(pages).forEach(addPageToArchive);
 
 	getNamespacesFromTypes(sortedTypes).map(function (namespace) {
-		var fileName = ('api/' + namespace + '/index.md').toLowerCase();
+		var fileName = ('api/' + namespace + '/index.html').toLowerCase();
 
 		return {
 			filename: fileName,
@@ -52,7 +52,7 @@ exports.template = function (root, toPath) {
 	}).forEach(addPageToArchive);
 
 	addPageToArchive({
-		filename: 'api/index.md',
+		filename: 'api/index.html',
 		content: rootTemplate({})
 	});
 
@@ -120,9 +120,11 @@ function getMemberPages(root, template, data) {
 
 	data.methods = []
 	data.properties = []
+	data.settings = []
 	data.events = []
 	data.keywords = []
 	data.borrows = data.borrows || []
+	data.examples = data.examples || []
 
 	var parents = [data].concat(data.borrows.map(function (parentName) {
 		return root.getTypes().find(function (type) {
@@ -142,6 +144,11 @@ function getMemberPages(root, template, data) {
 			return;
 		}
 
+		if ('setting' === member.type) {
+			data.settings.push(member);
+			return;
+		}
+
 		if ('method' === member.type) {
 			data.methods.push(member);
 			member.signature = getSyntaxString(member);
@@ -156,6 +163,7 @@ function getMemberPages(root, template, data) {
 
 	data.methods = sortMembers(data.methods)
 	data.properties = sortMembers(data.properties)
+	data.settings = sortMembers(data.settings)
 	data.events = sortMembers(data.events)
 	data.keywords = sortMembers(data.keywords)
 
@@ -215,10 +223,10 @@ function createFileName(data, ext) {
 		}
 
 		if (data.fullName === 'tinymce') {
-			return ('api/tinymce/root_tinymce.md').toLowerCase();
+			return ('api/tinymce/root_tinymce.html').toLowerCase();
 		}
 
-		return ('api/' + namespace + '/' + data.fullName + '.md').toLowerCase();
+		return ('api/' + namespace + '/' + data.fullName + '.html').toLowerCase();
 	} else if ('json' === ext) {
 		return ('_data/api/' + data.type + '_' + data.fullName.replace(/\./g, '_') + '.json').toLowerCase();
 	}
