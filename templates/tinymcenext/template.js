@@ -16,6 +16,8 @@ var BASE_PATH = process.env.BASE_PATH || '/api/';
  */
 exports.template = function (root, toPath) {
 	var archive = new ZipWriter();
+	var rootTemplate = compileTemplate('root.handlebars');
+	var namespaceTemplate = compileTemplate('namespace.handlebars');
 	var template = compileTemplate('member.handlebars');
 
 	// bind new archive to function
@@ -37,42 +39,72 @@ exports.template = function (root, toPath) {
 	var pages = sortedTypes.map(getMemberPages.bind(null, root, template))
 	flatten(pages).forEach(addPageToArchive);
 
+	getNamespacesFromTypes(sortedTypes).map(function (namespace) {
+		var fileName = ('api/' + namespace + '/index.md').toLowerCase();
+
+		return {
+			filename: fileName,
+			content: namespaceTemplate({
+				title: namespace,
+				desc: namespace
+			})
+		};
+	}).forEach(addPageToArchive);
+
+	addPageToArchive({
+		filename: 'api/index.md',
+		content: rootTemplate({})
+	});
+
 	archive.saveAs(toPath);
 };
+
+function getNamespaceFromFullName(fullName) {
+	return fullName.split('.').slice(0, -1).join('.');
+}
+
+function getNamespacesFromTypes(types) {
+	var namespaces = [];
+
+	var namespaces = types.reduce(function (namespaces, type) {
+		var fullName = type.fullName.toLowerCase();
+		var namespace = getNamespaceFromFullName(fullName);
+		return namespace && namespaces.indexOf(namespace) === -1 ? namespaces.concat(namespace) : namespaces;
+	}, []);
+
+	return namespaces;
+}
 
 /**
  * [getNavFile description]
  * @return {[type]} [description]
  */
 function getNavFile(types) {
-	var nav = [{
-		url: "api",
-		pages: [{
-			"url": "class",
-			"pages": []
-		}, {
-			"url": "mixin",
-			"pages": []
-		}]
+	var namespaces = getNamespacesFromTypes(types);
+	var pages = namespaces.map(function (namespace) {
+		var innerPages = types.filter(function (type) {
+			var fullName = type.fullName.toLowerCase();
+			return getNamespaceFromFullName(fullName) === namespace;
+		}).map(function (type) {
+			return { url: type.fullName.toLowerCase() };
+		});
+
+		if (namespace === 'tinymce') {
+			innerPages.unshift({
+				url: 'tinymce'
+			});
+		}
+
+		return {
+			url: namespace,
+			pages: innerPages
+		};
+	});
+
+	return [{
+		url: 'api',
+		pages: pages
 	}];
-
-	nav[0].pages[0].pages = types
-		.filter(function (type) {
-			return 'class' === type.type
-		})
-		.map(function (type) {
-			return { url: type.fullName.toLowerCase() };
-		});
-
-	nav[0].pages[1].pages = types
-		.filter(function (type) {
-			return 'mixin' === type.type
-		})
-		.map(function (type) {
-			return { url: type.fullName.toLowerCase() };
-		});
-
-	return nav;
 }
 
 /**
@@ -174,7 +206,13 @@ function compileTemplate(filePath) {
  */
 function createFileName(data, ext) {
 	if ('md' === ext) {
-		return ('api/' + data.type + '/' + data.fullName + '.md').toLowerCase();
+		var namespace = getNamespaceFromFullName(data.fullName);
+
+		if (!namespace) {
+			namespace = 'tinymce';
+		}
+
+		return ('api/' + namespace + '/' + data.fullName + '.md').toLowerCase();
 	} else if ('json' === ext) {
 		return ('_data/api/' + data.type + '_' + data.fullName.replace(/\./g, '_') + '.json').toLowerCase();
 	}
