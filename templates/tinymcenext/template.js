@@ -91,7 +91,7 @@ function getNavFile(types) {
 
 		if (namespace === 'tinymce') {
 			innerPages.unshift({
-				url: 'tinymce'
+				url: 'root_tinymce'
 			});
 		}
 
@@ -113,6 +113,7 @@ function getNavFile(types) {
  * @return {[type]}      [description]
  */
 function getMemberPages(root, template, data) {
+	var members = data.getMembers(true);
 	data = data.toJSON()
 	data.datapath = data.type + '_' + data.fullName.replace(/\./g, '_').toLowerCase();
 	data.desc = data.desc.replace(/\n/g, ' ');
@@ -129,28 +130,29 @@ function getMemberPages(root, template, data) {
 		}).toJSON()
 	}))
 
-	parents.forEach(function (parent) {
-		parent.members.forEach(function (member) {
-			data.keywords.push(member.name);
-			member.definedBy = parent.fullName
+	members.forEach(function (member) {
+		var parentType = member.getParentType();
 
-			if ('property' === member.type) {
-				data.properties.push(member);
-				return;
-			}
+		member = member.toJSON();
+		data.keywords.push(member.name);
+		member.definedBy = parentType.fullName
 
-			if ('method' === member.type) {
-				data.methods.push(member);
-				member.signature = getSyntaxString(member);
-				return;
-			}
+		if ('property' === member.type) {
+			data.properties.push(member);
+			return;
+		}
 
-			if ('event' === member.type) {
-				data.events.push(member);
-				return;
-			}
-		})
-	})
+		if ('method' === member.type) {
+			data.methods.push(member);
+			member.signature = getSyntaxString(member);
+			return;
+		}
+
+		if ('event' === member.type) {
+			data.events.push(member);
+			return;
+		}
+	});
 
 	data.methods = sortMembers(data.methods)
 	data.properties = sortMembers(data.properties)
@@ -212,6 +214,10 @@ function createFileName(data, ext) {
 			namespace = 'tinymce';
 		}
 
+		if (data.fullName === 'tinymce') {
+			return ('api/tinymce/root_tinymce.md').toLowerCase();
+		}
+
 		return ('api/' + namespace + '/' + data.fullName + '.md').toLowerCase();
 	} else if ('json' === ext) {
 		return ('_data/api/' + data.type + '_' + data.fullName.replace(/\./g, '_') + '.json').toLowerCase();
@@ -236,17 +242,17 @@ function getSyntaxString(member) {
 		return param.name + ':' + param.types[0]
 	}).join(', ')
 
-	var returnType = member.return ? member.return.types.join(', ') : 'undefined';
+	var returnType = member.return ? (':' + member.return.types.join(', ')) : '';
 
 	switch (member.type) {
 		case 'callback':
-			return 'function ' + member.name + '(' + params + '):' + returnType;
+			return 'function ' + member.name + '(' + params + ')' + returnType;
 
 		case 'constructor':
-			return 'public constructor function ' + type.name + '(' + params + '):' + returnType;
+			return 'public constructor function ' + type.name + '(' + params + ')' + returnType;
 
 		case 'method':
-			return '' + member.name + '(' + params + '):' + returnType;
+			return '' + member.name + '(' + params + ')' + returnType;
 
 		case 'event':
 			return 'public event ' + member.name + '(' + params + ')';
