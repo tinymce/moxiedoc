@@ -56,7 +56,9 @@ exports.template = function (root, toPath) {
 		content: rootTemplate({})
 	});
 
-	archive.saveAs(toPath);
+	archive.saveAs(toPath, function (err) {
+		if (err) throw err;
+	});
 };
 
 function getNamespaceFromFullName(fullName) {
