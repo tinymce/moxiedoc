@@ -8,6 +8,15 @@ var mkdirp = require('mkdirp').sync;
 var YAML = require('js-yaml')
 var BASE_PATH = process.env.BASE_PATH || '/api/';
 
+var namespaceDescriptions = {
+  'tinymce': 'Global APIs for working with the editor.',
+  'tinymce.dom': 'APIs for working with the DOM from within the editor.',
+  'tinymce.editor.ui': 'APIs for registering User Interface components.',
+  'tinymce.geom': 'Various rectangle APIs.',
+  'tinymce.html': 'APIs for working with HTML within the editor.',
+  'tinymce.util': 'Browser related APIs.'
+};
+
 /**
  * [function description]
  * @param  {[type]} root   [description]
@@ -41,12 +50,16 @@ exports.template = function (root, toPath) {
 
 	getNamespacesFromTypes(sortedTypes).map(function (namespace) {
 		var fileName = ('api/' + namespace + '/index.html').toLowerCase();
-
+    if (namespace in namespaceDescriptions) {
+      var namespaceDescription = namespaceDescriptions[namespace];
+    } else {
+      var namespaceDescription = namespace;
+    }
 		return {
 			filename: fileName,
 			content: namespaceTemplate({
 				title: namespace,
-				desc: namespace
+				desc: namespaceDescription
 			})
 		};
 	}).forEach(addPageToArchive);
