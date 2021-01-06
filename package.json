@@ -24,7 +24,7 @@
     "handlebars": ">= 1.0.10",
     "wildcard": ">= 0.1.4",
     "moxie-zip": ">= 0.0.4",
-    "js-yaml": ">= 3.4.2",
+    "js-yaml": "^3.4.2",
     "mkdirp": ">= 0.5.1"
   },
   "devDependencies": {
