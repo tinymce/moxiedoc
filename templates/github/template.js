@@ -1,5 +1,5 @@
-var fs = require("fs");
-var path = require("path");
+var fs = require('fs');
+var path = require('path');
 
 function renderIndex(types) {
 	var markdown = [];
@@ -40,12 +40,12 @@ function renderParams(params) {
 		params.forEach(function(paramInfo) {
 			if (paramInfo.data.optional) {
 				if (paramInfo.data['default']) {
-					markdown.push("[" + paramInfo.name + "=" + paramInfo.data['default'] + "] {" + paramInfo.data.type + "} " + paramInfo.data.desc);
+					markdown.push('[' + paramInfo.name + '=' + paramInfo.data['default'] + '] {' + paramInfo.data.type + '} ' + paramInfo.data.desc);
 				} else {
-					markdown.push("[" + paramInfo.name + "] {" + paramInfo.data.type + "} " + paramInfo.data.desc);
+					markdown.push('[' + paramInfo.name + '] {' + paramInfo.data.type + '} ' + paramInfo.data.desc);
 				}
 			} else {
-				markdown.push(paramInfo.name + " {" + paramInfo.data.type + "} " + paramInfo.data.desc);
+				markdown.push(paramInfo.name + ' {' + paramInfo.data.type + '} ' + paramInfo.data.desc);
 			}
 		});
 	}
@@ -80,24 +80,24 @@ function renderMembers(title, members) {
 }
 
 function renderType(typeInfo) {
-	var markdown = "";
+	var markdown = '';
 
 	markdown += '# Class: ' + typeInfo.fullName + '\n';
 	markdown += typeInfo.data.desc + '\n\n';
 
 	// Index
-	markdown += renderMemberIndex("Constructors", typeInfo.getConstructors());
-	markdown += renderMemberIndex("Methods", typeInfo.getMethods());
-	markdown += renderMemberIndex("Properties", typeInfo.getProperties());
-	markdown += renderMemberIndex("Events", typeInfo.getEvents());
-	markdown += renderMemberIndex("Fields", typeInfo.getFields());
+	markdown += renderMemberIndex('Constructors', typeInfo.getConstructors());
+	markdown += renderMemberIndex('Methods', typeInfo.getMethods());
+	markdown += renderMemberIndex('Properties', typeInfo.getProperties());
+	markdown += renderMemberIndex('Events', typeInfo.getEvents());
+	markdown += renderMemberIndex('Fields', typeInfo.getFields());
 
 	// Members
-	markdown += renderMembers("Constructors", typeInfo.getConstructors());
-	markdown += renderMembers("Methods", typeInfo.getMethods());
-	markdown += renderMembers("Properties", typeInfo.getProperties());
-	markdown += renderMembers("Events", typeInfo.getEvents());
-	markdown += renderMembers("Fields", typeInfo.getFields());
+	markdown += renderMembers('Constructors', typeInfo.getConstructors());
+	markdown += renderMembers('Methods', typeInfo.getMethods());
+	markdown += renderMembers('Properties', typeInfo.getProperties());
+	markdown += renderMembers('Events', typeInfo.getEvents());
+	markdown += renderMembers('Fields', typeInfo.getFields());
 
 	return markdown;
 }
@@ -107,7 +107,7 @@ exports.template = function(types, toPath) {
 		fs.writeFileSync(path.join(toPath, filePath), content);
 	}
 
-	putFileContents("index.md", renderIndex(types, toPath));
+	putFileContents('index.md', renderIndex(types, toPath));
 
 	types.forEach(function(typeInfo) {
 		putFileContents(typeInfo.fullName + '.md', renderType(typeInfo));

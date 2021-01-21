@@ -3,7 +3,7 @@ var Parser = require('../lib/moxiedoc').Parser;
 exports.testInit = function(test) {
 	var parser = new Parser({});
 
-	test.equals("object", typeof(parser));
+	test.equals('object', typeof(parser));
 	test.ok(parser instanceof Parser);
 	test.done();
 };
@@ -25,7 +25,7 @@ exports.parseNoDocComments = function(test) {
 		}
 	});
 
-	parser.parse("something");
+	parser.parse('something');
 
 	test.equals(0, start);
 	test.equals(0, tag);
@@ -54,13 +54,13 @@ exports.parseStartSingleLine = function(test) {
 	});
 
 	parser.parse([
-		"/**",
-		"* a",
-		"*/"
+		'/**',
+		'* a',
+		'*/'
 	].join('\n'));
 
 	test.equals(1, start);
-	test.equals("a", startText);
+	test.equals('a', startText);
 	test.equals(0, tag);
 	test.equals(1, end);
 
@@ -87,13 +87,13 @@ exports.parseStartSingleLineNoAsterix = function(test) {
 	});
 
 	parser.parse([
-		"/**",
-		" a",
-		"*/"
+		'/**',
+		' a',
+		'*/'
 	].join('\n'));
 
 	test.equals(1, start);
-	test.equals("a", startText);
+	test.equals('a', startText);
 	test.equals(0, tag);
 	test.equals(1, end);
 
@@ -121,15 +121,15 @@ exports.parseStartMultipleLines = function(test) {
 	});
 
 	parser.parse([
-		"/**",
-		"* a",
-		"* b",
-		"* c",
-		"*/"
+		'/**',
+		'* a',
+		'* b',
+		'* c',
+		'*/'
 	].join('\n'));
 
 	test.equals(1, start);
-	test.equals("a\nb\nc", startText);
+	test.equals('a\nb\nc', startText);
 	test.equals(0, tag);
 	test.equals(1, end);
 	test.equals(0, startInfo.line);
@@ -160,15 +160,15 @@ exports.parseTagSingleLine = function(test) {
 	});
 
 	parser.parse([
-		"/**",
-		"* @a b",
-		"*/"
+		'/**',
+		'* @a b',
+		'*/'
 	].join('\n'));
 
 	test.equals(1, start);
-	test.equals("", startText);
-	test.equals("a", tagName);
-	test.equals("b", tagText);
+	test.equals('', startText);
+	test.equals('a', tagName);
+	test.equals('b', tagText);
 	test.equals(1, tag);
 	test.equals(1, end);
 	test.equals(1, tagInfo.line);
@@ -197,16 +197,16 @@ exports.parseTagMultipleLines = function(test) {
 	});
 
 	parser.parse([
-		"/**",
-		"* @a b",
-		"* c",
-		"* d",
-		"*/"
+		'/**',
+		'* @a b',
+		'* c',
+		'* d',
+		'*/'
 	].join('\n'));
 
 	test.equals(1, start);
-	test.equals("a", tagName);
-	test.equals("b\nc\nd", tagText);
+	test.equals('a', tagName);
+	test.equals('b\nc\nd', tagText);
 	test.equals(1, tag);
 	test.equals(1, end);
 
@@ -235,15 +235,15 @@ exports.parseTagSingleLineAfterText = function(test) {
 	});
 
 	parser.parse([
-		"/**",
-		"* text",
-		"* @a b",
-		"*/"
+		'/**',
+		'* text',
+		'* @a b',
+		'*/'
 	].join('\n'));
 
 	test.equals(1, start);
-	test.equals("a", tagName);
-	test.equals("b", tagText);
+	test.equals('a', tagName);
+	test.equals('b', tagText);
 	test.equals(1, tag);
 	test.equals(1, end);
 	test.equals(2, tagInfo.line);
@@ -274,15 +274,15 @@ exports.parseStartTextAndTagWithEvents = function(test) {
 	});
 
 	parser.parse([
-		"/**",
-		"* text",
-		"* @a b",
-		"*/"
+		'/**',
+		'* text',
+		'* @a b',
+		'*/'
 	].join('\n'));
 
 	test.equals(1, start);
-	test.equals("a", tagName);
-	test.equals("b", tagText);
+	test.equals('a', tagName);
+	test.equals('b', tagText);
 	test.equals(1, tag);
 	test.equals(1, end);
 	test.equals(2, tagInfo.line);

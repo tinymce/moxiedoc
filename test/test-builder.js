@@ -3,7 +3,7 @@ var Builder = require('../lib/moxiedoc').Builder;
 exports.testInit = function(test) {
 	var builder = new Builder({});
 
-	test.equals(typeof(builder), "object");
+	test.equals(typeof(builder), 'object');
 	test.ok(builder instanceof Builder);
 	test.done();
 };
@@ -12,9 +12,9 @@ exports.testParseSimpleClassNoDesc = function(test) {
 	var builder = new Builder({});
 
 	builder.parser.parse([
-		"/**",
-		" * @class namespace.Class",
-		" */"
+		'/**',
+		' * @class namespace.Class',
+		' */'
 	].join('\n'));
 
 	test.deepEqual(builder.api.toJSON(), {
@@ -38,10 +38,10 @@ exports.testParseSimpleClassDesc = function(test) {
 	var builder = new Builder({});
 
 	builder.parser.parse([
-		"/**",
-		" * MyClass. b",
-		" * @class namespace.Class",
-		" */"
+		'/**',
+		' * MyClass. b',
+		' * @class namespace.Class',
+		' */'
 	].join('\n'));
 
 	test.deepEqual(builder.api.toJSON(), {

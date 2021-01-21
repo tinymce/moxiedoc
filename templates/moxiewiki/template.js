@@ -1,13 +1,13 @@
-var fs = require("fs");
-var path = require("path");
-var Handlebars = require("handlebars");
+var fs = require('fs');
+var path = require('path');
+var Handlebars = require('handlebars');
 var ZipWriter = require('moxie-zip').ZipWriter;
 
 exports.template = function(root, toPath) {
 	var archive = new ZipWriter();
 
 	function createLink(url) {
-		return "wiki://api4:" + url;
+		return 'wiki://api4:' + url;
 	}
 
 	function compileTemplate(filePath) {
@@ -15,10 +15,10 @@ exports.template = function(root, toPath) {
 	}
 
 	// Precompile templates
-	var typeTemplate = compileTemplate("type.handlebars");
-	var indexTemplate = compileTemplate("index.handlebars");
-	var memberTemplate = compileTemplate("member.handlebars");
-	var namespaceTemplate = compileTemplate("namespace.handlebars");
+	var typeTemplate = compileTemplate('type.handlebars');
+	var indexTemplate = compileTemplate('index.handlebars');
+	var memberTemplate = compileTemplate('member.handlebars');
+	var namespaceTemplate = compileTemplate('namespace.handlebars');
 
 	function renderTemplate(template, data, toFileName) {
 		//fs.writeFileSync(path.join(toPath, toFileName), template(data));
@@ -37,12 +37,12 @@ exports.template = function(root, toPath) {
 					fullName: namespace.fullName,
 					summary: namespace.summary,
 					desc: namespace.desc,
-					link: createLink("namespace." + namespace.fullName)
+					link: createLink('namespace.' + namespace.fullName)
 				});
 			});
 		}
 
-		renderTemplate(indexTemplate, data, "index.html");
+		renderTemplate(indexTemplate, data, 'index.html');
 	}
 
 	function renderNamespaces() {
@@ -61,7 +61,7 @@ exports.template = function(root, toPath) {
 						fullName: namespace.fullName,
 						desc: namespace.desc,
 						summary: namespace.summary,
-						link: createLink("namespace." + namespace.fullName)
+						link: createLink('namespace.' + namespace.fullName)
 					});
 				});
 			}
@@ -74,7 +74,7 @@ exports.template = function(root, toPath) {
 					data.classes.push({
 						fullName: type.fullName,
 						summary: type.summary,
-						link: createLink("class." + type.fullName)
+						link: createLink('class.' + type.fullName)
 					});
 				});
 			}
@@ -87,12 +87,12 @@ exports.template = function(root, toPath) {
 					data.mixins.push({
 						fullName: type.fullName,
 						summary: type.summary,
-						link: createLink("mixin." + type.fullName)
+						link: createLink('mixin.' + type.fullName)
 					});
 				});
 			}
 
-			renderTemplate(namespaceTemplate, data, "namespace." + namespace.fullName + ".html");
+			renderTemplate(namespaceTemplate, data, 'namespace.' + namespace.fullName + '.html');
 		});
 	}
 
@@ -117,14 +117,14 @@ exports.template = function(root, toPath) {
 					var link, type = root.getTypeByFullName(fullName);
 
 					if (type) {
-						link = createLink(type.type + "." + type.fullName);
+						link = createLink(type.type + '.' + type.fullName);
 					}
 
 					if (!link) {
 						var member = currentType.getMemberByName(fullName);
 
 						if (member) {
-							link = createLink(member.type + "." + currentType.fullName + "." + member.name);
+							link = createLink(member.type + '.' + currentType.fullName + '.' + member.name);
 						}
 					}
 
@@ -138,34 +138,34 @@ exports.template = function(root, toPath) {
 			}
 
 			function getSyntaxString(member) {
-				var params = "", returns = "";
+				var params = '', returns = '';
 
 				member.getParams().forEach(function(param) {
-					params += (params ? ", " : "") + param.name + ":" + param.types.join('/');
+					params += (params ? ', ' : '') + param.name + ':' + param.types.join('/');
 				});
 
-				if (member["return"]) {
-					returns = member["return"].types.join('/');
+				if (member['return']) {
+					returns = member['return'].types.join('/');
 				}
 
 				switch (member.type) {
-					case "callback":
-						 return "function " + member.name + "(" + params + "):" + (returns ? returns : 'void');
+					case 'callback':
+						 return 'function ' + member.name + '(' + params + '):' + (returns ? returns : 'void');
 
-					case "constructor":
-						return "public constructor function " + type.name + "(" + params + "):" + (returns ? returns : 'void');
+					case 'constructor':
+						return 'public constructor function ' + type.name + '(' + params + '):' + (returns ? returns : 'void');
 
-					case "method":
-						return "public function " + member.name + "(" + params + "):" + (returns ? returns : 'void');
+					case 'method':
+						return 'public function ' + member.name + '(' + params + '):' + (returns ? returns : 'void');
 
-					case "event":
-						return "public event " + member.name + "(" + params + ")";
+					case 'event':
+						return 'public event ' + member.name + '(' + params + ')';
 
-					case "property":
-						return "public " + member.name + " : " + member.dataTypes.join('/');
+					case 'property':
+						return 'public ' + member.name + ' : ' + member.dataTypes.join('/');
 
-					case "setting":
-						return "public " + member.name + " : " + member.dataTypes.join('/');
+					case 'setting':
+						return 'public ' + member.name + ' : ' + member.dataTypes.join('/');
 				}
 			}
 
@@ -199,14 +199,14 @@ exports.template = function(root, toPath) {
 				addExamples(member, data);
 				addParams(member, data);
 
-				if (member["return"]) {
-					data["return"] = {
-						types: createTypeList(member["return"].types, type),
-						desc: member["return"].desc
+				if (member['return']) {
+					data['return'] = {
+						types: createTypeList(member['return'].types, type),
+						desc: member['return'].desc
 					};
 				}
 
-				renderTemplate(memberTemplate, data, data.type + "." + type.fullName + "." + member.name + (member.staticLink ? '.static' : '') + ".html");
+				renderTemplate(memberTemplate, data, data.type + '.' + type.fullName + '.' + member.name + (member.staticLink ? '.static' : '') + '.html');
 			});
 		}
 
@@ -223,7 +223,7 @@ exports.template = function(root, toPath) {
 				superTypes.forEach(function(type) {
 					data.superTypes.push({
 						name: type.name,
-						link: createLink(type.type + "." + type.fullName)
+						link: createLink(type.type + '.' + type.fullName)
 					});
 				});
 			}
@@ -235,7 +235,7 @@ exports.template = function(root, toPath) {
 				subTypes.forEach(function(type) {
 					data.subTypes.push({
 						name: type.name,
-						link: createLink(type.type + "." + type.fullName)
+						link: createLink(type.type + '.' + type.fullName)
 					});
 				});
 			}
@@ -247,7 +247,7 @@ exports.template = function(root, toPath) {
 				mixesTypes.forEach(function(type) {
 					data.mixesTypes.push({
 						name: type.name,
-						link: createLink(type.type + "." + type.fullName)
+						link: createLink(type.type + '.' + type.fullName)
 					});
 				});
 			}
@@ -259,7 +259,7 @@ exports.template = function(root, toPath) {
 				mixinTypes.forEach(function(type) {
 					data.mixinTypes.push({
 						name: type.name,
-						link: createLink(type.type + "." + type.fullName)
+						link: createLink(type.type + '.' + type.fullName)
 					});
 				});
 			}
@@ -274,12 +274,12 @@ exports.template = function(root, toPath) {
 						var definedinLink;
 
 						if (member.getParentType() != type) {
-							definedinLink = createLink(member.getParentType().type + "." + member.getParentType().fullName);
+							definedinLink = createLink(member.getParentType().type + '.' + member.getParentType().fullName);
 						}
 
 						output.push({
 							name: member.name,
-							link: createLink(member.type + "." + member.getParentType().fullName + "." + member.name + (member.staticLink ? '.static' : '')),
+							link: createLink(member.type + '.' + member.getParentType().fullName + '.' + member.name + (member.staticLink ? '.static' : '')),
 							summary: member.summary,
 							isStatic: member.isStatic(),
 							definedin: member.getParentType().fullName,
@@ -308,7 +308,7 @@ exports.template = function(root, toPath) {
 				});
 			}
 
-			renderTemplate(typeTemplate, data, type.type + "." + type.fullName + ".html");
+			renderTemplate(typeTemplate, data, type.type + '.' + type.fullName + '.html');
 			renderMembers(type);
 		});
 	}
@@ -318,47 +318,47 @@ exports.template = function(root, toPath) {
 
 		root.getRootTypes().forEach(function(type) {
 			index.push([
-				"index",
-				type.type + "." + type.fullName
+				'index',
+				type.type + '.' + type.fullName
 			]);
 
 			type.getMembers().forEach(function(member) {
 				index.push([
-					type.type + "." + type.fullName,
-					member.type + "." + member.getParentType().fullName + "." + member.name + (member.staticLink ? '.static' : '')
+					type.type + '.' + type.fullName,
+					member.type + '.' + member.getParentType().fullName + '.' + member.name + (member.staticLink ? '.static' : '')
 				]);
 			});
 		});
 
 		root.getNamespaces().forEach(function(namespace) {
-			var parentPage = "index";
+			var parentPage = 'index';
 
 			if (namespace.getParent()) {
-				parentPage = "namespace." + namespace.getParent().fullName;
+				parentPage = 'namespace.' + namespace.getParent().fullName;
 			}
 
 			index.push([
 				parentPage,
-				"namespace." + namespace.fullName
+				'namespace.' + namespace.fullName
 			]);
 
 			namespace.getTypes().forEach(function(type) {
 				index.push([
-					"namespace." + namespace.fullName,
-					type.type + "." + type.fullName
+					'namespace.' + namespace.fullName,
+					type.type + '.' + type.fullName
 				]);
 
 				type.getMembers().forEach(function(member) {
 					index.push([
-						type.type + "." + type.fullName,
-						member.type + "." + member.getParentType().fullName + "." + member.name + (member.staticLink ? '.static' : '')
+						type.type + '.' + type.fullName,
+						member.type + '.' + member.getParentType().fullName + '.' + member.name + (member.staticLink ? '.static' : '')
 					]);
 				});
 			});
 		});
 
-		//fs.writeFileSync(path.join(toPath, "index.json"), JSON.stringify(index, null, '  '));
-		archive.addData("index.json", JSON.stringify(index, null, '  '));
+		//fs.writeFileSync(path.join(toPath, 'index.json'), JSON.stringify(index, null, '  '));
+		archive.addData('index.json', JSON.stringify(index, null, '  '));
 	}
 
 	renderIndex();

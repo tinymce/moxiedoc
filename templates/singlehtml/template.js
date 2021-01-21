@@ -1,6 +1,6 @@
-var Handlebars = require("handlebars");
-var fs = require("fs");
-var path = require("path");
+var Handlebars = require('handlebars');
+var fs = require('fs');
+var path = require('path');
 
 function toJSON(array) {
 	var out = [];
@@ -24,11 +24,11 @@ function renderIndex(types, toPath) {
 		index.push({fullName: typeInfo.fullName, name: typeInfo.name});
 	});
 
-	renderTemplate("index.handlebars", {classes: index}, path.join(toPath, "index.md"));
+	renderTemplate('index.handlebars', {classes: index}, path.join(toPath, 'index.md'));
 }
 
 function renderType(typeInfo, toPath) {
-	renderTemplate("type.handlebars", {
+	renderTemplate('type.handlebars', {
 		fullName: typeInfo.fullName,
 		desc: typeInfo.data.desc,
 
@@ -37,7 +37,7 @@ function renderType(typeInfo, toPath) {
 		events: toJSON(typeInfo.getEvents()),
 		properties: toJSON(typeInfo.getProperties()),
 		fields: toJSON(typeInfo.getFields())
-	}, path.join(toPath, typeInfo.name + ".md"));
+	}, path.join(toPath, typeInfo.name + '.md'));
 }
 
 exports.template = function(types, toPath) {

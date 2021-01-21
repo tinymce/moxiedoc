@@ -1,4 +1,4 @@
-var fs = require("fs");
+var fs = require('fs');
 var XmlWriter = require(__dirname + '/XmlWriter').XmlWriter;
 
 function getNamespace(typeInfo) {
@@ -74,12 +74,12 @@ exports.template = function(types, toPath) {
 					writer.end('param');
 				});
 
-				if (memberInfo.data["return"]) {
+				if (memberInfo.data['return']) {
 					writer.start('return');
 					writer.start('description');
-					writer.text(memberInfo.data["return"].desc);
+					writer.text(memberInfo.data['return'].desc);
 					writer.end('description');
-					memberInfo.data["return"].types.forEach(function(type) {
+					memberInfo.data['return'].types.forEach(function(type) {
 						writer.start('type', {fullname: type}, true);
 					});
 					writer.end('return');

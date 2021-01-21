@@ -10,7 +10,7 @@ function XmlWriter(settings) {
 	var html = [], htmlOutput;
 
 	settings = settings || {};
-	htmlOutput = settings.element_format == "html";
+	htmlOutput = settings.element_format == 'html';
 
 	function encode(text) {
 		return (text || '').replace(/[&<>"]/g, function(match) {
