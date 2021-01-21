@@ -1,243 +1,243 @@
 <div class="api classdetails">
-	{{#if subMixinOrSuperTypes}}
-		<div class="classinfo">
-			<table>
-				<tbody>
-					{{#if superTypes}}
-					<tr>
-						<td class="first">Inheritance</td>
-						<td class="last">
-							<ul class="inherits">
-								<li class="first">{{name}}</li>
-								{{#each superTypes}}
-								<li><a href="{{link}}">{{name}}</a></li>
-								{{/each}}
-							</ul>
-						</td>
-					</tr>
-					{{/if}}
+  {{#if subMixinOrSuperTypes}}
+    <div class="classinfo">
+      <table>
+        <tbody>
+          {{#if superTypes}}
+          <tr>
+            <td class="first">Inheritance</td>
+            <td class="last">
+              <ul class="inherits">
+                <li class="first">{{name}}</li>
+                {{#each superTypes}}
+                <li><a href="{{link}}">{{name}}</a></li>
+                {{/each}}
+              </ul>
+            </td>
+          </tr>
+          {{/if}}
 
-					{{#if mixesTypes}}
-					<tr>
-						<td class="first">Mixes</td>
-						<td class="last">
-							{{#each mixesTypes}}
-							<a href="{{link}}">{{name}}</a>
-							{{/each}}
-						</td>
-					</tr>
-					{{/if}}
+          {{#if mixesTypes}}
+          <tr>
+            <td class="first">Mixes</td>
+            <td class="last">
+              {{#each mixesTypes}}
+              <a href="{{link}}">{{name}}</a>
+              {{/each}}
+            </td>
+          </tr>
+          {{/if}}
 
-					{{#if mixinTypes}}
-					<tr>
-						<td class="first">Mixins</td>
-						<td class="last">
-							{{#each mixinTypes}}
-							<a href="{{link}}">{{name}}</a>
-							{{/each}}
-						</td>
-					</tr>
-					{{/if}}
+          {{#if mixinTypes}}
+          <tr>
+            <td class="first">Mixins</td>
+            <td class="last">
+              {{#each mixinTypes}}
+              <a href="{{link}}">{{name}}</a>
+              {{/each}}
+            </td>
+          </tr>
+          {{/if}}
 
-					{{#if subTypes}}
-					<tr>
-						<td class="first">Subclasses</td>
-						<td class="last">
-							{{#each subTypes}}
-							<a href="{{link}}">{{name}}</a>
-							{{/each}}
-						</td>
-					</tr>
-					{{/if}}
-				</tbody>
-			</table>
-		</div>
-	{{/if}}
+          {{#if subTypes}}
+          <tr>
+            <td class="first">Subclasses</td>
+            <td class="last">
+              {{#each subTypes}}
+              <a href="{{link}}">{{name}}</a>
+              {{/each}}
+            </td>
+          </tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  {{/if}}
 
-	<div class="description">{{desc}}</div>
+  <div class="description">{{desc}}</div>
 
-	{{#if examples}}
-		<div class="examples">
-		<h2>Examples</h2>
+  {{#if examples}}
+    <div class="examples">
+    <h2>Examples</h2>
 {{#each examples}}
 <pre class="js">{{content}}</pre>
 {{/each}}
-		</div>
-	{{/if}}
+    </div>
+  {{/if}}
 
 {{#if settings}}
-	<div class="settings">
-		<h2>Settings</h2>
-		<table>
-			<thead class="small">
-				<tr>
-					<th class="first">Setting</th>
-					<th class="last">Defined By</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each settings}}
-				<tr>
-					<td class="first">
-						{{#if isStatic}}
-							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
-						{{else}}
-							<div><a href="{{link}}" class="member">{{name}}</a></div>
-						{{/if}}
-						<div>{{summary}}</div>
-					</td>
-					<td class="last">
-						{{#if definedinLink}}
-							<a href="{{definedinLink}}">{{definedin}}</a>
-						{{else}}
-							{{definedin}}
-						{{/if}}
-					</td>
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
-	</div>
+  <div class="settings">
+    <h2>Settings</h2>
+    <table>
+      <thead class="small">
+        <tr>
+          <th class="first">Setting</th>
+          <th class="last">Defined By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each settings}}
+        <tr>
+          <td class="first">
+            {{#if isStatic}}
+              <div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
+            {{else}}
+              <div><a href="{{link}}" class="member">{{name}}</a></div>
+            {{/if}}
+            <div>{{summary}}</div>
+          </td>
+          <td class="last">
+            {{#if definedinLink}}
+              <a href="{{definedinLink}}">{{definedin}}</a>
+            {{else}}
+              {{definedin}}
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
 {{/if}}
 
 {{#if properties}}
-	<div class="properties">
-		<h2>Properties</h2>
-		<table>
-			<thead class="small">
-				<tr>
-					<th class="first">Property</th>
-					<th class="last">Defined By</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each properties}}
-				<tr>
-					<td class="first">
-						{{#if isStatic}}
-							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
-						{{else}}
-							<div><a href="{{link}}" class="member">{{name}}</a></div>
-						{{/if}}
-						<div>{{summary}}</div>
-					</td>
-					<td class="last">
-						{{#if definedinLink}}
-							<a href="{{definedinLink}}">{{definedin}}</a>
-						{{else}}
-							{{definedin}}
-						{{/if}}
-					</td>
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
-	</div>
+  <div class="properties">
+    <h2>Properties</h2>
+    <table>
+      <thead class="small">
+        <tr>
+          <th class="first">Property</th>
+          <th class="last">Defined By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each properties}}
+        <tr>
+          <td class="first">
+            {{#if isStatic}}
+              <div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
+            {{else}}
+              <div><a href="{{link}}" class="member">{{name}}</a></div>
+            {{/if}}
+            <div>{{summary}}</div>
+          </td>
+          <td class="last">
+            {{#if definedinLink}}
+              <a href="{{definedinLink}}">{{definedin}}</a>
+            {{else}}
+              {{definedin}}
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
 {{/if}}
 
 {{#if events}}
-	<div class="events">
-		<h2>Events</h2>
-		<table>
-			<thead class="small">
-				<tr>
-					<th class="first">Event</th>
-					<th class="last">Defined By</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each events}}
-				<tr>
-					<td class="first">
-						{{#if isStatic}}
-							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
-						{{else}}
-							<div><a href="{{link}}" class="member">{{name}}</a></div>
-						{{/if}}
-						<div>{{summary}}</div>
-					</td>
-					<td class="last">
-						{{#if definedinLink}}
-							<a href="{{definedinLink}}">{{definedin}}</a>
-						{{else}}
-							{{definedin}}
-						{{/if}}
-					</td>
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
-	</div>
+  <div class="events">
+    <h2>Events</h2>
+    <table>
+      <thead class="small">
+        <tr>
+          <th class="first">Event</th>
+          <th class="last">Defined By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each events}}
+        <tr>
+          <td class="first">
+            {{#if isStatic}}
+              <div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
+            {{else}}
+              <div><a href="{{link}}" class="member">{{name}}</a></div>
+            {{/if}}
+            <div>{{summary}}</div>
+          </td>
+          <td class="last">
+            {{#if definedinLink}}
+              <a href="{{definedinLink}}">{{definedin}}</a>
+            {{else}}
+              {{definedin}}
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
 {{/if}}
 
 {{#if constructors}}
-	<div class="constructors">
-		<h2>Constructors</h2>
-		<table>
-			<thead class="small">
-				<tr>
-					<th class="first">Method</th>
-					<th class="last">Defined By</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each constructors}}
-				<tr>
-					<td class="first">
-						{{#if isStatic}}
-							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
-						{{else}}
-							<div><a href="{{link}}" class="member">{{name}}</a></div>
-						{{/if}}
-						<div>{{summary}}</div>
-					</td>
-					<td class="last">
-						{{#if definedinLink}}
-							<a href="{{definedinLink}}">{{definedin}}</a>
-						{{else}}
-							{{definedin}}
-						{{/if}}
-					</td>
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
-	</div>
+  <div class="constructors">
+    <h2>Constructors</h2>
+    <table>
+      <thead class="small">
+        <tr>
+          <th class="first">Method</th>
+          <th class="last">Defined By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each constructors}}
+        <tr>
+          <td class="first">
+            {{#if isStatic}}
+              <div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
+            {{else}}
+              <div><a href="{{link}}" class="member">{{name}}</a></div>
+            {{/if}}
+            <div>{{summary}}</div>
+          </td>
+          <td class="last">
+            {{#if definedinLink}}
+              <a href="{{definedinLink}}">{{definedin}}</a>
+            {{else}}
+              {{definedin}}
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
 {{/if}}
 
 {{#if methods}}
-	<div class="methods">
-		<h2>Methods</h2>
-		<table>
-			<thead class="small">
-				<tr>
-					<th class="first">Method</th>
-					<th class="last">Defined By</th>
-				</tr>
-			</thead>
-			<tbody>
-				{{#each methods}}
-				<tr>
-					<td class="first">
-						{{#if isStatic}}
-							<div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
-						{{else}}
-							<div><a href="{{link}}" class="member">{{name}}</a></div>
-						{{/if}}
-						<div>{{summary}}</div>
-					</td>
-					<td class="last">
-						{{#if definedinLink}}
-							<a href="{{definedinLink}}">{{definedin}}</a>
-						{{else}}
-							{{definedin}}
-						{{/if}}
-					</td>
-				</tr>
-				{{/each}}
-			</tbody>
-		</table>
-	</div>
+  <div class="methods">
+    <h2>Methods</h2>
+    <table>
+      <thead class="small">
+        <tr>
+          <th class="first">Method</th>
+          <th class="last">Defined By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each methods}}
+        <tr>
+          <td class="first">
+            {{#if isStatic}}
+              <div><a href="{{link}}" class="member">{{name}}</a> <span class="static">static</span></div>
+            {{else}}
+              <div><a href="{{link}}" class="member">{{name}}</a></div>
+            {{/if}}
+            <div>{{summary}}</div>
+          </td>
+          <td class="last">
+            {{#if definedinLink}}
+              <a href="{{definedinLink}}">{{definedin}}</a>
+            {{else}}
+              {{definedin}}
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
 {{/if}}
 
 </div>
