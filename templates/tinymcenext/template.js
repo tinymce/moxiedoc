@@ -40,7 +40,7 @@ exports.template = function (root, toPath) {
 
 	addPageToArchive({
 		filename: '_data/nav_api.yml',
-		content: YAML.safeDump(getNavFile(sortedTypes))
+		content: YAML.dump(getNavFile(sortedTypes))
 	});
 
 	// create all yml and md for each item
