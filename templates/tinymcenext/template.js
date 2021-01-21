@@ -4,7 +4,6 @@ var fs = require('fs');
 var Handlebars = require('handlebars');
 var path = require('path');
 var ZipWriter = require('moxie-zip').ZipWriter;
-var mkdirp = require('mkdirp').sync;
 var YAML = require('js-yaml')
 var BASE_PATH = process.env.BASE_PATH || '/api/';
 
