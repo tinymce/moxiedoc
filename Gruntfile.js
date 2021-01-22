@@ -10,7 +10,7 @@ module.exports = function(grunt) {
           spawn: false
         },
 
-        files: ['lib/**/*.js', 'test/**/*.js'],
+        files: ['built/lib/**/*.js', 'test/**/*.js'],
         tasks: ['nodeunit']
       }
     }
