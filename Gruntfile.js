@@ -1,22 +1,22 @@
 module.exports = function(grunt) {
-	grunt.initConfig({
-		nodeunit: {
-			all: ['test/**/*.js']
-		},
-		
-		watch: {
-			test: {
-				options: {
-					spawn: false
-				},
+  grunt.initConfig({
+    nodeunit: {
+      all: ['test/**/*.js']
+    },
 
-				files: ["lib/**/*.js", "test/**/*.js"],
-				tasks: ["nodeunit"]
-			}
-		}
-	});
+    watch: {
+      test: {
+        options: {
+          spawn: false
+        },
 
-	require("load-grunt-tasks")(grunt);
+        files: ['lib/**/*.js', 'test/**/*.js'],
+        tasks: ['nodeunit']
+      }
+    }
+  });
 
-	grunt.registerTask("default", ["nodeunit"]);
+  require('load-grunt-tasks')(grunt);
+
+  grunt.registerTask('default', ['nodeunit']);
 };
