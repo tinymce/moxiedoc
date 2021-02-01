@@ -10,8 +10,8 @@
  * @constructor
  * @param {Object} data Json structure with member data.
  */
-function Param(data) {
-  for (var name in data) {
+function Param(this: any, data: Record<string, any>):void {
+  for (const name in data) {
     this[name] = data[name];
   }
 }
@@ -22,11 +22,11 @@ function Param(data) {
  * @method toJSON
  * @return {Object} JSON object.
  */
-Param.prototype.toJSON = function() {
-  var json = {};
+Param.prototype.toJSON = function(): Record<string, any> {
+  let json: Record<string, any> = {};
 
-  for (var name in this) {
-    if (typeof(this[name]) != 'function' && name.indexOf('_') !== 0) {
+  for (const name in this) {
+    if (typeof(this[name]) !== 'function' && name.indexOf('_') !== 0) {
       json[name] = this[name];
     }
   }
@@ -34,5 +34,6 @@ Param.prototype.toJSON = function() {
   return json;
 };
 
-exports.Param = Param;
-
+export {
+  Param
+};

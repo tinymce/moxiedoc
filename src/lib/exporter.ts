@@ -9,15 +9,16 @@
  *
  * @constructor
  */
-function Exporter(settings) {
-  settings = settings || {};
+function Exporter(settings: {} = {}) {
   this.settings = settings;
 }
 
-Exporter.prototype.exportTo = function(types, dirPath) {
-  var templatePath = '../templates/' + this.settings.template + '/template.js';
+Exporter.prototype.exportTo = function(types: string[], dirPath: string) {
+  const templatePath = '../templates/' + this.settings.template + '/template.js';
 
   require(templatePath).template.call(this, types, dirPath);
 };
 
-exports.Exporter = Exporter;
+export {
+  Exporter
+};

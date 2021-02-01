@@ -1,4 +1,4 @@
-var Param = require('./param').Param;
+import { Param } from './param';
 
 /**
  * Member class contains details about methods, properties, events etc.
@@ -12,28 +12,28 @@ var Param = require('./param').Param;
  * @constructor
  * @param {Object} data Json structure with member data.
  */
-function Member(data) {
-  var self = this;
+function Member(data: { [x: string]: any; params: Record<string, any>; }) {
+  const self = this;
 
-  function getSummary(desc) {
-    var pos = desc.indexOf('.');
+  function getSummary(desc: string) {
+    let pos = desc.indexOf('.');
 
-    if (pos > 100 || pos == -1) {
+    if (pos > 100 || pos === -1) {
       pos = 100;
     }
 
     return desc.substr(0, pos);
   }
 
-  for (var name in data) {
+  for (const name in data) {
     this[name] = data[name];
   }
 
   this._params = [];
   if (data.params) {
-    data.params.forEach(function(data) {
-      self.addParam(new Param(data));
-    });
+    data.params.forEach((data: Record<string, any>) => {
+        self.addParam(new Param(data));
+      });
   }
 
   if (!this.summary) {
@@ -48,7 +48,7 @@ function Member(data) {
  * @param {Param} paramInfo Parameter info instance.
  * @return {Param} Param info instance that got passed in.
  */
-Member.prototype.addParam = function(param) {
+Member.prototype.addParam = function(param: Record<string, any>) {
   this._params.push(param);
 
   return param;
@@ -60,7 +60,7 @@ Member.prototype.addParam = function(param) {
  * @method getParams
  * @return {Array} Array of Param instances.
  */
-Member.prototype.getParams = function() {
+Member.prototype.getParams = function(): string[] {
   return this._params;
 };
 
@@ -70,11 +70,11 @@ Member.prototype.getParams = function() {
  * @method isStatic
  * @return {Boolean} Static state.
  */
-Member.prototype.isStatic = function() {
+Member.prototype.isStatic = function(): boolean {
   return !!this.static;
 };
 
-Member.prototype.getParentType = function() {
+Member.prototype.getParentType = function(): string {
   return this._parentType;
 };
 
@@ -84,17 +84,17 @@ Member.prototype.getParentType = function() {
  * @method toJSON
  * @return {Object} JSON object.
  */
-Member.prototype.toJSON = function() {
-  var json = {};
+Member.prototype.toJSON = function(): object {
+  let json: Record<string, any> = {};
 
-  for (var name in this) {
-    if (typeof(this[name]) != 'function' && name.indexOf('_') !== 0) {
+  for (const name in this) {
+    if (typeof(this[name]) !== 'function' && name.indexOf('_') !== 0) {
       json[name] = this[name];
     }
   }
 
   json.params = [];
-  this._params.forEach(function(param) {
+  this._params.forEach(function(param: { toJSON: () => any; }) {
     json.params.push(param.toJSON());
   });
 
@@ -102,13 +102,15 @@ Member.prototype.toJSON = function() {
 };
 
 Member.prototype.clone = function() {
-  var parentType = this._parentType;
+  const parentType = this._parentType;
 
-  var clone = new Member(this.toJSON());
+  const clone = new Member(this.toJSON());
   clone._parentType = parentType;
 
   return clone;
 };
 
-exports.Member = Member;
+export {
+  Member
+};
 

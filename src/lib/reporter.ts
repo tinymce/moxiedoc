@@ -1,15 +1,15 @@
-var clc = require('cli-color');
+const clc = require('cli-color');
 
-var Levels = {
+const Levels = {
   DEBUG: 1,
   INFO: 2,
   WARN: 3,
   ERROR: 4
 };
 
-var currentLevel = Levels.WARN;
+let currentLevel = Levels.WARN;
 
-function log(level, message) {
+function log (level: number, message: string): void {
   switch (level) {
     case Levels.DEBUG:
       message = clc.magenta('Debug: ') + message;
@@ -31,22 +31,28 @@ function log(level, message) {
   console.log(message);
 }
 
-function createLogFunction(level) {
-  return function() {
+function createLogFunction(level: number) {
+  return (...args: string[]) => {
     if (level >= currentLevel) {
-      var args = Array.prototype.slice.call(arguments);
       log(level, args.join(' '));
     }
   };
 }
 
-function setLevel(level) {
+function setLevel(level: number) {
   currentLevel = level;
 }
 
-exports.setLevel = setLevel;
-exports.Levels = Levels;
-exports.debug = createLogFunction(Levels.DEBUG);
-exports.info = createLogFunction(Levels.INFO);
-exports.warn = createLogFunction(Levels.WARN);
-exports.error = createLogFunction(Levels.ERROR);
+const debug = createLogFunction(Levels.DEBUG);
+const info = createLogFunction(Levels.INFO);
+const warn = createLogFunction(Levels.WARN);
+const error = createLogFunction(Levels.ERROR);
+
+export {
+  setLevel,
+  Levels,
+  debug,
+  info,
+  warn,
+  error,
+};

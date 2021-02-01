@@ -1,6 +1,6 @@
-var Parser = require('./parser').Parser;
-var Api = require('./api').Api;
-var reporter = require('./reporter');
+import { Parser } from './parser';
+import { Api } from './api';
+import * as reporter from './reporter';
 
 /**
  * This class build a API structure in JSON format by parsing files.
@@ -20,8 +20,8 @@ var reporter = require('./reporter');
  *
  * @constructor
  */
-function Builder() {
-  var currentBlock, ignoreFile, self = this;
+function Builder(this: Record<string, any>) {
+  let currentBlock: { name: string; text: string; }[], ignoreFile: boolean, self = this;
 
   this.reporter = reporter;
 
@@ -65,70 +65,70 @@ function Builder() {
     reporter.info('Parsing file:', this.info.filePath);
   });
 
-  this.parser.on('start', function(text) {
+  this.parser.on('start', function(text: string) {
     currentBlock = [{name: 'desc', text: text}];
   });
 
   this.parser.on('end', function() {
-    var memberOrType, accessLevelTag, isIncludeBlock;
+    let memberOrType: boolean, accessLevelTag: { name: string; text: string; }, isIncludeBlock: boolean;
 
     if (ignoreFile) {
       return;
     }
 
-    function getSummary(desc) {
-      var pos = desc.indexOf('.');
+    function getSummary(desc: string) {
+      let pos = desc.indexOf('.');
 
-      if (pos > 100 || pos == -1) {
+      if (pos > 100 || pos === -1) {
         pos = 100;
       }
 
       return desc.substr(0, pos);
     }
 
-    currentBlock.forEach(function(tag) {
-      var callback, multiple;
+    currentBlock.forEach((tag: { name: string; text: string; }) => {
+        let callback: { call: (arg0: any, arg1: any, arg2: string, arg3: { name: string; text: string; }[]) => void; }, multiple: boolean;
 
-      if (!memberOrType && Builder.typeTags[tag.name] === true) {
-        callback = Builder.tags[tag.name];
+        if (!memberOrType && Builder.typeTags[tag.name] === true) {
+          callback = Builder.tags[tag.name];
 
-        if (callback) {
-          callback.call(self, tag.text, tag.name, currentBlock);
-          memberOrType = true;
+          if (callback) {
+            callback.call(self, tag.text, tag.name, currentBlock);
+            memberOrType = true;
+          }
         }
-      }
 
-      // TODO: Rework this
-      multiple = tag.name == 'property' || tag.name == 'setting';
+        // TODO: Rework this
+        multiple = tag.name === 'property' || tag.name === 'setting';
 
-      if ((multiple || !memberOrType) && Builder.memberTags[tag.name] === true) {
-        callback = Builder.tags[tag.name];
+        if ((multiple || !memberOrType) && Builder.memberTags[tag.name] === true) {
+          callback = Builder.tags[tag.name];
 
-        if (callback) {
-          callback.call(self, tag.text, tag.name, currentBlock);
-          memberOrType = true;
+          if (callback) {
+            callback.call(self, tag.text, tag.name, currentBlock);
+            memberOrType = true;
+          }
         }
-      }
 
-      if (tag.name == 'private' || tag.name == 'protected') {
-        accessLevelTag = tag;
-      }
+        if (tag.name === 'private' || tag.name === 'protected') {
+          accessLevelTag = tag;
+        }
 
-      if (tag.name == 'include') {
-        Builder.tags.include.call(self, tag.text, tag.name, currentBlock);
-        isIncludeBlock = true;
-      }
-    });
+        if (tag.name === 'include') {
+          Builder.tags.include.call(self, tag.text, tag.name, currentBlock);
+          isIncludeBlock = true;
+        }
+      });
 
     if (accessLevelTag && memberOrType) {
-      var callback = Builder.tags[accessLevelTag.name];
+      const callback = Builder.tags[accessLevelTag.name];
 
       if (callback) {
         callback.call(self, accessLevelTag.text, accessLevelTag.name, currentBlock);
       }
     }
 
-    if ((accessLevelTag && accessLevelTag.name == 'private') || isIncludeBlock) {
+    if ((accessLevelTag && accessLevelTag.name === 'private') || isIncludeBlock) {
       return;
     }
 
@@ -142,26 +142,26 @@ function Builder() {
       return;
     }
 
-    currentBlock.forEach(function(tag) {
-      if (Builder.typeTags[tag.name] || Builder.memberTags[tag.name]) {
-        return;
-      }
+    currentBlock.forEach((tag: { name: string; text: string; }) => {
+        if (Builder.typeTags[tag.name] || Builder.memberTags[tag.name]) {
+          return;
+        }
 
-      var callback = Builder.tags[tag.name];
+        const callback = Builder.tags[tag.name];
 
-      if (callback) {
-        callback.call(self, tag.text, tag.name, currentBlock);
-      } else if (tag.name.indexOf('-x') !== 0) {
-        reporter.info('Unknown tag:', tag.name, 'File: ' + self.parser.info.filePath + ' (' + self.parser.info.line + ')');
-      }
-    });
+        if (callback) {
+          callback.call(self, tag.text, tag.name, currentBlock);
+        } else if (tag.name.indexOf('-x') !== 0) {
+          reporter.info('Unknown tag:', tag.name, 'File: ' + self.parser.info.filePath + ' (' + self.parser.info.line + ')');
+        }
+      });
 
     self.target.source = {line: this.info.line, file: this.info.filePath};
     self.target.summary = self.target.summary || getSummary(self.target.desc);
   });
 
-  this.parser.on('tag', function(name, text) {
-    if (name == 'ignore-file') {
+  this.parser.on('tag', function(name: string, text: string) {
+    if (name === 'ignore-file') {
       ignoreFile = true;
     }
 
@@ -186,10 +186,10 @@ Builder.tags = {};
  * @static
  * @param {String} names Space separated list of types that control the type.
  */
-Builder.addTypeTags = function(names) {
-  names.split(' ').forEach(function(name) {
-    Builder.typeTags[name] = true;
-  });
+Builder.addTypeTags = function(names: string) {
+  names.split(' ').forEach((name: string | number) => {
+      Builder.typeTags[name] = true;
+    });
 };
 
 /**
@@ -199,10 +199,10 @@ Builder.addTypeTags = function(names) {
  * @static
  * @param {String} names Space separated list of types that control the member type.
  */
-Builder.addMemberTags = function(names) {
-  names.split(' ').forEach(function(name) {
-    Builder.memberTags[name] = true;
-  });
+Builder.addMemberTags = function(names: string) {
+  names.split(' ').forEach((name: string | number) => {
+      Builder.memberTags[name] = true;
+    });
 };
 
 /**
@@ -214,13 +214,13 @@ Builder.addMemberTags = function(names) {
  * @param {String/Array} name Tag name, space separates list or array of tag names.
  * @param {Function} callback Callback to be executed when a tag of that type is found.
  */
-Builder.addTag = function(name, callback) {
+Builder.addTag = function(name: string | string[], callback: any) {
   if (name instanceof Array) {
     name.forEach(Builder.addTag);
   } else {
-    name.split(' ').forEach(function(name) {
-      Builder.tags[name.toLowerCase()] = callback;
-    });
+    name.split(' ').forEach((name: string) => {
+        Builder.tags[name.toLowerCase()] = callback;
+      });
   }
 };
 
@@ -231,8 +231,8 @@ Builder.addTag = function(name, callback) {
  * @method addBoolTag
  * @param {String/Array} name Tag name, space separates list or array of tag names.
  */
-Builder.addBoolTag = function(name) {
-  Builder.addTag(name, function(text, name) {
+Builder.addBoolTag = function(name: string) {
+  Builder.addTag(name, function(text: string, name: string | number) {
     this.target[name] = true;
   });
 };
@@ -244,8 +244,8 @@ Builder.addBoolTag = function(name) {
  * @method addStringTag
  * @param {String/Array} name Tag name, space separates list or array of tag names.
  */
-Builder.addStringTag = function(name) {
-  Builder.addTag(name, function(text, name) {
+Builder.addStringTag = function(name: string) {
+  Builder.addTag(name, function(text: string, name: string | number) {
     this.target[name] = text;
   });
 };
@@ -257,19 +257,19 @@ Builder.addStringTag = function(name) {
  * @method addAliases
  * @param {Object} aliases Name/value of aliases.
  */
-Builder.addAliases = function(aliases) {
-  for (var name in aliases) {
-    var alias = aliases[name];
+Builder.addAliases = function(aliases: { [x: string]: string; }) {
+  for (const name in aliases) {
+    const alias = aliases[name];
 
     /*jshint loopfunc:true */
-    name.split(' ').forEach(function(name) {
-      Builder.tags[name] = function(text) {
-        Builder.tags[alias].call(this, text, alias);
-      };
-    });
+    name.split(' ').forEach((name) => {
+        Builder.tags[name] = function (text: string) {
+          Builder.tags[alias].call(this, text, alias);
+        };
+      });
   }
 };
 
-exports.Builder = Builder;
-
-require('./tags');
+export {
+  Builder
+};
