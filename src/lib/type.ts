@@ -26,7 +26,7 @@ function sortMembersByName(members: Record<string, any>): string[]{
  * @constructor
  * @param {Object} data Json structure with type data.
  */
-function Type(data: { [x: string]: string; name: string; fullName: string; }): void {
+function Type(data: { name?: string; fullName: string; [x: string]: string; }): void {
   for (const name in data) {
     this[name] = data[name];
   }

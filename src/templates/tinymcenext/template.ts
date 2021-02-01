@@ -1,7 +1,7 @@
 /* jshint latedef:true */
 
 import * as fs from 'fs';
-const Handlebars = require('handlebars');
+import * as Handlebars from 'handlebars';
 import * as path from 'path';
 const ZipWriter = require('moxie-zip').ZipWriter;
 const YAML = require('js-yaml');
@@ -30,8 +30,7 @@ const template = function (root: { getTypes: () => string[]; }, toPath: string):
   const template = compileTemplate('member.handlebars');
 
   // bind new archive to function
-  // function addPageToArchive is defined further down the page???
-  addPageToArchive = addPageToArchive.bind(archive); // jshint ignore:line
+  const addPage = addPageToArchive.bind(archive); // jshint ignore:line
 
   // sort types alphabetically
   const sortedTypes: string[] = root.getTypes().sort((a: { fullName: string; } | any, b: { fullName: string; } | any): number => {
@@ -42,22 +41,18 @@ const template = function (root: { getTypes: () => string[]; }, toPath: string):
       return 0;
     });
 
-  addPageToArchive({
+  addPage({
     filename: '_data/nav_api.yml',
     content: YAML.dump(getNavFile(sortedTypes))
   });
 
   // create all yml and md for each item
   const pages = sortedTypes.map(getMemberPages.bind(null, root, template))
-  flatten(pages).forEach(addPageToArchive);
+  flatten(pages).forEach(addPage);
 
   getNamespacesFromTypes(sortedTypes).map((namespace) => {
       const fileName = ('api/' + namespace + '/index.html').toLowerCase();
-      if (namespace in namespaceDescriptions) {
-        const namespaceDescription = namespaceDescriptions[namespace];
-      } else {
-        const namespaceDescription = namespace;
-      }
+      const namespaceDescription = (namespace in namespaceDescriptions) ? namespaceDescriptions[namespace] : namespace;
       return {
         filename: fileName,
         content: namespaceTemplate({
@@ -65,9 +60,9 @@ const template = function (root: { getTypes: () => string[]; }, toPath: string):
           desc: namespaceDescription
         })
       };
-    }).forEach(addPageToArchive);
+    }).forEach(addPage);
 
-  addPageToArchive({
+  addPage({
     filename: 'api/index.html',
     content: rootTemplate({})
   });
@@ -185,9 +180,9 @@ function getMemberPages(root: { getTypes: () => any[]; }, template: (arg0: any) 
   data.properties = sortMembers(data.properties)
   data.settings = sortMembers(data.settings)
   data.events = sortMembers(data.events)
-  data.keywords = sortMembers(data.keywords)
+  const keywords = sortMembers(data.keywords)
 
-  data.keywords = data.keywords.join(' ')
+  data.keywords = keywords.join(' ')
 
   return [{
     filename: createFileName(data, 'json'),
@@ -227,7 +222,7 @@ function flatten<T>(array: T): T {
  * @param  {[type]} filePath [description]
  * @return {[type]}          [description]
  */
-function compileTemplate(filePath: string): string {
+function compileTemplate(filePath: string): HandlebarsTemplateDelegate {
   return Handlebars.compile(fs.readFileSync(path.join(__dirname, filePath)).toString());
 }
 
@@ -267,8 +262,8 @@ function addPageToArchive(page: { filename: string; content: string; }) {
  * @param  {[type]} member [description]
  * @return {[type]}        [description]
  */
-function getSyntaxString(member: { params: string[]; return: { types: string[]; }; type: string; name: string; dataTypes: string[]; }) {
-  let params = member.params.map((param: { name: string; types: string[]; }) => param.name + ':' + param.types[0]).join(', ') // Are Params and Param mixed up?
+function getSyntaxString(member: { params: Array<{ name: string; types: string[]; }>; return?: { types: string[]; }; type: string; name: string; dataTypes: string[]; }) {
+  let params = member.params.map((param) => param.name + ':' + param.types[0]).join(', ') // Are Params and Param mixed up?
 
   const returnType = member.return ? (':' + member.return.types.join(', ')) : '';
 

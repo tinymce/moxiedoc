@@ -6,13 +6,17 @@ import { Param } from './param';
  * @class moxiedoc.Member
  */
 
+interface MemberData extends Record<string, any> {
+  params?: Record<string, any>;
+}
+
 /**
  * Constructs a new Member instance.
  *
  * @constructor
  * @param {Object} data Json structure with member data.
  */
-function Member(data: { [x: string]: any; params: Record<string, any>; }) {
+function Member(data: MemberData) {
   const self = this;
 
   function getSummary(desc: string) {
@@ -31,7 +35,7 @@ function Member(data: { [x: string]: any; params: Record<string, any>; }) {
 
   this._params = [];
   if (data.params) {
-    data.params.forEach((data: Record<string, any>) => {
+    data.params.forEach((data) => {
         self.addParam(new Param(data));
       });
   }

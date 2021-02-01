@@ -177,7 +177,7 @@ Builder.memberTags = {};
  *
  * @member {Object} tags
  */
-Builder.tags = {};
+Builder.tags = {} as Record<string, any>;
 
 /**
  * Adds a list of tags that control the type for example 'class'.
