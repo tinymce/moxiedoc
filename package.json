@@ -16,9 +16,9 @@
   "keywords": [
     "cli"
   ],
-  "main": "./dist/moxiedoc",
+  "main": "./dist/lib/moxiedoc",
   "bin": {
-    "moxiedoc": "./dist/cli.js"
+    "moxiedoc": "./dist/lib/cli.js"
   },
   "dependencies": {
     "cli-color": "^2.0.0",
