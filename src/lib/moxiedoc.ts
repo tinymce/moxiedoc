@@ -1,12 +1,21 @@
 import { Builder } from './builder';
 import { Exporter } from './exporter';
-import * as reporter from './reporter';
-const matcher = require('matcher');
+import * as Reporter from './reporter';
 import * as fs from 'fs';
+import * as matcher from 'matcher';
 import * as path from 'path';
 
 exports.Builder = Builder;
 exports.Exporter = Exporter;
+
+export interface MoxiedocSettings {
+  out?: string;
+  template?: string;
+  verbose?: boolean;
+  debug?: boolean;
+  paths: string[];
+  dry?: boolean;
+}
 
 /**
  * Process the specified files and generate documentation.
@@ -25,16 +34,16 @@ exports.Exporter = Exporter;
  * @param  {[type]} settings [description]
  * @return {[type]}          [description]
  */
-function process (settings: { out: string; template: string; verbose: boolean; debug: boolean; paths: string[]; dry: boolean; }): void {
+function process (settings: MoxiedocSettings): void {
   settings.out = settings.out || 'tmp/out.zip';
   settings.template = settings.template || 'cli';
 
   if (settings.verbose) {
-    reporter.setLevel(reporter.Levels.INFO);
+    Reporter.setLevel(Reporter.Levels.INFO);
   }
 
   if (settings.debug) {
-    reporter.setLevel(reporter.Levels.DEBUG);
+    Reporter.setLevel(Reporter.Levels.DEBUG);
   }
 
   const builder = new Builder();
@@ -78,7 +87,7 @@ function process (settings: { out: string; template: string; verbose: boolean; d
 
     exporter.exportTo(builder.api, settings.out);
   }
-};
+}
 
 export {
   process

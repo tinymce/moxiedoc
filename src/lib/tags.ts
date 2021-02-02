@@ -1,4 +1,4 @@
-import { Builder } from './builder';
+import { Builder, Tag } from './builder';
 import { Member } from './member';
 import { Type } from './type';
 import { Param } from './param';
@@ -7,29 +7,34 @@ import * as path from 'path';
 Builder.addTypeTags('class struct mixin namespace');
 Builder.addMemberTags('constructor method member property event callback field');
 
-type AddTagData = {types: string[],desc:string,optional?:boolean,name?:string};
+interface AddTagData {
+  types: string[];
+  desc: string;
+  optional?: boolean;
+  name?: string;
+}
 
-function isValidName(name: string) {
+function isValidName(name: string): boolean {
   return new RegExp('^[\\w.\\$]+$').test(name);
 }
 
-function splitTypes(types: string) {
+function splitTypes(types: string): string[] {
   return types.split(/[\/\|]/);
 }
 
-function findByName(tags: any[], name: string) {
-  const output = [];
+function findByName(tags: Tag[], name: string): Tag[] {
+  const output: Tag[] = [];
 
-  tags.forEach((tag: { name: string; }) => {
-      if (tag.name === name) {
-        output.push(tag);
-      }
-    });
+  tags.forEach((tag) => {
+    if (tag.name === name) {
+      output.push(tag);
+    }
+  });
 
   return output;
 }
 
-Builder.addTag('class enum struct mixin', function(text: string, name: string) {
+Builder.addTag('class enum struct mixin', function(text, name) {
   const typeName = text;
   if (!isValidName(typeName)) {
     this.reporter.warn('Invalid type name:', typeName, this.parser.info);
@@ -39,7 +44,7 @@ Builder.addTag('class enum struct mixin', function(text: string, name: string) {
   this.currentType = this.target = this.api.addType(new Type({type: name, fullName: typeName}));
 });
 
-Builder.addTag('constructor method field property event setting callback', function(text: string, name: string, tags: string[]) {
+Builder.addTag('constructor method field property event setting callback', function(text, name, tags) {
   let desc: string, dataTypes: string[];
 
   if (name === 'constructor') {
@@ -100,7 +105,7 @@ Builder.addTag('constructor method field property event setting callback', funct
   this.currentType.addMember(this.currentMember);
 });
 
-Builder.addTag('member', function(text: string, name: string, tags: string[]) {
+Builder.addTag('member', function(text, name, tags) {
   const matches = /^\{([^\}]+)\} (.+)$/.exec(text);
 
   if (matches) {
@@ -129,7 +134,7 @@ Builder.addTag('member', function(text: string, name: string, tags: string[]) {
   }
 });
 
-Builder.addTag('include', function(text: string) {
+Builder.addTag('include', function(text) {
   const currentFile = this.parser.info.filePath;
   const oldInfo = this.parser.info.clone();
 
@@ -142,7 +147,7 @@ Builder.addTag('include', function(text: string) {
   this.parser.info = oldInfo;
 });
 
-Builder.addTag('borrow-members', function(text: string) {
+Builder.addTag('borrow-members', function(text) {
   if (!this.target.borrows) {
     this.target.borrows = [];
   }
@@ -150,7 +155,7 @@ Builder.addTag('borrow-members', function(text: string) {
   this.target.borrows.push(text);
 });
 
-Builder.addTag('return returns', function(text: string) {
+Builder.addTag('return returns', function(text) {
   const matches = /^\{([^\}]+)\}([\s\S]*)$/.exec(text);
 
   if (matches) {
@@ -169,11 +174,11 @@ Builder.addTag('return returns', function(text: string) {
   }
 });
 
-Builder.addTag('public protected private', function(text: string, name: string) {
+Builder.addTag('public protected private', function(text, name) {
   this.target.access = name;
 });
 
-Builder.addTag('type', function(text: string) {
+Builder.addTag('type', function(text) {
   if (!isValidName(text)) {
     this.reporter.warn('Invalid type name:', text, this.parser.info);
     return;
@@ -182,11 +187,11 @@ Builder.addTag('type', function(text: string) {
   this.target.dataType = text;
 });
 
-Builder.addTag('mixes', function(text: string) {
+Builder.addTag('mixes', function(text) {
   this.currentType.addMixin(text);
 });
 
-Builder.addTag('namespace', function(text: string, name: string, tags: string[]) {
+Builder.addTag('namespace', function(text, name, tags) {
   const namespace = this.api.createNamespace(text);
 
   namespace.summary = findByName(tags, 'desc')[0].text;
@@ -201,7 +206,7 @@ Builder.addAliases({
   'virtual': 'abstract'
 });
 
-Builder.addTag('example', function(text: string) {
+Builder.addTag('example', function(text) {
   if (!this.target.examples) {
     this.target.examples = [];
   }
@@ -211,7 +216,7 @@ Builder.addTag('example', function(text: string) {
   });
 });
 
-Builder.addTag('param', function(text: string) {
+Builder.addTag('param', function(text) {
   if (!this.currentMember) {
     this.reporter.warn('Param added to unnamed member.', this.parser.info);
     return;

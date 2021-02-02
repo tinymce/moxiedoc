@@ -1,7 +1,12 @@
 import { TranscodeEncoding } from 'buffer';
+import { EventEmitter } from 'events';
 import * as fs from 'fs';
 
-type Settings = { start?: boolean; tag?: boolean; end?: boolean; };
+interface ParserSettings {
+  start?: (...args: any[]) => void;
+  tag?: (...args: any[]) => void;
+  end?: (...args: any[]) => void;
+}
 
 /**
  * This class parses jsdoc style comment blocks and calls start, tag and end based on the content.
@@ -41,14 +46,13 @@ type Settings = { start?: boolean; tag?: boolean; end?: boolean; };
  * @constructor
  * @param {Object} [settings={}] Name/value collection with settings.
  */
-class Parser{
-  private settings: Settings;
-  private info: any;
-  private on: any;
-  private emit: any;
-  private lines: string[];
+class Parser extends EventEmitter {
+  public settings: ParserSettings;
+  public info: any;
+  public lines: string[];
 
-  constructor (settings: Settings = {}) {
+  constructor (settings: ParserSettings = {}) {
+    super();
 
     if (settings.start) {
       this.on('start', settings.start);
@@ -71,7 +75,7 @@ class Parser{
       },
 
       clone: function() {
-        let clone: Record<string, any> = {};
+        const clone: Record<string, any> = {};
 
         for (const key in this) {
           clone[key] = this[key];
@@ -80,7 +84,6 @@ class Parser{
         return clone;
       }
     };
-    Parser.prototype = Object.create(require('events').EventEmitter.prototype);
   }
 
   /**
@@ -89,7 +92,7 @@ class Parser{
    * @method parse
    * @param {String} content Content to parse.
    */
-  public parse (content: string) {
+  public parse(content: string) {
     const self = this, info = this.info;
     let inBlock: boolean, inStart: boolean, startText: string, currentTag: string, currentTagText: string;
     let startInfo: { line: number; filePath: string; }, tagInfo: { line: number; filePath: string; };
@@ -189,7 +192,7 @@ class Parser{
    * @param {String} filePath Path to the file to parse.
    * @param {String} [encoding=utf-8] Encoding to use.
    */
-  public parseFile (filePath: string, encoding: TranscodeEncoding = 'utf8' ) {
+  public parseFile(filePath: string, encoding: TranscodeEncoding = 'utf8' ) {
     this.info.filePath = filePath;
     this.parse(fs.readFileSync(filePath, {encoding: encoding}).toString());
   };

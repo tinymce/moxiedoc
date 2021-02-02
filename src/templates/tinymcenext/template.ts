@@ -3,10 +3,20 @@
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
 import * as path from 'path';
+import { Api } from '../../lib/api';
+import { Type } from '../../lib/type';
 const ZipWriter = require('moxie-zip').ZipWriter;
 const YAML = require('js-yaml');
 
-const BASE_PATH = process.env.BASE_PATH || '/api/';
+interface NavFile {
+  url: string;
+  pages?: NavFile[];
+}
+
+interface PageOutput {
+  filename: string;
+  content: string;
+}
 
 const namespaceDescriptions = {
   'tinymce': 'Global APIs for working with the editor.',
@@ -23,7 +33,7 @@ const namespaceDescriptions = {
  * @param  {[type]} toPath [description]
  * @return {[type]}        [description]
  */
-const template = function (root: { getTypes: () => string[]; }, toPath: string): Record<string, any> | void {
+const template = function (root: Api, toPath: string): void {
   const archive = new ZipWriter();
   const rootTemplate = compileTemplate('root.handlebars');
   const namespaceTemplate = compileTemplate('namespace.handlebars');
@@ -33,7 +43,7 @@ const template = function (root: { getTypes: () => string[]; }, toPath: string):
   const addPage = addPageToArchive.bind(archive); // jshint ignore:line
 
   // sort types alphabetically
-  const sortedTypes: string[] = root.getTypes().sort((a: { fullName: string; } | any, b: { fullName: string; } | any): number => {
+  const sortedTypes: Type[] = root.getTypes().sort((a, b) => {
       if (a.fullName < b.fullName)
         return -1;
       if (a.fullName > b.fullName)
@@ -47,7 +57,7 @@ const template = function (root: { getTypes: () => string[]; }, toPath: string):
   });
 
   // create all yml and md for each item
-  const pages = sortedTypes.map(getMemberPages.bind(null, root, template))
+  const pages: PageOutput[] = sortedTypes.map(getMemberPages.bind(null, root, template));
   flatten(pages).forEach(addPage);
 
   getNamespacesFromTypes(sortedTypes).map((namespace) => {
@@ -67,7 +77,7 @@ const template = function (root: { getTypes: () => string[]; }, toPath: string):
     content: rootTemplate({})
   });
 
-  archive.saveAs(toPath, function (err: any) {
+  archive.saveAs(toPath, function (err) {
     if (err) throw err;
   });
 };
@@ -76,29 +86,25 @@ function getNamespaceFromFullName(fullName: string) {
   return fullName.split('.').slice(0, -1).join('.');
 }
 
-function getNamespacesFromTypes(types: any[]): string[] {
-  let namespaces: string[] = [];
-
-  namespaces = types.reduce((namespaces: string | string[], type: { fullName: string; }) => {
-      const fullName = type.fullName.toLowerCase();
-      const namespace = getNamespaceFromFullName(fullName);
-      return namespace && namespaces.indexOf(namespace) === -1 ? namespaces.concat(namespace) : namespaces;
-    }, []);
-
-  return namespaces;
+function getNamespacesFromTypes(types: Type[]): string[] {
+  return types.reduce((namespaces: string[], type: Type) => {
+    const fullName = type.fullName.toLowerCase();
+    const namespace = getNamespaceFromFullName(fullName);
+    return namespace && namespaces.indexOf(namespace) === -1 ? namespaces.concat(namespace) : namespaces;
+  }, []);
 }
 
 /**
  * [getNavFile description]
  * @return {[type]} [description]
  */
-function getNavFile(types: any[]): any[] {
+function getNavFile(types: Type[]): NavFile[] {
   const namespaces = getNamespacesFromTypes(types);
-  const pages = namespaces.map((namespace) => {
-      const innerPages = types.filter((type: { fullName: string; }) => {
+  const pages = namespaces.map((namespace): NavFile => {
+      const innerPages = types.filter((type) => {
           const fullName = type.fullName.toLowerCase();
           return getNamespaceFromFullName(fullName) === namespace;
-        }).map((type: { fullName: string; }) => ({ url: type.fullName.toLowerCase() }));
+        }).map((type) => ({ url: type.fullName.toLowerCase() }));
 
       if (namespace === 'tinymce') {
         innerPages.unshift({
@@ -120,69 +126,69 @@ function getNavFile(types: any[]): any[] {
 
 /**
  * [description]
- * @param  {[type]} data [description]
+ * @param  {[type]} root [description]
+ * @param  {[type]} template [description]
+ * @param  {[type]} type [description]
  * @return {[type]}      [description]
  */
-function getMemberPages(root: { getTypes: () => any[]; }, template: (arg0: any) => any, data: { getMembers: (arg0: boolean) => any; toJSON: () => any; datapath: string; type: string; fullName: string; desc: string; constructors: any[]; methods: any[]; properties: any[]; settings: any[]; events: any[]; keywords: string[]; borrows: any[]; examples: any[]; }): Record<string, any> {
-  const members = data.getMembers(true);
-  data = data.toJSON()
+function getMemberPages(root: Api, template: HandlebarsTemplateDelegate, type: Type): PageOutput[] {
+  const members = type.getMembers(true);
+  const data = type.toJSON();
   data.datapath = data.type + '_' + data.fullName.replace(/\./g, '_').toLowerCase();
   data.desc = data.desc.replace(/\n/g, ' ');
 
-  data.constructors = []
-  data.methods = []
-  data.properties = []
-  data.settings = []
-  data.events = []
-  data.keywords = []
-  data.borrows = data.borrows || []
-  data.examples = data.examples || []
+  data.constructors = [];
+  data.methods = [];
+  data.properties = [];
+  data.settings = [];
+  data.events = [];
+  data.keywords = [];
+  data.borrows = data.borrows || [];
+  data.examples = data.examples || [];
 
-  const parents = [data].concat(data.borrows.map((parentName: string) => root.getTypes().find((type: { fullName: string; }) => type.fullName === parentName).toJSON()))
-
-  members.forEach((member: { getParentType: () => any; toJSON: () => any; name: string; definedBy: string; type: string; signature: string; }) => {
+  members.forEach((member) => {
       const parentType = member.getParentType();
 
-      member = member.toJSON();
+      const memberData = member.toJSON();
       data.keywords.push(member.name);
-      member.definedBy = parentType.fullName;
+      memberData.definedBy = parentType.fullName;
 
-      if ('property' === member.type) {
-        data.properties.push(member);
+      if ('property' === memberData.type) {
+        data.properties.push(memberData);
         return;
       }
 
-      if ('setting' === member.type) {
-        data.settings.push(member);
+      if ('setting' === memberData.type) {
+        data.settings.push(memberData);
         return;
       }
 
-      if ('constructor' === member.type) {
-        data.constructors.push(member);
-        member.signature = getSyntaxString(member);
+      if ('constructor' === memberData.type) {
+        data.constructors.push(memberData);
+        memberData.signature = getSyntaxString(memberData);
         return;
       }
 
-      if ('method' === member.type) {
-        data.methods.push(member);
-        member.signature = getSyntaxString(member);
+      if ('method' === memberData.type) {
+        data.methods.push(memberData);
+        memberData.signature = getSyntaxString(memberData);
         return;
       }
 
-      if ('event' === member.type) {
-        data.events.push(member);
+      if ('event' === memberData.type) {
+        data.events.push(memberData);
         return;
       }
     });
 
-  data.constructors = sortMembers(data.constructors)
-  data.methods = sortMembers(data.methods)
-  data.properties = sortMembers(data.properties)
-  data.settings = sortMembers(data.settings)
-  data.events = sortMembers(data.events)
-  const keywords = sortMembers(data.keywords)
+  data.constructors = sortMembers(data.constructors);
+  data.methods = sortMembers(data.methods);
+  data.properties = sortMembers(data.properties);
+  data.settings = sortMembers(data.settings);
+  data.events = sortMembers(data.events);
+  const keywords = sortMembers(data.keywords);
 
-  data.keywords = keywords.join(' ')
+  data.keywords = keywords.join(' ');
 
   return [{
     filename: createFileName(data, 'json'),
@@ -198,14 +204,14 @@ function getMemberPages(root: { getTypes: () => any[]; }, template: (arg0: any) 
  * @param  {[type]} list [description]
  * @return {[type]}      [description]
  */
-function sortMembers(list: string[]): string[] {
-  return list.sort((a: { name: number; } | any, b: { name: number; } | any): number => {
-      if (a.name < b.name)
-        return -1;
-      if (a.name > b.name)
-        return 1;
-      return 0;
-    });
+function sortMembers<T extends Record<string, any>>(list: T[]): T[] {
+  return list.sort((a, b) => {
+    if (a.name < b.name)
+      return -1;
+    if (a.name > b.name)
+      return 1;
+    return 0;
+  });
 }
 
 /**
@@ -228,10 +234,11 @@ function compileTemplate(filePath: string): HandlebarsTemplateDelegate {
 
 /**
  * [createFileName description]
- * @param  {[type]} fullName [description]
+ * @param  {[type]} data [description]
+ * @param  {[type]} ext [description]
  * @return {[type]}          [description]
  */
-function createFileName(data: { fullName: string; type: string; }, ext: string): string {
+function createFileName(data: Record<string, any>, ext: string): string {
   if ('md' === ext) {
     let namespace = getNamespaceFromFullName(data.fullName);
 
@@ -259,32 +266,32 @@ function addPageToArchive(page: { filename: string; content: string; }) {
 
 /**
  * [getSyntaxString description]
- * @param  {[type]} member [description]
+ * @param  {[type]} memberData [description]
  * @return {[type]}        [description]
  */
-function getSyntaxString(member: { params: Array<{ name: string; types: string[]; }>; return?: { types: string[]; }; type: string; name: string; dataTypes: string[]; }) {
-  let params = member.params.map((param) => param.name + ':' + param.types[0]).join(', ') // Are Params and Param mixed up?
+function getSyntaxString(memberData: Record<string, any>) {
+  let params = memberData.params.map((param) => param.name + ':' + param.types[0]).join(', ');
 
-  const returnType = member.return ? (':' + member.return.types.join(', ')) : '';
+  const returnType = memberData.return ? (':' + memberData.return.types.join(', ')) : '';
 
-  switch (member.type) {
+  switch (memberData.type) {
     case 'callback':
-      return 'function ' + member.name + '(' + params + ')' + returnType;
+      return 'function ' + memberData.name + '(' + params + ')' + returnType;
 
     case 'constructor':
-      return 'public constructor function ' + member.name + '(' + params + ')' + returnType;
+      return 'public constructor function ' + memberData.name + '(' + params + ')' + returnType;
 
     case 'method':
-      return '' + member.name + '(' + params + ')' + returnType;
+      return '' + memberData.name + '(' + params + ')' + returnType;
 
     case 'event':
-      return 'public event ' + member.name + '(' + params + ')';
+      return 'public event ' + memberData.name + '(' + params + ')';
 
     case 'property':
-      return 'public ' + member.name + ' : ' + member.dataTypes.join('/');
+      return 'public ' + memberData.name + ' : ' + memberData.dataTypes.join('/');
 
     case 'setting':
-      return 'public ' + member.name + ' : ' + member.dataTypes.join('/');
+      return 'public ' + memberData.name + ' : ' + memberData.dataTypes.join('/');
   }
 }
 

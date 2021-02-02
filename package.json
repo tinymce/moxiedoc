@@ -16,9 +16,9 @@
   "keywords": [
     "cli"
   ],
-  "main": "./lib/moxiedoc",
+  "main": "./dist/moxiedoc",
   "bin": {
-    "moxiedoc": "./lib/cli.js"
+    "moxiedoc": "./dist/cli.js"
   },
   "dependencies": {
     "cli-color": "^2.0.0",
@@ -47,5 +47,11 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/tinymce/moxiedoc.git"
-  }
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "src",
+    "dist"
+  ]
 }

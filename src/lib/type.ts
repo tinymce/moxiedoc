@@ -1,7 +1,9 @@
-import * as reporter from './reporter';
+import { Api } from './api';
+import { Member } from './member';
+import * as Reporter from './reporter';
 
-function sortMembersByName(members: Record<string, any>): string[]{
-  return members.sort(function(a: { name: string; }, b: { name: string; }): number {
+function sortMembersByName(members: Member[]): Member[] {
+  return members.sort((a, b) => {
     if (a.name < b.name) {
       return -1;
     }
@@ -19,323 +21,335 @@ function sortMembersByName(members: Record<string, any>): string[]{
  *
  * @class moxiedoc.Type
  */
+class Type {
+  public _allMembers: Member[];
+  public _api: Api;
+  public _members: Member[] = [];
+  public _mixes: string[] = [];
+  public _mixesTypes: Type[];
+  public _mixinsTypes: Type[];
+  public access: string;
+  public borrows: any[];
+  public fullName: string;
+  public name: string;
+  public static: boolean;
+  public type: string;
 
-/**
- * Constructs a new Type instance.
- *
- * @constructor
- * @param {Object} data Json structure with type data.
- */
-function Type(data: { name?: string; fullName: string; [x: string]: string; }): void {
-  for (const name in data) {
-    this[name] = data[name];
+  /**
+   * Constructs a new Type instance.
+   *
+   * @constructor
+   * @param {Object} data Json structure with type data.
+   */
+  constructor(data: { name?: string; fullName: string; [ x: string ]: string; }) {
+    for (const name in data) {
+      this[name] = data[name];
+    }
+
+    this.name = data.name = data.name || data.fullName.split('.').pop();
   }
 
-  this.name = data.name = data.name || data.fullName.split('.').pop();
+  /**
+   * Adds a new member to the type.
+   *
+   * @method addMember
+   * @param {Member} member Member instance to add to type.
+   * @return {Member} Member info instance that was passed in.
+   */
+  public addMember(member: Member): {} {
+    member._parentType = this;
+    this._members.push(member);
 
-  this._members = [];
-  this._mixes = [];
-}
+    if (this.static) {
+      member.static = true;
+    }
 
-/**
- * Adds a new member to the type.
- *
- * @method addMember
- * @param {Member} member Member instance to add to type.
- * @return {Member} Member info instance that was passed in.
- */
-Type.prototype.addMember = function(member: { _parentType: any; static: boolean; }): {} {
-  member._parentType = this;
-  this._members.push(member);
+    return member;
+  };
 
-  if (this.static) {
-    member.static = true;
-  }
+  public getMembers(includeInherited: boolean = false): Member[] {
+    const self = this;
 
-  return member;
-};
-
-Type.prototype.getMembers = function(includeInherited: string[]) {
-  const self = this;
-
-  if (this.borrows) {
-    this.borrows.forEach((typeFullName: string) => {
+    if (this.borrows) {
+      this.borrows.forEach((typeFullName: string) => {
         const type = self._api.getTypeByFullName(typeFullName);
 
         if (type) {
-          type.getMembers(true).forEach((member: { clone: () => any; }) => {
-              self.addMember(member.clone());
-            });
+          type.getMembers(true).forEach((member) => {
+            self.addMember(member.clone());
+          });
         } else {
-          reporter.warn('Could not borrow members from non existing type:', typeFullName);
+          Reporter.warn('Could not borrow members from non existing type:', typeFullName);
         }
       });
 
-    this.borrows = null;
-  }
-
-  if (includeInherited) {
-    if (this._allMembers) {
-      return this._allMembers;
+      this.borrows = null;
     }
 
-    let members = {}, output = [];
-    const types = this.getSuperTypes().reverse();
+    if (includeInherited) {
+      if (this._allMembers) {
+        return this._allMembers;
+      }
 
-    types.push(this);
+      let members = {}, output = [];
+      const types = this.getSuperTypes().reverse();
 
-    types.forEach((type: { getMixes: () => any[]; static: boolean; getMembers: () => any[]; }): void => {
-        type.getMixes().forEach((mixType: { getMembers: () => any[]; }) => {
-            mixType.getMembers().forEach((member: { clone: () => any; staticLink: any; static: boolean; mixType: string; name: string; }) => {
-                member = member.clone();
+      types.push(this);
 
-                if (type.static) {
-                  member.staticLink = member.static;
-                  member.static = true;
-                }
+      types.forEach((type) => {
+        type.getMixes().forEach((mixType) => {
+          mixType.getMembers().forEach((member) => {
+            member = member.clone();
 
-                members[member.mixType + '.' + member.name + (member.static ? '.static' : '')] = member;
-              });
+            if (type.static) {
+              member.staticLink = member.static;
+              member.static = true;
+            }
+
+            members[ member.mixType + '.' + member.name + (member.static ? '.static' : '') ] = member;
           });
+        });
 
-        type.getMembers().forEach((member: { staticLink: any; static: boolean; type: string; name: string; }) => {
-            member.staticLink = member.static;
-            members[member.type + '.' + member.name + (member.static ? '.static' : '')] = member;
-          });
+        type.getMembers().forEach((member) => {
+          member.staticLink = member.static;
+          members[ member.type + '.' + member.name + (member.static ? '.static' : '') ] = member;
+        });
       });
 
-    for (const name in members) {
-      output.push(members[name]);
+      for (const name in members) {
+        output.push(members[ name ]);
+      }
+
+      this._allMembers = sortMembersByName(output);
+
+      return output;
     }
 
-    this._allMembers = sortMembersByName(output);
+    return this._members;
+  };
 
-    return output;
-  }
+  public getMixes(): Type[] {
+    const self = this, api = this._api;
+    let output: Type[] = [];
 
-  return this._members;
-};
+    if (this._mixesTypes) {
+      return this._mixesTypes;
+    }
 
-Type.prototype.getMixes = function() {
-  const self = this, api = this._api;
-  let output = [];
-
-  if (this._mixesTypes) {
-    return this._mixesTypes;
-  }
-
-  this._mixes.forEach((typeFullName: string) => {
+    this._mixes.forEach((typeFullName) => {
       const type = api.getTypeByFullName(typeFullName);
 
       if (type) {
         output.push(type);
       } else {
-        reporter.warn('Could not mixin members into: ' + self.fullName + ' from non existing type:', typeFullName);
+        Reporter.warn('Could not mixin members into: ' + self.fullName + ' from non existing type:', typeFullName);
       }
     });
 
-  this._mixesTypes = output;
+    this._mixesTypes = output;
 
-  return output;
-};
+    return output;
+  };
 
-Type.prototype.getMixins = function() {
-  const fullName = this.fullName;
-  let mixins = [];
+  public getMixins() {
+    const fullName = this.fullName;
+    let mixins = [];
 
-  if (this._mixinsTypes) {
-    return this._mixinsTypes;
-  }
+    if (this._mixinsTypes) {
+      return this._mixinsTypes;
+    }
 
-  if (this.type === 'mixin') {
-    this._api.getTypes().forEach((type: { _mixes: string[]; }) => {
-        type._mixes.forEach((typeFullName: string) => {
-            if (typeFullName === fullName) {
-              mixins.push(type);
-            }
-          });
+    if (this.type === 'mixin') {
+      this._api.getTypes().forEach((type) => {
+        type._mixes.forEach((typeFullName) => {
+          if (typeFullName === fullName) {
+            mixins.push(type);
+          }
+        });
       });
-  }
+    }
 
-  this._mixinsTypes = mixins;
+    this._mixinsTypes = mixins;
 
-  return mixins;
-};
+    return mixins;
+  };
 
-Type.prototype.addMixin = function(mixin: string) {
-  this._mixes.push(mixin);
-  return mixin;
-};
+  public addMixin(mixin: string): string {
+    this._mixes.push(mixin);
+    return mixin;
+  };
 
-Type.prototype.getSubTypes = function(): string[] {
-  const fullName = this.fullName
-  let subTypes = [];
+  public getSubTypes(): string[] {
+    const fullName = this.fullName;
+    let subTypes = [];
 
-  this._api.getTypes().forEach((type: Record<string, any>) => {
-      if (type['extends'] === fullName) {
+    this._api.getTypes().forEach((type: Record<string, any>) => {
+      if (type[ 'extends' ] === fullName) {
         subTypes.push(type);
       }
     });
 
-  return subTypes;
-};
+    return subTypes;
+  };
 
-Type.prototype.getSuperTypes = function(): string[] {
-  let superTypes = [], type = this;
+  public getSuperTypes(): Type[] {
+    const superTypes: Type[] = [];
+    let type: Type = this;
 
-  while (type) {
-    type = this._api.getTypeByFullName(type['extends']);
+    while (type) {
+      type = this._api.getTypeByFullName(type[ 'extends' ]);
 
-    if (type) {
-      superTypes.push(type);
+      if (type) {
+        superTypes.push(type);
+      }
     }
-  }
 
-  return superTypes;
-};
+    return superTypes;
+  };
 
-/**
- * Returns an array of the members by the specified type.
- *
- * @method getMembersByType
- * @param {String} type Type name to get members by.
- * @return {Array} Array of members of the type Member.
- */
-Type.prototype.getMembersByType = function(type: string, includeInherited: string[]): string[] {
-  let members = [];
+  /**
+   * Returns an array of the members by the specified type.
+   *
+   * @method getMembersByType
+   * @param {String} type Type name to get members by.
+   * @return {Array} Array of members of the type Member.
+   */
+  public getMembersByType(type: string, includeInherited?: boolean): Member[] {
+    const members: Member[] = [];
 
-  this.getMembers(includeInherited).forEach((Member: { type: string; }) => {
-      if (Member.type === type) {
-        members.push(Member);
+    this.getMembers(includeInherited).forEach((member) => {
+      if (member.type === type) {
+        members.push(member);
       }
     });
 
-  return members;
-};
+    return members;
+  };
 
-/**
- * Returns an array of constructors some languages might have multiple due to overloading.
- *
- * @method getConstructors
- * @return {Array} Array of constructors of the type Member.
- */
-Type.prototype.getConstructors = function(includeInherited: string[]): string[] {
-  return this.getMembersByType('constructor', includeInherited);
-};
+  /**
+   * Returns an array of constructors some languages might have multiple due to overloading.
+   *
+   * @method getConstructors
+   * @return {Array} Array of constructors of the type Member.
+   */
+  public getConstructors(includeInherited?: boolean): Member[] {
+    return this.getMembersByType('constructor', includeInherited);
+  };
 
-/**
- * Returns an array of methods.
- *
- * @method getMethods
- * @return {Array} Array of methods of the type Member.
- */
-Type.prototype.getMethods = function(includeInherited: string[]): string[] {
-  return this.getMembersByType('method', includeInherited);
-};
+  /**
+   * Returns an array of methods.
+   *
+   * @method getMethods
+   * @return {Array} Array of methods of the type Member.
+   */
+  public getMethods(includeInherited?: boolean): Member[] {
+    return this.getMembersByType('method', includeInherited);
+  };
 
-/**
- * Returns an array of properties.
- *
- * @method getProperties
- * @return {Array} Array of properties of the type Member.
- */
-Type.prototype.getProperties = function(includeInherited: string[]): string[] {
-  return this.getMembersByType('property', includeInherited);
-};
+  /**
+   * Returns an array of properties.
+   *
+   * @method getProperties
+   * @return {Array} Array of properties of the type Member.
+   */
+  public getProperties(includeInherited?: boolean): Member[] {
+    return this.getMembersByType('property', includeInherited);
+  };
 
-/**
- * Returns an array of events.
- *
- * @method getProperties
- * @return {Array} Array of events of the type Member.
- */
-Type.prototype.getEvents = function(includeInherited: string[]):string[] {
-  return this.getMembersByType('event', includeInherited);
-};
+  /**
+   * Returns an array of events.
+   *
+   * @method getProperties
+   * @return {Array} Array of events of the type Member.
+   */
+  public getEvents(includeInherited?: boolean): Member[] {
+    return this.getMembersByType('event', includeInherited);
+  };
 
-/**
- * Returns an array of fields.
- *
- * @method getFields
- * @return {Array} Array of fields of the type Member.
- */
-Type.prototype.getFields = function(includeInherited: string[]): string[] {
-  return this.getMembersByType('field', includeInherited);
-};
+  /**
+   * Returns an array of fields.
+   *
+   * @method getFields
+   * @return {Array} Array of fields of the type Member.
+   */
+  public getFields(includeInherited?: boolean): Member[] {
+    return this.getMembersByType('field', includeInherited);
+  };
 
-/**
- * Returns an array of settings.
- *
- * @method getSettings
- * @return {Array} Array of settings of the type Member.
- */
-Type.prototype.getSettings = function(includeInherited: string[]): string[] {
-  return this.getMembersByType('setting', includeInherited);
-};
+  /**
+   * Returns an array of settings.
+   *
+   * @method getSettings
+   * @return {Array} Array of settings of the type Member.
+   */
+  public getSettings(includeInherited?: boolean): Member[] {
+    return this.getMembersByType('setting', includeInherited);
+  };
 
-/**
- * Returns an array of callbacks.
- *
- * @method getCallbacks
- * @return {Array} Array of callbacks of the type Member.
- */
-Type.prototype.getCallbacks = function(includeInherited: string[]): string[] {
-  return this.getMembersByType('callback', includeInherited);
-};
+  /**
+   * Returns an array of callbacks.
+   *
+   * @method getCallbacks
+   * @return {Array} Array of callbacks of the type Member.
+   */
+  public getCallbacks(includeInherited?: boolean): Member[] {
+    return this.getMembersByType('callback', includeInherited);
+  };
 
-/**
- * Returns a member by name.
- *
- * @method getMemberByName
- * @param {String} name Name of the member to retrive.
- * @param {Boolean} [includeInherited] Include inherited members.
- * @return {moxiedoc.Member} Member instance or null.
- */
-Type.prototype.getMemberByName = function(name: string, includeInherited: string[]): null {
-  const members = this.getMembers(includeInherited);
+  /**
+   * Returns a member by name.
+   *
+   * @method getMemberByName
+   * @param {String} name Name of the member to retrive.
+   * @param {Boolean} [includeInherited] Include inherited members.
+   * @return {moxiedoc.Member} Member instance or null.
+   */
+  public getMemberByName(name: string, includeInherited?: boolean): Member | null {
+    const members = this.getMembers(includeInherited);
 
-  for (let i = 0; i < members.length; i++) {
-    if (members[i].name === name) {
-      return members[i];
+    for (let i = 0; i < members.length; i++) {
+      if (members[ i ].name === name) {
+        return members[ i ];
+      }
     }
-  }
 
-  return null;
-};
+    return null;
+  };
 
-/**
- * Removes all private members from the type.
- *
- * @method removePrivates
- */
-Type.prototype.removePrivates = function(): string[] | void {
-  this._members = this._members.filter(function(member: { access: string; }) {
-    return member.access !== 'private';
-  });
-};
+  /**
+   * Removes all private members from the type.
+   *
+   * @method removePrivates
+   */
+  public removePrivates(): void {
+    this._members = this._members.filter(function (member) {
+      return member.access !== 'private';
+    });
+  };
 
-/**
- * Serializes the Type as JSON.
- *
- * @method toJSON
- * @return {Object} JSON object.
- */
-Type.prototype.toJSON = function(): Record<string, any> {
-  let json: Record<string, any> = {};
+  /**
+   * Serializes the Type as JSON.
+   *
+   * @method toJSON
+   * @return {Object} JSON object.
+   */
+  public toJSON(): Record<string, any> {
+    let json: Record<string, any> = {};
 
-  for ( const name in this) {
-    if (typeof(this[name]) !== 'function' && name.indexOf('_') !== 0) {
-      json[name] = this[name];
+    for (const name in this) {
+      if (typeof (this[name]) !== 'function' && name.indexOf('_') !== 0) {
+        json[name] = this[name];
+      }
     }
-  }
 
-  json.members = [];
-  this._members.forEach((member: { toJSON: () => any; }) => {
+    json.members = [];
+    this._members.forEach((member) => {
       json.members.push(member.toJSON());
     });
 
-  return json;
-};
+    return json;
+  };
+}
 
 export {
   Type
