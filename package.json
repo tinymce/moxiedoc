@@ -11,7 +11,9 @@
     "node": ">=0.8.0"
   },
   "scripts": {
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "yarn build",
+    "copy-templates": "cd src && cp --parents templates/**/*.handlebars ../dist/ && cd ../",
+    "build": "tsc && yarn copy-templates"
   },
   "keywords": [
     "cli"

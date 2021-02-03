@@ -271,6 +271,8 @@ class Builder {
   }
 }
 
+require('./tags');
+
 export {
   Builder
 };
