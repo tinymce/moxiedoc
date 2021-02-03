@@ -203,7 +203,7 @@ class Builder {
         multiple = tag.name === 'property' || tag.name === 'setting';
 
         if ((multiple || !memberOrType) && Builder.memberTags[ tag.name ] === true) {
-          callback = Builder.tags[ tag.name ];
+          callback = Builder.tags[tag.name];
 
           if (callback) {
             callback.call(self, tag.text, tag.name, currentBlock);
@@ -222,7 +222,7 @@ class Builder {
       });
 
       if (accessLevelTag && memberOrType) {
-        const callback = Builder.tags[ accessLevelTag.name ];
+        const callback = Builder.tags[accessLevelTag.name];
 
         if (callback) {
           callback.call(self, accessLevelTag.text, accessLevelTag.name, currentBlock);
@@ -244,7 +244,7 @@ class Builder {
       }
 
       currentBlock.forEach((tag: { name: string; text: string; }) => {
-        if (Builder.typeTags[ tag.name ] || Builder.memberTags[ tag.name ]) {
+        if (Builder.typeTags[tag.name] || Builder.memberTags[tag.name]) {
           return;
         }
 
