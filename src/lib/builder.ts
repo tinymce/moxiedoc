@@ -7,6 +7,8 @@ export interface Tag {
   text: string;
 }
 
+type AddTagCallback = (this: Builder, text: string, name: string, tags: Tag[]) => void;
+
 /**
  * This class build a API structure in JSON format by parsing files.
  *
@@ -26,7 +28,7 @@ class Builder {
    *
    * @member {Object} tags
    */
-  public static tags: Record<string, Function> = {};
+  public static tags: Record<string, AddTagCallback> = {};
   public static typeTags: Record<string, boolean> = {};
 
   /**
@@ -129,7 +131,7 @@ class Builder {
    * @param {String/Array} name Tag name, space separates list or array of tag names.
    * @param {Function} callback Callback to be executed when a tag of that type is found.
    */
-  public static addTag(name: string | string[], callback: (this: Builder, text: string, name: string, tags: Tag[]) => void) {
+  public static addTag(name: string | string[], callback: AddTagCallback) {
     if (name instanceof Array) {
       name.forEach((name) => Builder.addTag(name, callback));
     } else {
@@ -171,7 +173,7 @@ class Builder {
     });
 
     this.parser.on('end', function () {
-      let memberOrType: boolean, accessLevelTag: { name: string; text: string; }, isIncludeBlock: boolean;
+      let memberOrType: boolean, accessLevelTag: Tag, isIncludeBlock: boolean;
 
       if (ignoreFile) {
         return;
@@ -188,9 +190,9 @@ class Builder {
       }
 
       currentBlock.forEach((tag) => {
-        let callback: { call: (arg0: any, arg1: any, arg2: string, arg3: { name: string; text: string; }[]) => void; }, multiple: boolean;
+        let callback: AddTagCallback, multiple: boolean;
 
-        if (!memberOrType && Builder.typeTags[ tag.name ] === true) {
+        if (!memberOrType && Builder.typeTags[tag.name] === true) {
           callback = Builder.tags[tag.name];
 
           if (callback) {
@@ -202,7 +204,7 @@ class Builder {
         // TODO: Rework this
         multiple = tag.name === 'property' || tag.name === 'setting';
 
-        if ((multiple || !memberOrType) && Builder.memberTags[ tag.name ] === true) {
+        if ((multiple || !memberOrType) && Builder.memberTags[tag.name] === true) {
           callback = Builder.tags[tag.name];
 
           if (callback) {
@@ -243,12 +245,12 @@ class Builder {
         return;
       }
 
-      currentBlock.forEach((tag: { name: string; text: string; }) => {
+      currentBlock.forEach((tag) => {
         if (Builder.typeTags[tag.name] || Builder.memberTags[tag.name]) {
           return;
         }
 
-        const callback = Builder.tags[ tag.name ];
+        const callback = Builder.tags[tag.name];
 
         if (callback) {
           callback.call(self, tag.text, tag.name, currentBlock);
