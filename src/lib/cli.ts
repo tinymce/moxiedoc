@@ -1,6 +1,8 @@
 #! /usr/bin/env node
+/* eslint-disable no-console */
 
 import { program } from 'commander';
+
 import { MoxiedocSettings, process as moxieDocProcess } from './moxiedoc';
 
 process.argv[1] = 'moxiedoc';
@@ -17,11 +19,11 @@ program
   .parse(process.argv);
 
 program.on('--help', () => {
-    console.log('  Examples:');
-    console.log('    moxiedoc js');
-    console.log('    moxiedoc -v -t cli -f namespace.Class js/**.js');
-    console.log('');
-  });
+  console.log('  Examples:');
+  console.log('    moxiedoc js');
+  console.log('    moxiedoc -v -t cli -f namespace.Class js/**.js');
+  console.log('');
+});
 
 if (!program.args.length) {
   program.help();

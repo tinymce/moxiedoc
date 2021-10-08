@@ -2,10 +2,22 @@ import { TranscodeEncoding } from 'buffer';
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
 
+interface TagInfo {
+  readonly line: number;
+  readonly filePath: string;
+}
+
+interface ParserInfo {
+  filePath?: string;
+  line: number;
+  readonly clone: () => ParserInfo;
+  readonly toString: () => string;
+}
+
 interface ParserSettings {
-  start?: (...args: any[]) => void;
-  tag?: (...args: any[]) => void;
-  end?: (...args: any[]) => void;
+  start?: (startText: string, startInfo: TagInfo) => void;
+  tag?: (currentTag: string, tagText: string, tagInfo: TagInfo) => void;
+  end?: (currentTag: string, info: ParserInfo) => void;
 }
 
 /**
@@ -48,10 +60,10 @@ interface ParserSettings {
  */
 class Parser extends EventEmitter {
   public settings: ParserSettings;
-  public info: any;
+  public info: ParserInfo;
   public lines: string[];
 
-  constructor (settings: ParserSettings = {}) {
+  public constructor(settings: ParserSettings = {}) {
     super();
 
     if (settings.start) {
@@ -70,18 +82,20 @@ class Parser extends EventEmitter {
     this.info = {
       line: 0,
 
-      toString: function() {
+      toString() {
         return 'File: ' + this.filePath + ':' + this.line + ':0';
       },
 
-      clone: function() {
+      clone() {
         const clone: Record<string, any> = {};
 
         for (const key in this) {
-          clone[key] = this[key];
+          if (this.hasOwnProperty(key)) {
+            clone[key] = this[key];
+          }
         }
 
-        return clone;
+        return clone as ParserInfo;
       }
     };
   }
@@ -92,34 +106,40 @@ class Parser extends EventEmitter {
    * @method parse
    * @param {String} content Content to parse.
    */
-  public parse(content: string) {
-    const self = this, info = this.info;
-    let inBlock: boolean, inStart: boolean, startText: string, currentTag: string, currentTagText: string;
-    let startInfo: { line: number; filePath: string; }, tagInfo: { line: number; filePath: string; };
+  public parse(content: string): void {
+    const self = this;
+    const info = this.info;
+    let inBlock: boolean;
+    let inStart: boolean;
+    let startText: string;
+    let currentTag: string;
+    let currentTagText: string;
+    let startInfo: TagInfo;
+    let tagInfo: TagInfo;
 
     this.emit('parse');
 
-    function endStart() {
+    const endStart = () => {
       // End of start
       if (inStart) {
         self.emit('start', startText.trim(), startInfo);
         inStart = false;
       }
-    }
+    };
 
-    function endTag() {
+    const endTag = () => {
       if (currentTag) {
         self.emit('tag', currentTag, currentTagText.trim(), tagInfo);
         currentTagText = currentTag = '';
       }
-    }
+    };
 
-    function endBlock() {
+    const endBlock = () => {
       if (inBlock) {
         self.emit('end', currentTag, info);
         inBlock = inStart = false;
       }
-    }
+    };
 
     /**
      * Current lines in a parse operation.
@@ -129,61 +149,61 @@ class Parser extends EventEmitter {
     this.lines = content.split('\n');
 
     this.lines.forEach((line: string, i: number) => {
-        let matches: string[];
+      let matches: string[];
 
-        info.line = i;
+      info.line = i;
 
-        // Start: /**
-        if (/^\s*\/\*\*/.test(line)) {
-          inBlock = inStart = true;
-          startInfo = { line: i, filePath: info.filePath };
-          startText = '';
-          return;
-        }
+      // Start: /**
+      if (/^\s*\/\*\*/.test(line)) {
+        inBlock = inStart = true;
+        startInfo = { line: i, filePath: info.filePath };
+        startText = '';
+        return;
+      }
 
-        // End: */
-        if (inBlock && /^\s*\*\//.test(line)) {
+      // End: */
+      if (inBlock && /^\s*\*\//.test(line)) {
+        endStart();
+        endTag();
+        endBlock();
+        return;
+      }
+
+      // Line inside comment
+      if (inBlock) {
+        // Parse away * character
+        matches = /^\s*\* ?(.*)/.exec(line);
+        line = matches ? matches[1] : line;
+
+        // Tag: @<something>
+        matches = /^\s*@([^ ]+)(.*)/.exec(line);
+        if (matches) {
           endStart();
           endTag();
-          endBlock();
+
+          currentTag = matches[1];
+          currentTagText = matches[2] + '\n';
+          tagInfo = { line: i, filePath: info.filePath };
+
           return;
         }
 
-        // Line inside comment
-        if (inBlock) {
-          // Parse away * character
-          matches = /^\s*\* ?(.*)/.exec(line);
-          line = matches ? matches[1] : line;
-
-          // Tag: @<something>
-          matches = /^\s*@([^ ]+)(.*)/.exec(line);
-          if (matches) {
-            endStart();
-            endTag();
-
-            currentTag = matches[1];
-            currentTagText = matches[2] + '\n';
-            tagInfo = { line: i, filePath: info.filePath };
-
-            return;
-          }
-
-          if (inStart) {
-            startText += line + '\n';
-          }
-
-          if (currentTag) {
-            currentTagText += line + '\n';
-          }
+        if (inStart) {
+          startText += line + '\n';
         }
-      });
+
+        if (currentTag) {
+          currentTagText += line + '\n';
+        }
+      }
+    });
 
     endStart();
     endTag();
     endBlock();
 
     this.lines = null;
-  };
+  }
 
   /**
    * Parses the specified file.
@@ -192,10 +212,10 @@ class Parser extends EventEmitter {
    * @param {String} filePath Path to the file to parse.
    * @param {String} [encoding=utf-8] Encoding to use.
    */
-  public parseFile(filePath: string, encoding: TranscodeEncoding = 'utf8' ) {
+  public parseFile(filePath: string, encoding: TranscodeEncoding = 'utf8' ): void {
     this.info.filePath = filePath;
-    this.parse(fs.readFileSync(filePath, {encoding: encoding}).toString());
-  };
+    this.parse(fs.readFileSync(filePath, { encoding }).toString());
+  }
 }
 
 export {
