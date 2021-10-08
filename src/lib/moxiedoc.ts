@@ -19,8 +19,8 @@ export interface MoxiedocSettings {
 }
 
 export interface MoxiedocResult {
-  errors: number;
-  warnings: number;
+  readonly errors: number;
+  readonly warnings: number;
 }
 
 /**
