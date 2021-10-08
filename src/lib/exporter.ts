@@ -20,7 +20,7 @@ class Exporter {
   public exportTo(types: Api, dirPath: string) {
     const templatePath = '../templates/' + this.settings.template + '/template.js';
 
-    import(templatePath).then((module) => module.template.call(this, types, dirPath));
+    require(templatePath).template.call(this, types, dirPath);
   };
 }
 
