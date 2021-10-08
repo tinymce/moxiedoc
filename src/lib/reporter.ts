@@ -1,4 +1,4 @@
-const clc = require('cli-color');
+import * as clc from 'cli-color';
 
 const Levels = {
   DEBUG: 1,

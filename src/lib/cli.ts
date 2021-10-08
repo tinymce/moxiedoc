@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
-const { program } = require('commander');
-import { process as moxieDocProcess } from './moxiedoc';
+import { program } from 'commander';
+import { MoxiedocSettings, process as moxieDocProcess } from './moxiedoc';
 
 process.argv[1] = 'moxiedoc';
 
@@ -26,7 +26,7 @@ if (!program.args.length) {
   program.help();
 }
 
-const opts = program.opts();
+const opts = program.opts() as MoxiedocSettings;
 opts.paths = program.args;
 
 moxieDocProcess(opts);

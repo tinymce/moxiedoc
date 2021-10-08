@@ -273,6 +273,7 @@ class Builder {
   }
 }
 
+// Important: This must use a require, as this needs to be immediately imported to setup the tags
 require('./tags');
 
 export {

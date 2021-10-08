@@ -3,6 +3,7 @@
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
+    "lib": [ "es2018" ],
     "baseUrl": ".",
     "rootDir": "src",
     "outDir": "dist",
