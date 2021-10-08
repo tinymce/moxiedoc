@@ -8,6 +8,7 @@ const Levels = {
 };
 
 let currentLevel = Levels.WARN;
+const hooks = [];
 
 function log (level: number, message: string): void {
   switch (level) {
@@ -28,6 +29,10 @@ function log (level: number, message: string): void {
       break;
   }
 
+  hooks.forEach((hook) => {
+    hook(level, message);
+  })
+
   console.log(message);
 }
 
@@ -43,6 +48,10 @@ function setLevel(level: number) {
   currentLevel = level;
 }
 
+function addHook(hook: (level: number, message: string) => void) {
+  hooks.push(hook);
+}
+
 const debug = createLogFunction(Levels.DEBUG);
 const info = createLogFunction(Levels.INFO);
 const warn = createLogFunction(Levels.WARN);
@@ -50,6 +59,7 @@ const error = createLogFunction(Levels.ERROR);
 
 export {
   setLevel,
+  addHook,
   Levels,
   debug,
   info,

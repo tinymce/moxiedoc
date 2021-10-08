@@ -15,6 +15,12 @@ export interface MoxiedocSettings {
   debug?: boolean;
   paths: string[];
   dry?: boolean;
+  failOnWarning?: boolean;
+}
+
+export interface MoxiedocResult {
+  errors: number;
+  warnings: number;
 }
 
 /**
@@ -34,7 +40,7 @@ export interface MoxiedocSettings {
  * @param  {[type]} settings [description]
  * @return {[type]}          [description]
  */
-function process (settings: MoxiedocSettings): void {
+function process (settings: MoxiedocSettings): MoxiedocResult {
   settings.out = settings.out || 'tmp/out.zip';
   settings.template = settings.template || 'cli';
 
@@ -46,7 +52,17 @@ function process (settings: MoxiedocSettings): void {
     Reporter.setLevel(Reporter.Levels.DEBUG);
   }
 
+  const result = { errors: 0, warnings: 0 };
   const builder = new Builder();
+
+  // Setup a hook to listen for errors/warnings
+  Reporter.addHook((level) => {
+    if (level === Reporter.Levels.ERROR) {
+      result.errors++;
+    } else if (level === Reporter.Levels.WARN) {
+      result.warnings++;
+    }
+  });
 
   function listFiles(dirPath: string, patterns: string[]) {
     let output: string[] = [];
@@ -87,6 +103,8 @@ function process (settings: MoxiedocSettings): void {
 
     exporter.exportTo(builder.api, settings.out);
   }
+
+  return result;
 }
 
 export {
