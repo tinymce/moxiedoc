@@ -45,11 +45,11 @@ function process (settings: MoxiedocSettings): MoxiedocResult {
   settings.template = settings.template || 'cli';
 
   if (settings.verbose) {
-    Reporter.setLevel(Reporter.Levels.INFO);
+    Reporter.setLevel(Reporter.Level.INFO);
   }
 
   if (settings.debug) {
-    Reporter.setLevel(Reporter.Levels.DEBUG);
+    Reporter.setLevel(Reporter.Level.DEBUG);
   }
 
   const result = { errors: 0, warnings: 0 };
@@ -57,9 +57,9 @@ function process (settings: MoxiedocSettings): MoxiedocResult {
 
   // Setup a hook to listen for errors/warnings
   Reporter.addHook((level) => {
-    if (level === Reporter.Levels.ERROR) {
+    if (level === Reporter.Level.ERROR) {
       result.errors++;
-    } else if (level === Reporter.Levels.WARN) {
+    } else if (level === Reporter.Level.WARN) {
       result.warnings++;
     }
   });

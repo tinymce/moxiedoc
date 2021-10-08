@@ -1,30 +1,30 @@
 import * as clc from 'cli-color';
 
-const Levels = {
-  DEBUG: 1,
-  INFO: 2,
-  WARN: 3,
-  ERROR: 4
-};
+const enum Level {
+  DEBUG = 1,
+  INFO = 2,
+  WARN = 3,
+  ERROR= 4
+}
 
-let currentLevel = Levels.WARN;
+let currentLevel = Level.WARN;
 const hooks = [];
 
-function log (level: number, message: string): void {
+function log (level: Level, message: string): void {
   switch (level) {
-    case Levels.DEBUG:
+    case Level.DEBUG:
       message = clc.magenta('Debug: ') + message;
       break;
 
-    case Levels.INFO:
+    case Level.INFO:
       message = clc.cyan('Info: ') + message;
       break;
 
-    case Levels.WARN:
+    case Level.WARN:
       message = clc.yellow('Warning: ') + message;
       break;
 
-    case Levels.ERROR:
+    case Level.ERROR:
       message = clc.red('Error: ') + message;
       break;
   }
@@ -36,7 +36,7 @@ function log (level: number, message: string): void {
   console.log(message);
 }
 
-function createLogFunction(level: number) {
+function createLogFunction(level: Level) {
   return (...args: string[]) => {
     if (level >= currentLevel) {
       log(level, args.join(' '));
@@ -44,23 +44,23 @@ function createLogFunction(level: number) {
   };
 }
 
-function setLevel(level: number) {
+function setLevel(level: Level) {
   currentLevel = level;
 }
 
-function addHook(hook: (level: number, message: string) => void) {
+function addHook(hook: (level: Level, message: string) => void) {
   hooks.push(hook);
 }
 
-const debug = createLogFunction(Levels.DEBUG);
-const info = createLogFunction(Levels.INFO);
-const warn = createLogFunction(Levels.WARN);
-const error = createLogFunction(Levels.ERROR);
+const debug = createLogFunction(Level.DEBUG);
+const info = createLogFunction(Level.INFO);
+const warn = createLogFunction(Level.WARN);
+const error = createLogFunction(Level.ERROR);
 
 export {
   setLevel,
   addHook,
-  Levels,
+  Level,
   debug,
   info,
   warn,
