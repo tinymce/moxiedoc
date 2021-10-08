@@ -8,7 +8,9 @@ lib-cov
 *.gz
 *.sublime*
 out
+tmp/
 pids
 logs
 results
 node_modules
+dist/
