@@ -25,7 +25,7 @@
   "dependencies": {
     "cli-color": "^2.0.0",
     "commander": "^7.0.0",
-    "handlebars": "^4.0.0",
+    "handlebars": "^4.7.7",
     "js-yaml": "^4.0.0",
     "matcher": "^3.0.0",
     "moxie-zip": ">= 0.0.4"
