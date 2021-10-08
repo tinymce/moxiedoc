@@ -1,5 +1,12 @@
 import { Type } from './type';
 
+export interface NamespaceData {
+  readonly access?: string;
+  readonly desc?: string;
+  readonly fullName: string;
+  readonly summary?: string;
+}
+
 /**
  * Namespace class.
  *
@@ -20,36 +27,38 @@ class Namespace {
    * @constructor
    * @param {Object} data Json structure with member data.
    */
-  constructor (data: Record<string, any>) {
+  public constructor(data: NamespaceData) {
     for (const name in data) {
-      this[name] = data[name];
+      if (data.hasOwnProperty(name)) {
+        this[name] = data[name];
+      }
     }
   }
 
-  public addChildNamespace(namespace: Namespace) {
+  public addChildNamespace(namespace: Namespace): Namespace {
     this._namespaces.push(namespace);
     namespace._parent = this;
 
     return namespace;
-  };
+  }
 
-  public getParent(): Namespace {
+  public getParent(): Namespace | undefined {
     return this._parent;
-  };
+  }
 
   public getNamespaces(): Namespace[] {
     return this._namespaces;
-  };
+  }
 
   public addType(type: Type): Type {
     this._types.push(type);
 
     return type;
-  };
+  }
 
   public getTypes(): Type[] {
     return this._types;
-  };
+  }
 
   /**
    * Returns an array of the types by the specified type.
@@ -59,7 +68,7 @@ class Namespace {
    * @return {Array} Array of members of the type MemberInfo.
    */
   public getTypesByType(typeName: string): Type[] {
-    const types = [];
+    const types: Type[] = [];
 
     this._types.forEach((type) => {
       if (type.type === typeName) {
@@ -68,7 +77,7 @@ class Namespace {
     });
 
     return types;
-  };
+  }
 
   /**
    * Returns an array of classes.
@@ -78,7 +87,7 @@ class Namespace {
    */
   public getClasses(): Type[] {
     return this.getTypesByType('class');
-  };
+  }
 
   /**
    * Returns an array of mixins.
@@ -88,7 +97,7 @@ class Namespace {
    */
   public getMixins(): Type[] {
     return this.getTypesByType('mixin');
-  };
+  }
 
   /**
    * Returns an array of structs.
@@ -98,7 +107,7 @@ class Namespace {
    */
   public getStructs(): Type[] {
     return this.getTypesByType('struct');
-  };
+  }
 
   /**
    * Removes all private types from the namespace.
@@ -106,11 +115,9 @@ class Namespace {
    * @method removePrivates
    */
   public removePrivates(): void {
-    this._types = this._types.filter(function (type) {
-      return type.access !== 'private';
-    });
+    this._types = this._types.filter((type) => type.access !== 'private');
 
-    this._namespaces = this._namespaces.filter(function (namespace) {
+    this._namespaces = this._namespaces.filter((namespace) => {
       namespace.removePrivates();
 
       if (namespace.getTypes().length + namespace.getNamespaces().length === 0) {
@@ -119,7 +126,7 @@ class Namespace {
 
       return namespace.access !== 'private';
     });
-  };
+  }
 
   /**
    * Serializes the Namespace as JSON.
@@ -148,7 +155,7 @@ class Namespace {
     });
 
     return json;
-  };
+  }
 }
 
 export {

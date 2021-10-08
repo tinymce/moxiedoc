@@ -1,6 +1,8 @@
 import { Api } from './api';
+import { Member } from './member';
 import { Parser } from './parser';
 import * as Reporter from './reporter';
+import { Type } from './type';
 
 export interface Tag {
   name: string;
@@ -42,13 +44,13 @@ class Builder {
    *
    * @member {Object} currentMember
    */
-  public currentMember = null;
+  public currentMember: Member | null = null;
   /**
    * Current type instance or null.
    *
    * @member {Object} currentType
    */
-  public currentType = null;
+  public currentType: Type | null = null;
   /**
    * Current parser instance.
    *
@@ -61,125 +63,37 @@ class Builder {
    *
    * @member {Object} target
    */
-  public target =  null;
-
-  /**
-   * Adds aliases for tags.
-   *
-   * @static
-   * @method addAliases
-   * @param {Object} aliases Name/value of aliases.
-   */
-  public static addAliases(aliases: Record<string, string>) {
-    for (const name in aliases) {
-      const alias = aliases[name];
-
-      /*jshint loopfunc:true */
-      name.split(' ').forEach((name) => {
-        Builder.tags[name] = (text) => {
-          Builder.tags[alias].call(this, text, alias);
-        };
-      });
-    }
-  };
-
-  /**
-   * Adds a boolean tag type.
-   *
-   * @static
-   * @method addBoolTag
-   * @param {String/Array} name Tag name, space separates list or array of tag names.
-   */
-  public static addBoolTag(name: string) {
-    Builder.addTag(name, function(text, name) {
-      this.target[name] = true;
-    });
-  };
-
-  /**
-   * Adds a list of tags that control the member type for example 'method'.
-   *
-   * @method addMemberTags
-   * @static
-   * @param {String} names Space separated list of types that control the member type.
-   */
-  public static addMemberTags(names: string) {
-    names.split(' ').forEach((name) => {
-      Builder.memberTags[name] = true;
-    });
-  };
-
-  /**
-   * Adds a simple string tag type.
-   *
-   * @static
-   * @method addStringTag
-   * @param {String/Array} name Tag name, space separates list or array of tag names.
-   */
-  public static addStringTag(name: string) {
-    Builder.addTag(name, function(text, name) {
-      this.target[name] = text;
-    });
-  };
-
-  /**
-   * Adds a new tag type by name. The callback will be executed when
-   * the specified tag is found in a comment block.
-   *
-   * @method addTag
-   * @static
-   * @param {String/Array} name Tag name, space separates list or array of tag names.
-   * @param {Function} callback Callback to be executed when a tag of that type is found.
-   */
-  public static addTag(name: string | string[], callback: AddTagCallback) {
-    if (name instanceof Array) {
-      name.forEach((name) => Builder.addTag(name, callback));
-    } else {
-      name.split(' ').forEach((name) => {
-        Builder.tags[name.toLowerCase()] = callback;
-      });
-    }
-  };
-
-
-  /**
-   * Adds a list of tags that control the type for example 'class'.
-   *
-   * @method addTypeTags
-   * @static
-   * @param {String} names Space separated list of types that control the type.
-   */
-  public static addTypeTags(names: string) {
-    names.split(' ').forEach((name) => {
-      Builder.typeTags[name] = true;
-    });
-  };
+  public target = null;
 
   /**
    * Constructs a new Builder instance.
    *
    * @constructor
    */
-  constructor () {
-    let currentBlock: Tag[], ignoreFile: boolean, self = this;
+  public constructor() {
+    let currentBlock: Tag[];
+    let ignoreFile: boolean;
+    const self = this;
 
     this.parser.on('parse', function () {
       ignoreFile = false;
       Reporter.info('Parsing file:', this.info.filePath);
     });
 
-    this.parser.on('start', function (text) {
-      currentBlock = [{ name: 'desc', text: text }];
+    this.parser.on('start', (text: string) => {
+      currentBlock = [{ name: 'desc', text }];
     });
 
     this.parser.on('end', function () {
-      let memberOrType: boolean, accessLevelTag: Tag, isIncludeBlock: boolean;
+      let memberOrType: boolean;
+      let accessLevelTag: Tag;
+      let isIncludeBlock: boolean;
 
       if (ignoreFile) {
         return;
       }
 
-      function getSummary (desc: string) {
+      const getSummary = (desc: string) => {
         let pos = desc.indexOf('.');
 
         if (pos > 100 || pos === -1) {
@@ -187,10 +101,10 @@ class Builder {
         }
 
         return desc.substr(0, pos);
-      }
+      };
 
       currentBlock.forEach((tag) => {
-        let callback: AddTagCallback, multiple: boolean;
+        let callback: AddTagCallback;
 
         if (!memberOrType && Builder.typeTags[tag.name] === true) {
           callback = Builder.tags[tag.name];
@@ -202,7 +116,7 @@ class Builder {
         }
 
         // TODO: Rework this
-        multiple = tag.name === 'property' || tag.name === 'setting';
+        const multiple = tag.name === 'property' || tag.name === 'setting';
 
         if ((multiple || !memberOrType) && Builder.memberTags[tag.name] === true) {
           callback = Builder.tags[tag.name];
@@ -263,12 +177,104 @@ class Builder {
       self.target.summary = self.target.summary || getSummary(self.target.desc);
     });
 
-    this.parser.on('tag', function (name: string, text: string) {
+    this.parser.on('tag', (name: string, text: string) => {
       if (name === 'ignore-file') {
         ignoreFile = true;
       }
 
-      currentBlock.push({ name: name, text: text });
+      currentBlock.push({ name, text });
+    });
+  }
+
+  /**
+   * Adds aliases for tags.
+   *
+   * @static
+   * @method addAliases
+   * @param {Object} aliases Name/value of aliases.
+   */
+  public static addAliases(aliases: Record<string, string>): void {
+    for (const key in aliases) {
+      if (aliases.hasOwnProperty(key)) {
+        const alias = aliases[key];
+
+        key.split(' ').forEach((name) => {
+          Builder.tags[name] = (text, _name, tags) => {
+            Builder.tags[alias].call(this, text, alias, tags);
+          };
+        });
+      }
+    }
+  }
+
+  /**
+   * Adds a boolean tag type.
+   *
+   * @static
+   * @method addBoolTag
+   * @param {String/Array} name Tag name, space separates list or array of tag names.
+   */
+  public static addBoolTag(name: string): void {
+    Builder.addTag(name, function (text, tagName) {
+      this.target[tagName] = true;
+    });
+  }
+
+  /**
+   * Adds a list of tags that control the member type for example 'method'.
+   *
+   * @method addMemberTags
+   * @static
+   * @param {String} names Space separated list of types that control the member type.
+   */
+  public static addMemberTags(names: string): void {
+    names.split(' ').forEach((name) => {
+      Builder.memberTags[name] = true;
+    });
+  }
+
+  /**
+   * Adds a simple string tag type.
+   *
+   * @static
+   * @method addStringTag
+   * @param {String/Array} name Tag name, space separates list or array of tag names.
+   */
+  public static addStringTag(name: string): void {
+    Builder.addTag(name, function (text, tagName) {
+      this.target[tagName] = text;
+    });
+  }
+
+  /**
+   * Adds a new tag type by name. The callback will be executed when
+   * the specified tag is found in a comment block.
+   *
+   * @method addTag
+   * @static
+   * @param {String/Array} names Tag name, space separates list or array of tag names.
+   * @param {Function} callback Callback to be executed when a tag of that type is found.
+   */
+  public static addTag(names: string | string[], callback: AddTagCallback): void {
+    if (names instanceof Array) {
+      names.forEach((name) => Builder.addTag(name, callback));
+    } else {
+      names.split(' ').forEach((name) => {
+        Builder.tags[name.toLowerCase()] = callback;
+      });
+    }
+  }
+
+  /**
+   * Adds a list of tags that control the type for example 'class'.
+   *
+   * @method addTypeTags
+   * @static
+   * @param {String} names Space separated list of types that control the type.
+   */
+  public static addTypeTags(names: string): void {
+    names.split(' ').forEach((name) => {
+      Builder.typeTags[name] = true;
     });
   }
 }

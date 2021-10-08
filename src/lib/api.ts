@@ -7,50 +7,49 @@ class Api {
   public _rootTypes: Type[] = [];
   public _rootNamespaces: Namespace[] = [];
 
-  public static getNamespaceFromFullName (fullName: string): string {
+  public static getNamespaceFromFullName(fullName: string): string {
     const chunks = fullName.split('.');
     chunks.pop();
     return chunks.join('.');
-  };
+  }
 
   public getRootTypes(): Type[] {
     return this._rootTypes;
-  };
+  }
 
   public addNamespace(namespace: Namespace): Namespace {
     this._namespaces.push(namespace);
     return namespace;
-  };
+  }
 
-  public getNamespace(fullName: string): Namespace {
-    for (let i = 0; i < this._namespaces.length; i++) {
-      const namespace = this._namespaces[ i ];
+  public getNamespace(fullName: string): Namespace | null {
+    for (const namespace of this._namespaces) {
       if (namespace.fullName === fullName) {
         return namespace;
       }
     }
 
     return null;
-  };
+  }
 
   public getTypeByFullName(fullName: string): Type | null {
-    for (let i = 0; i < this._types.length; i++) {
-      if (this._types[ i ].fullName === fullName) {
-        return this._types[ i ];
+    for (const item of this._types) {
+      if (item.fullName === fullName) {
+        return item;
       }
     }
 
     return null;
-  };
+  }
 
-  public createNamespace(fullName: string, isClass: boolean = false) {
+  public createNamespace(fullName: string, isClass: boolean = false): Namespace {
     const self = this;
     let namespaceFullName: string;
 
     namespaceFullName = isClass ? Api.getNamespaceFromFullName(fullName) : fullName;
 
     // Get or create namespace for type
-    let namespace = this.getNamespace(namespaceFullName);
+    let namespace = self.getNamespace(namespaceFullName);
     if (!namespace && namespaceFullName) {
       const fullNameChunks = namespaceFullName.split('.');
       namespaceFullName = '';
@@ -80,9 +79,9 @@ class Api {
     }
 
     return namespace;
-  };
+  }
 
-  public addType(type: Type | string): Type {
+  public addType(type: Type | string): Type | undefined {
     if (typeof type === 'string') {
       const existingType = this.getTypeByFullName(type);
       if (existingType) {
@@ -102,28 +101,28 @@ class Api {
 
       return type;
     }
-  };
+  }
 
   public getTypes(): Type[] {
     return this._types;
-  };
+  }
 
   public getNamespaces(): Namespace[] {
     return this._namespaces;
-  };
+  }
 
   public getRootNamespaces(): Namespace[] {
     return this._rootNamespaces;
-  };
+  }
 
   public removePrivates(): void {
-    this._types = this._types.filter(function (type: { removePrivates: () => void; access: string; }) {
+    this._types = this._types.filter((type) => {
       type.removePrivates();
 
       return type.access !== 'private';
     });
 
-    this._namespaces = this._namespaces.filter(function (namespace) {
+    this._namespaces = this._namespaces.filter((namespace) => {
       namespace.removePrivates();
 
       if (namespace.getTypes().length + namespace.getNamespaces().length === 0) {
@@ -133,7 +132,7 @@ class Api {
       return namespace.access !== 'private';
     });
 
-    this._rootNamespaces = this._namespaces.filter(function (namespace) {
+    this._rootNamespaces = this._namespaces.filter((namespace) => {
       namespace.removePrivates();
 
       if (namespace.getTypes().length + namespace.getNamespaces().length === 0) {
@@ -142,7 +141,7 @@ class Api {
 
       return namespace.access !== 'private';
     });
-  };
+  }
 
   /**
    * Serializes the Type as JSON.
@@ -160,12 +159,12 @@ class Api {
     }
 
     json.types = [];
-    this._types.forEach((type: { toJSON: () => any; }) => {
+    this._types.forEach((type) => {
       json.types.push(type.toJSON());
     });
 
     return json;
-  };
+  }
 }
 
 export {

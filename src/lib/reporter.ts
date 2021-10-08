@@ -1,16 +1,18 @@
 import * as clc from 'cli-color';
 
-const enum Level {
+export const enum Level {
   DEBUG = 1,
   INFO = 2,
   WARN = 3,
-  ERROR= 4
+  ERROR = 4
 }
 
-let currentLevel = Level.WARN;
-const hooks = [];
+type ReporterHook = (level: Level, message: string) => void;
 
-function log (level: Level, message: string): void {
+let currentLevel = Level.WARN;
+const hooks: ReporterHook[] = [];
+
+const log = (level: Level, message: string): void => {
   switch (level) {
     case Level.DEBUG:
       message = clc.magenta('Debug: ') + message;
@@ -31,26 +33,25 @@ function log (level: Level, message: string): void {
 
   hooks.forEach((hook) => {
     hook(level, message);
-  })
+  });
 
+  // eslint-disable-next-line no-console
   console.log(message);
-}
+};
 
-function createLogFunction(level: Level) {
-  return (...args: string[]) => {
-    if (level >= currentLevel) {
-      log(level, args.join(' '));
-    }
-  };
-}
+const createLogFunction = (level: Level) => (...args: string[]) => {
+  if (level >= currentLevel) {
+    log(level, args.join(' '));
+  }
+};
 
-function setLevel(level: Level) {
+const setLevel = (level: Level): void => {
   currentLevel = level;
-}
+};
 
-function addHook(hook: (level: Level, message: string) => void) {
+const addHook = (hook: ReporterHook): void => {
   hooks.push(hook);
-}
+};
 
 const debug = createLogFunction(Level.DEBUG);
 const info = createLogFunction(Level.INFO);
@@ -60,9 +61,8 @@ const error = createLogFunction(Level.ERROR);
 export {
   setLevel,
   addHook,
-  Level,
   debug,
   info,
   warn,
-  error,
+  error
 };

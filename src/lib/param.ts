@@ -1,18 +1,34 @@
+export interface ParamData {
+  readonly types: string[];
+  readonly desc: string;
+  optional?: boolean;
+  name?: string;
+  default?: string;
+}
+
 /**
  * Param class contains details about methods, properties, events etc.
  *
  * @class moxiedoc.Param
  */
 class Param {
+  public default: string;
+  public desc: string;
+  public name: string;
+  public optional: boolean;
+  public types: string[];
+
   /**
    * Constructs a new Param instance.
    *
    * @constructor
    * @param {Object} data Json structure with member data.
    */
-  constructor (data: Record<string, any>) {
+  public constructor(data: ParamData) {
     for (const name in data) {
-      this[name] = data[name];
+      if (data.hasOwnProperty(name)) {
+        this[name] = data[name];
+      }
     }
   }
 
@@ -32,7 +48,7 @@ class Param {
     }
 
     return json;
-  };
+  }
 }
 
 export {

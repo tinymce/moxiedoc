@@ -1,8 +1,23 @@
-import { Param } from './param';
+import { Param, ParamData } from './param';
 import { Type } from './type';
 
-interface MemberData extends Record<string, any> {
-  params?: Record<string, any>[];
+interface ReturnType {
+  readonly types: string[];
+  readonly desc: string;
+}
+
+export interface MemberData {
+  readonly access?: string;
+  readonly dataTypes?: string[];
+  readonly desc?: string;
+  readonly mixType?: string;
+  readonly name?: string;
+  readonly return?: ReturnType;
+  readonly static?: boolean;
+  readonly staticLink?: boolean;
+  readonly summary?: string;
+  readonly type?: string;
+  readonly params?: ParamData[];
 }
 
 /**
@@ -14,18 +29,20 @@ class Member {
   public _params: Param[];
   public _parentType: Type;
   public access: string;
+  public dataTypes: string[];
   public desc: string;
   public mixType: string;
   public name: string;
+  public return: ReturnType;
   public static: boolean;
   public staticLink: boolean;
   public summary: string;
   public type: string;
 
-  constructor (data: MemberData) {
+  public constructor(data: MemberData) {
     const self = this;
 
-    function getSummary (desc: string) {
+    const getSummary = (desc: string) => {
       let pos = desc.indexOf('.');
 
       if (pos > 100 || pos === -1) {
@@ -33,16 +50,18 @@ class Member {
       }
 
       return desc.substr(0, pos);
-    }
+    };
 
     for (const name in data) {
-      this[name] = data[name];
+      if (data.hasOwnProperty(name)) {
+        this[name] = data[name];
+      }
     }
 
     this._params = [];
     if (data.params) {
-      data.params.forEach((data) => {
-        self.addParam(new Param(data));
+      data.params.forEach((paramData) => {
+        self.addParam(new Param(paramData));
       });
     }
 
@@ -55,14 +74,14 @@ class Member {
    * Adds a new parameter to the member.
    *
    * @method addParam
-   * @param {Param} paramInfo Parameter info instance.
+   * @param {Param} param Parameter info instance.
    * @return {Param} Param info instance that got passed in.
    */
-  public addParam(param: Param) {
+  public addParam(param: Param): Param {
     this._params.push(param);
 
     return param;
-  };
+  }
 
   /**
    * Returns an array of parameters.
@@ -72,7 +91,7 @@ class Member {
    */
   public getParams(): Param[] {
     return this._params;
-  };
+  }
 
   /**
    * Returns true/false if the member is static.
@@ -82,11 +101,11 @@ class Member {
    */
   public isStatic(): boolean {
     return !!this.static;
-  };
+  }
 
   public getParentType(): Type {
     return this._parentType;
-  };
+  }
 
   /**
    * Serializes the Member as JSON.
@@ -95,7 +114,7 @@ class Member {
    * @return {Object} JSON object.
    */
   public toJSON(): Record<string, any> {
-    let json: Record<string, any> = {};
+    const json: Record<string, any> = {};
 
     for (const name in this) {
       if (typeof (this[name]) !== 'function' && name.indexOf('_') !== 0) {
@@ -104,12 +123,12 @@ class Member {
     }
 
     json.params = [];
-    this._params.forEach(function (param: { toJSON: () => any; }) {
+    this._params.forEach((param) => {
       json.params.push(param.toJSON());
     });
 
     return json;
-  };
+  }
 
   public clone(): Member {
     const parentType = this._parentType;
@@ -118,7 +137,7 @@ class Member {
     clone._parentType = parentType;
 
     return clone;
-  };
+  }
 }
 
 export {

@@ -1,9 +1,10 @@
-import { Builder } from './builder';
-import { Exporter } from './exporter';
-import * as Reporter from './reporter';
 import * as fs from 'fs';
 import * as matcher from 'matcher';
 import * as path from 'path';
+
+import { Builder } from './builder';
+import { Exporter } from './exporter';
+import * as Reporter from './reporter';
 
 exports.Builder = Builder;
 exports.Exporter = Exporter;
@@ -40,7 +41,7 @@ export interface MoxiedocResult {
  * @param  {[type]} settings [description]
  * @return {[type]}          [description]
  */
-function process (settings: MoxiedocSettings): MoxiedocResult {
+const process = (settings: MoxiedocSettings): MoxiedocResult => {
   settings.out = settings.out || 'tmp/out.zip';
   settings.template = settings.template || 'cli';
 
@@ -64,35 +65,35 @@ function process (settings: MoxiedocSettings): MoxiedocResult {
     }
   });
 
-  function listFiles(dirPath: string, patterns: string[]) {
+  const listFiles = (dirPath: string, patterns: string[]) => {
     let output: string[] = [];
 
-    const matches = function (filePath: string) {
+    const matches = (filePath: string) => {
       return patterns.filter((pattern: string) => matcher.isMatch(path.basename(filePath), pattern)).length > 0;
     };
 
     fs.readdirSync(dirPath).forEach((filePath: string) => {
-        filePath = path.join(dirPath, filePath);
+      filePath = path.join(dirPath, filePath);
 
-        if (fs.statSync(filePath).isDirectory()) {
-          output = output.concat(listFiles(filePath, patterns));
-        } else if (matches(filePath)) {
-          output.push(filePath);
-        }
-      });
-
-    return output;
-  }
-
-  settings.paths.forEach((filePath: string) => {
       if (fs.statSync(filePath).isDirectory()) {
-        listFiles(filePath, ['*.js', '*.ts']).forEach((filePath) => {
-          builder.parser.parseFile(filePath);
-        });
-      } else {
-        builder.parser.parseFile(filePath);
+        output = output.concat(listFiles(filePath, patterns));
+      } else if (matches(filePath)) {
+        output.push(filePath);
       }
     });
+
+    return output;
+  };
+
+  settings.paths.forEach((filePath: string) => {
+    if (fs.statSync(filePath).isDirectory()) {
+      listFiles(filePath, [ '*.js', '*.ts' ]).forEach((dirFilePath) => {
+        builder.parser.parseFile(dirFilePath);
+      });
+    } else {
+      builder.parser.parseFile(filePath);
+    }
+  });
 
   builder.api.removePrivates();
 
@@ -105,7 +106,7 @@ function process (settings: MoxiedocSettings): MoxiedocResult {
   }
 
   return result;
-}
+};
 
 export {
   process

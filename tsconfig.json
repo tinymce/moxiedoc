@@ -16,6 +16,7 @@
   },
   "include": [
     "src/lib/",
-    "src/templates/"
+    "src/templates/",
+    "src/typings/"
   ]
 }
