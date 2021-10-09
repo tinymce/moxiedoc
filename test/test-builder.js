@@ -1,4 +1,4 @@
-var Builder = require('../lib/moxiedoc').Builder;
+var Builder = require('../dist/lib/moxiedoc').Builder;
 
 exports.testInit = function(test) {
   var builder = new Builder({});
