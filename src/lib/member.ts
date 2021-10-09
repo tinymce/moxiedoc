@@ -1,4 +1,5 @@
 import { Param, ParamData } from './param';
+import { Target } from './target';
 import { Type } from './type';
 
 interface ReturnType {
@@ -6,16 +7,11 @@ interface ReturnType {
   readonly desc: string;
 }
 
-export interface MemberData {
-  readonly access?: string;
+export interface MemberData extends Target {
   readonly dataTypes?: string[];
-  readonly desc?: string;
   readonly mixType?: string;
-  readonly name?: string;
   readonly return?: ReturnType;
-  readonly static?: boolean;
   readonly staticLink?: boolean;
-  readonly summary?: string;
   readonly type?: string;
   readonly params?: ParamData[];
 }
@@ -25,21 +21,17 @@ export interface MemberData {
  *
  * @class moxiedoc.Member
  */
-class Member {
+class Member extends Target {
   public _params: Param[];
   public _parentType: Type;
-  public access: string;
   public dataTypes: string[];
-  public desc: string;
   public mixType: string;
-  public name: string;
   public return: ReturnType;
-  public static: boolean;
   public staticLink: boolean;
-  public summary: string;
   public type: string;
 
   public constructor(data: MemberData) {
+    super();
     const self = this;
 
     const getSummary = (desc: string) => {

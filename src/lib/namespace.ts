@@ -1,10 +1,8 @@
+import { Target } from './target';
 import { Type } from './type';
 
-export interface NamespaceData {
-  readonly access?: string;
-  readonly desc?: string;
+export interface NamespaceData extends Target {
   readonly fullName: string;
-  readonly summary?: string;
 }
 
 /**
@@ -12,14 +10,11 @@ export interface NamespaceData {
  *
  * @class moxiedoc.Namespace
  */
-class Namespace {
+class Namespace extends Target {
   public _types: Type[] = [];
   public _namespaces: Namespace[] = [];
   public _parent?: Namespace;
-  public access: string;
-  public desc: string;
   public fullName: string;
-  public summary: string;
 
   /**
    * Constructs a new Namespace instance.
@@ -28,6 +23,7 @@ class Namespace {
    * @param {Object} data Json structure with member data.
    */
   public constructor(data: NamespaceData) {
+    super();
     for (const name in data) {
       if (data.hasOwnProperty(name)) {
         this[name] = data[name];

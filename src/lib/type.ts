@@ -1,16 +1,11 @@
 import { Api } from './api';
 import { Member } from './member';
 import * as Reporter from './reporter';
+import { Target } from './target';
 
-export interface TypeData {
-  readonly access?: string;
-  readonly borrows?: string[];
-  readonly examples?: string[];
-  readonly extends?: string;
+export interface TypeData extends Target {
   readonly fullName: string;
-  name?: string;
-  readonly static?: boolean;
-  readonly type?: string;
+  readonly type: string;
 }
 
 const sortMembersByName = (members: Member[]): Member[] => {
@@ -30,20 +25,14 @@ const sortMembersByName = (members: Member[]): Member[] => {
  *
  * @class moxiedoc.Type
  */
-class Type {
+class Type extends Target {
   public _allMembers: Member[];
   public _api: Api;
   public _members: Member[] = [];
   public _mixes: string[] = [];
   public _mixesTypes: Type[];
   public _mixinsTypes: Type[];
-  public access: string;
-  public borrows: string[];
-  public examples: string[];
-  public extends: string;
   public fullName: string;
-  public name: string;
-  public static: boolean;
   public type: string;
 
   /**
@@ -53,6 +42,7 @@ class Type {
    * @param {Object} data Json structure with type data.
    */
   public constructor(data: TypeData) {
+    super();
     for (const name in data) {
       if (data.hasOwnProperty(name)) {
         this[name] = data[name];
