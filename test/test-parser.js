@@ -1,4 +1,4 @@
-var Parser = require('../lib/moxiedoc').Parser;
+var Parser = require('../dist/lib/parser').Parser;
 
 exports.testInit = function(test) {
   var parser = new Parser({});
