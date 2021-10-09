@@ -12,11 +12,16 @@
     "sourceMap": true,
     "noUnusedLocals": true,
     "strict": false,
-    "allowJs": true
+    "allowJs": true,
+    "types": [
+      "node",
+      "mocha"
+    ]
   },
   "include": [
     "src/lib/",
     "src/templates/",
+    "src/test/",
     "src/typings/"
   ]
 }
