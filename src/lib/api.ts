@@ -2,10 +2,10 @@ import { Namespace } from './namespace';
 import { Type } from './type';
 
 class Api {
-  public _namespaces: Namespace[] = [];
-  public _types: Type[] = [];
-  public _rootTypes: Type[] = [];
-  public _rootNamespaces: Namespace[] = [];
+  private _namespaces: Namespace[] = [];
+  private _types: Type[] = [];
+  private _rootTypes: Type[] = [];
+  private _rootNamespaces: Namespace[] = [];
 
   public static getNamespaceFromFullName(fullName: string): string {
     const chunks = fullName.split('.');

@@ -2,6 +2,7 @@ import { Api } from './api';
 import { Member } from './member';
 import { Parser } from './parser';
 import * as Reporter from './reporter';
+import { Target } from './target';
 import { Type } from './type';
 
 export interface Tag {
@@ -63,7 +64,7 @@ class Builder {
    *
    * @member {Object} target
    */
-  public target = null;
+  public target: Target | null = null;
 
   /**
    * Constructs a new Builder instance.

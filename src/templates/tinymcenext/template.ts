@@ -8,13 +8,13 @@ import { Api } from '../../lib/api';
 import { Type } from '../../lib/type';
 
 interface NavFile {
-  url: string;
-  pages?: NavFile[];
+  readonly url: string;
+  readonly pages?: NavFile[];
 }
 
 interface PageOutput {
-  filename: string;
-  content: string;
+  readonly filename: string;
+  readonly content: string;
 }
 
 const namespaceDescriptions = {
