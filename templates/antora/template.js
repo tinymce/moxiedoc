@@ -5,7 +5,7 @@ var Handlebars = require('handlebars');
 var path = require('path');
 var ZipWriter = require('moxie-zip').ZipWriter;
 var YAML = require('js-yaml')
-var BASE_PATH = process.env.BASE_PATH || '/api/';
+var BASE_PATH = process.env.BASE_PATH || '/modules/ROOT/apis';
 
 var namespaceDescriptions = {
   'tinymce': 'Global APIs for working with the editor.',
@@ -48,7 +48,7 @@ exports.template = function (root, toPath) {
   flatten(pages).forEach(addPageToArchive);
 
   getNamespacesFromTypes(sortedTypes).map(function (namespace) {
-    var fileName = ('api/' + namespace + '/index.html').toLowerCase();
+    var fileName = (BASE_PATH + '/' + namespace + '/index.adoc').toLowerCase();
     if (namespace in namespaceDescriptions) {
       var namespaceDescription = namespaceDescriptions[namespace];
     } else {
@@ -64,7 +64,7 @@ exports.template = function (root, toPath) {
   }).forEach(addPageToArchive);
 
   addPageToArchive({
-    filename: 'api/index.html',
+    filename: BASE_PATH + '/index.adoc',
     content: rootTemplate({})
   });
 
@@ -116,7 +116,7 @@ function getNavFile(types) {
   });
 
   return [{
-    url: 'api',
+    url: BASE_PATH,
     pages: pages
   }];
 }
@@ -245,10 +245,10 @@ function createFileName(data, ext) {
     }
 
     if (data.fullName === 'tinymce') {
-      return ('api/tinymce/root_tinymce.html').toLowerCase();
+      return (BASE_PATH + '/tinymce/root_tinymce.adoc').toLowerCase();
     }
 
-    return ('api/' + namespace + '/' + data.fullName + '.html').toLowerCase();
+    return (BASE_PATH + '/' + namespace + '/' + data.fullName + '.adoc').toLowerCase();
   } else if ('json' === ext) {
     return ('_data/api/' + data.type + '_' + data.fullName.replace(/\./g, '_') + '.json').toLowerCase();
   }
