@@ -5,7 +5,7 @@ var Handlebars = require('handlebars');
 var path = require('path');
 var ZipWriter = require('moxie-zip').ZipWriter;
 var YAML = require('js-yaml')
-var BASE_PATH = process.env.BASE_PATH || '/modules/ROOT/apis';
+var BASE_PATH = process.env.BASE_PATH || '/_data/antora';
 
 var namespaceDescriptions = {
   'tinymce': 'Global APIs for working with the editor.',
@@ -38,9 +38,19 @@ exports.template = function (root, toPath) {
     return 0;
   });
 
+  
+  var YMLNav = getNavFile(sortedTypes);
+  var AdocNav = YMLNavToAdoc (YMLNav);
+
+
   addPageToArchive({
     filename: '_data/nav_api.yml',
-    content: YAML.dump(getNavFile(sortedTypes))
+    content: YAML.dump(YMLNav)
+  });
+
+  addPageToArchive({
+    filename: '_data/nav_api.yml',
+    content: AdocNav
   });
 
   // create all yml and md for each item
@@ -71,6 +81,23 @@ exports.template = function (root, toPath) {
   archive.saveAs(toPath, function (err) {
     if (err) throw err;
   });
+};
+
+function YMLNavToAdoc (navyml) {
+  var adoc = '';
+  var pages = navyml[0].pages
+  pages.forEach(function (namespace) {
+    // main namespace level navigation (namespace index)
+    var title = namespace.url === 'tinymce' ? 'TinyMCE API Reference' : namespace.url;
+    var link = namespace.url === 'tinymce' ? 'tinymce.api.reference' : namespace.url;
+    adoc += '** xref:' + link + '.adoc' + '[' + title  + ']\n';
+    namespace.pages.forEach(function (page) {
+      // namespace level pages
+      adoc += '*** xref:' + page.url + '.adoc' + '[' + page.url+ ']\n';
+    });
+  })
+
+  return adoc;
 };
 
 function getNamespaceFromFullName(fullName) {
@@ -105,10 +132,9 @@ function getNavFile(types) {
 
     if (namespace === 'tinymce') {
       innerPages.unshift({
-        url: 'root_tinymce'
+        url: 'tinymce.root'
       });
     }
-
     return {
       url: namespace,
       pages: innerPages
