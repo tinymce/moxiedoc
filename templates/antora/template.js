@@ -38,18 +38,11 @@ exports.template = function (root, toPath) {
     return 0;
   });
 
-  
   var YMLNav = getNavFile(sortedTypes);
   var AdocNav = YMLNavToAdoc (YMLNav);
 
-
   addPageToArchive({
-    filename: '_data/nav_api.yml',
-    content: YAML.dump(YMLNav)
-  });
-
-  addPageToArchive({
-    filename: '_data/nav_api.yml',
+    filename: '_data/moxiedoc_nav.adoc',
     content: AdocNav
   });
 
@@ -58,7 +51,8 @@ exports.template = function (root, toPath) {
   flatten(pages).forEach(addPageToArchive);
 
   getNamespacesFromTypes(sortedTypes).map(function (namespace) {
-    var fileName = (BASE_PATH + '/' + namespace + '/index.adoc').toLowerCase();
+    // TODO flatten FS here for antora if needed.
+    var fileName = (BASE_PATH + '/' + namespace + '/' + namespace + '.adoc').toLowerCase();
     if (namespace in namespaceDescriptions) {
       var namespaceDescription = namespaceDescriptions[namespace];
     } else {
@@ -88,9 +82,7 @@ function YMLNavToAdoc (navyml) {
   var pages = navyml[0].pages
   pages.forEach(function (namespace) {
     // main namespace level navigation (namespace index)
-    var title = namespace.url === 'tinymce' ? 'TinyMCE API Reference' : namespace.url;
-    var link = namespace.url === 'tinymce' ? 'tinymce.api.reference' : namespace.url;
-    adoc += '** xref:' + link + '.adoc' + '[' + title  + ']\n';
+    adoc += '** xref:' + namespace.url + '.adoc' + '[' + namespace.url  + ']\n';
     namespace.pages.forEach(function (page) {
       // namespace level pages
       adoc += '*** xref:' + page.url + '.adoc' + '[' + page.url+ ']\n';
@@ -271,7 +263,7 @@ function createFileName(data, ext) {
     }
 
     if (data.fullName === 'tinymce') {
-      return (BASE_PATH + '/tinymce/root_tinymce.adoc').toLowerCase();
+      return (BASE_PATH + '/tinymce/tinymce.root.adoc').toLowerCase();
     }
 
     return (BASE_PATH + '/' + namespace + '/' + data.fullName + '.adoc').toLowerCase();
