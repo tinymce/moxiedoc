@@ -7,6 +7,8 @@ var ZipWriter = require('moxie-zip').ZipWriter;
 var YAML = require('js-yaml')
 var BASE_PATH = process.env.BASE_PATH || '/_data/antora';
 
+var AntoraTemplate = require('./antora.converter.js');
+
 var namespaceDescriptions = {
   'tinymce': 'Global APIs for working with the editor.',
   'tinymce.dom': 'APIs for working with the DOM from within the editor.',
@@ -46,9 +48,10 @@ exports.template = function (root, toPath) {
     content: AdocNav
   });
 
-  // create all yml and md for each item
+  // create all json and adoc for each item
   var pages = sortedTypes.map(getMemberPages.bind(null, root, template))
-  flatten(pages).forEach(addPageToArchive);
+  var convertedPages = AntoraTemplate.convert(pages);
+  flatten(convertedPages).forEach(addPageToArchive);
 
   getNamespacesFromTypes(sortedTypes).map(function (namespace) {
     // TODO flatten FS here for antora if needed.
@@ -208,12 +211,13 @@ function getMemberPages(root, template, data) {
   data.keywords = sortMembers(data.keywords)
 
   data.keywords = data.keywords.join(' ')
-
   return [{
+    type: 'json',
     filename: createFileName(data, 'json'),
     content: JSON.stringify(data, null, '  ')
   }, {
-    filename: createFileName(data, 'md'),
+    type: 'adoc',
+    filename: createFileName(data, 'adoc'),
     content: template(data)
   }];
 }
@@ -255,7 +259,7 @@ function compileTemplate(filePath) {
  * @return {[type]}          [description]
  */
 function createFileName(data, ext) {
-  if ('md' === ext) {
+  if ('adoc' === ext) {
     var namespace = getNamespaceFromFullName(data.fullName);
 
     if (!namespace) {
