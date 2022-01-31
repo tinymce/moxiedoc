@@ -44,8 +44,8 @@ module.exports = function () {
       }
 
       // borrows
+      // untested snipped, no class extends data
       if (hasValue(data.borrows)) {
-        // has not been tested (no borrows/extends data)
         tmp += '<a class="anchor" id="extends"></a>' + '\n'
         tmp += '<h2><a class="anchorable" href="#extends">Extends</a></h2>' + '\n'
 
@@ -54,12 +54,91 @@ module.exports = function () {
         });
       }
 
-
-
-
       // examples
+      if (hasValue(data.examples)) {
+        tmp += '<h2>Examples</h2>' + '\n';
+        data.examples.forEach(example => {
+          tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>';
+        });
+      }
+
+
       // settings
+      // untested snippet, no settings data
+      if (hasValue(data.settings)) {
+        tmp += '<a class="anchor" id="settings"></a>';
+        tmp += '<h2><a class="anchorable" href="#settings">Settings</a></h2>';
+        tmp += '<table class="settings">';
+        tmp += '<thead>';
+        tmp += '<tr>';
+        tmp += '<th>name</th>';
+        tmp += '<th>type</th>';
+        tmp += '<th>summary</th>';
+        tmp += '<th class="defined-by">defined by</th>';
+        tmp += '</tr>';
+        tmp += '</thead>';
+        tmp += '<tbody>';
+
+        data.settings.forEach(item => {
+          tmp += '<tr>';
+          tmp += '<td>' + item.name + '</td>';
+          tmp += '<td>';
+
+          if (item.dataTypes[0].includes('tinymce', 0)) {
+            tmp += '<a href="' + baseurl + '/apis/' + item.dataTypes[0] + '"><span class="param-type">' + item.dataTypes[0] + '</span></a>';
+          } else {
+            tmp += '<span class="param-type">' + item.dataTypes[0] + '</span>';    
+          }
+
+          tmp += '</td>';
+          tmp += '<td>' + item.desc + '</td>';
+          tmp += '<td class="defined-by">';
+          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
+          tmp += '</td>';
+          tmp += '</tr>';
+        })
+
+        tmp += '</tbody>';
+        tmp += '</table>';
+      }
+
       // properties
+      if (hasValue(data.properties)) {
+        tmp += '<a class="anchor" id="properties"></a>';
+        tmp += '<h2><a class="anchorable" href="#properties">Properties</a></h2>';
+
+        tmp += '<table class="properties">';
+        tmp += '<thead>';
+        tmp += '<tr>';
+        tmp += '<th>name</th>';
+        tmp += '<th>type</th>';
+        tmp += '<th>summary</th>';
+        tmp += '<th class="defined-by">defined by</th>';
+        tmp += '</tr>';
+        tmp += '</thead>';
+        tmp += '<tbody>';
+        data.properties.forEach(item => {
+          tmp += '<tr>';
+          tmp += '<td>{{ item.name }}</td>';
+          tmp += '<td>';
+          
+          if (item.dataTypes[0].includes('tinymce', 0)) {
+            tmp += '<a href="' + baseurl + '/apis/' + item.dataTypes[0] + '"><span class="param-type">' + item.dataTypes[0] + '</span></a>';
+          } else {
+            tmp += '<span class="param-type">' + item.dataTypes[0] + '</span>';
+          }
+        
+          tmp += '</td>';
+          tmp += '<td>' + item.desc + '</td>';
+          tmp += '<td class="defined-by">';
+          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
+          tmp += '</td>';
+          tmp += '</tr>';
+        })
+        tmp += '</tbody>';
+        tmp += '</table>';
+      }
+
       // constructors
       // methods
       // events
