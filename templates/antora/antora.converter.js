@@ -58,7 +58,7 @@ module.exports = function () {
       if (hasValue(data.examples)) {
         tmp += '<h2>Examples</h2>' + '\n';
         data.examples.forEach(example => {
-          tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>';
+          tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>\n';
         });
       }
 
@@ -99,14 +99,13 @@ module.exports = function () {
         })
 
         tmp += '</tbody>';
-        tmp += '</table>';
+        tmp += '</table>\n';
       }
 
       // properties
       if (hasValue(data.properties)) {
         tmp += '<a class="anchor" id="properties"></a>';
         tmp += '<h2><a class="anchorable" href="#properties">Properties</a></h2>';
-
         tmp += '<table class="properties">';
         tmp += '<thead>';
         tmp += '<tr>';
@@ -136,13 +135,93 @@ module.exports = function () {
           tmp += '</tr>';
         })
         tmp += '</tbody>';
-        tmp += '</table>';
+        tmp += '</table>\n';
       }
 
       // constructors
+      if (hasValue(data.constructors)) {
+        tmp += '<a class="anchor" id="constructors"></a>';
+        tmp += '<h2><a class="anchorable" href="#constructors">Constructors</a></h2>';
+        tmp += '<table class="constructors">';
+        tmp += '<thead>';
+        tmp += '<tr>';
+        tmp += '<th>name</th>';
+        tmp += '<th>summary</th>';
+        tmp += '<th class="defined-by">defined by</th>';
+        tmp += '</tr>';
+        tmp += '</thead>';
+        tmp += '<tbody>';
+        data.constructors.forEach(item => {
+          tmp += '<tr>';
+          tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
+          tmp += '<td>' + item.desc + '</td>';
+          tmp += '<td class="defined-by">';
+          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
+          tmp += '</td>';
+          tmp += '</tr>';
+        });
+        tmp += '</tbody>';
+        tmp += '</table>\n';
+      }
+
       // methods
+      if (hasValue(data.methods)) {
+        tmp += '<a class="anchor" id="methods"></a>';
+        tmp += '<h2><a class="anchorable" href="#methods">Methods</a></h2>';
+        tmp += '<table class="methods">';
+        tmp += '<thead>';
+        tmp += '<tr>';
+        tmp += '<th>name</th>';
+        tmp += '<th>summary</th>';
+        tmp += '<th class="defined-by">defined by</th>';
+        tmp += '</tr>';
+        tmp += '</thead>';
+        tmp += '<tbody>';
+        data.methods.forEach(item => {
+          tmp += '<tr>';
+          tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
+          tmp += '<td>' + item.desc + '</td>';
+          tmp += '<td class="defined-by">';
+          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
+          tmp += '</td>';
+          tmp += '</tr>';
+        });
+        tmp += '</tbody>';
+        tmp += '</table>\n';
+      }
+
       // events
+      if (hasValue(data.events)) {
+        tmp += '<a class="anchor" id="events"></a>';
+        tmp += '<h2><a class="anchorable" href="#events">Events</a></h2>';
+        tmp += '<table class="events">';
+        tmp += '<thead>';
+        tmp += '<tr>';
+        tmp += '<th>name</th>';
+        tmp += '<th>summary</th>';
+        tmp += '<th class="defined-by">defined by</th>';
+        tmp += '</tr>';
+        tmp += '</thead>';
+        tmp += '<tbody>';
+        data.events.forEach(item => {
+          tmp += '<tr>';
+          tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
+          tmp += '<td>' + item.desc + '</td>';
+          tmp += '<td class="defined-by">';
+          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
+          tmp += '</td>';
+          tmp += '</tr>';
+        });
+        tmp += '</tbody>';
+        tmp += '</table>\n';
+      }
+
+
+
       // constructors 2
+
+
+
       // methods 2
       // events 2
 
@@ -150,7 +229,7 @@ module.exports = function () {
 
 
 
-      // console.log('****************', page[0].content);
+      // console.log('****************', page[1]);
 
       page[0].content = JSON.stringify(data);
       page[1].content = tmp
