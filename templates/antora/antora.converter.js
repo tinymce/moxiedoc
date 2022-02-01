@@ -1,5 +1,3 @@
-const { passThroughOptions } = require("commander");
-
 module.exports = function () {
 
   // Todo we can pass this through later
@@ -40,7 +38,7 @@ module.exports = function () {
 
       // summary
       if (hasValue(data.summary)) {
-        tmp += '<p>' + data.summary + '</p>' + '\n'
+        tmp += data.summary + '\n';
       }
 
       // borrows
@@ -48,7 +46,6 @@ module.exports = function () {
       if (hasValue(data.borrows)) {
         tmp += '<a class="anchor" id="extends"></a>' + '\n'
         tmp += '<h2><a class="anchorable" href="#extends">Extends</a></h2>' + '\n'
-
         data.borrows.forEach(item => {
           tmp += '<a href="' + baseurl + '/api/' + item + '">' + item + '</a>' + '\n'
         });
@@ -99,245 +96,231 @@ module.exports = function () {
         tmp += '</table>\n';
       }
 
-      // properties
-      if (hasValue(data.properties)) {
-        tmp += '<a class="anchor" id="properties"></a>';
-        tmp += '<h2><a class="anchorable" href="#properties">Properties</a></h2>';
-        tmp += '<table class="properties">';
-        tmp += '<thead>';
-        tmp += '<tr>';
-        tmp += '<th>name</th>';
-        tmp += '<th>type</th>';
-        tmp += '<th>summary</th>';
-        tmp += '<th class="defined-by">defined by</th>';
-        tmp += '</tr>';
-        tmp += '</thead>';
-        tmp += '<tbody>';
-        data.properties.forEach(item => {
-          tmp += '<tr>';
-          tmp += '<td>{{ item.name }}</td>';
-          tmp += '<td>';
+      // // properties
+      // if (hasValue(data.properties)) {
+      //   tmp += '<a class="anchor" id="properties"></a>';
+      //   tmp += '<h2><a class="anchorable" href="#properties">Properties</a></h2>';
+      //   tmp += '<table class="properties">';
+      //   tmp += '<thead>';
+      //   tmp += '<tr>';
+      //   tmp += '<th>name</th>';
+      //   tmp += '<th>type</th>';
+      //   tmp += '<th>summary</th>';
+      //   tmp += '<th class="defined-by">defined by</th>';
+      //   tmp += '</tr>';
+      //   tmp += '</thead>';
+      //   tmp += '<tbody>';
+      //   data.properties.forEach(item => {
+      //     tmp += '<tr>';
+      //     tmp += '<td>{{ item.name }}</td>';
+      //     tmp += '<td>';
           
-          if (item.dataTypes[0].includes('tinymce', 0)) {
-            tmp += '<a href="' + baseurl + '/apis/' + item.dataTypes[0] + '"><span class="param-type">' + item.dataTypes[0] + '</span></a>';
-          } else {
-            tmp += '<span class="param-type">' + item.dataTypes[0] + '</span>';
-          }
+      //     if (item.dataTypes[0].includes('tinymce', 0)) {
+      //       tmp += '<a href="' + baseurl + '/apis/' + item.dataTypes[0] + '"><span class="param-type">' + item.dataTypes[0] + '</span></a>';
+      //     } else {
+      //       tmp += '<span class="param-type">' + item.dataTypes[0] + '</span>';
+      //     }
         
-          tmp += '</td>';
-          tmp += '<td>' + item.desc + '</td>';
-          tmp += '<td class="defined-by">';
-          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
-          tmp += '</td>';
-          tmp += '</tr>';
-        })
-        tmp += '</tbody>';
-        tmp += '</table>\n';
-      }
+      //     tmp += '</td>';
+      //     tmp += '<td>' + item.desc + '</td>';
+      //     tmp += '<td class="defined-by">';
+      //     tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
+      //     tmp += '</td>';
+      //     tmp += '</tr>';
+      //   })
+      //   tmp += '</tbody>';
+      //   tmp += '</table>\n';
+      // }
 
-      // constructors - basic summary
-      if (hasValue(data.constructors)) {
-        tmp += '<a class="anchor" id="constructors"></a>';
-        tmp += '<h2><a class="anchorable" href="#constructors">Constructors</a></h2>';
-        tmp += '<table class="constructors">';
-        tmp += '<thead>';
-        tmp += '<tr>';
-        tmp += '<th>name</th>';
-        tmp += '<th>summary</th>';
-        tmp += '<th class="defined-by">defined by</th>';
-        tmp += '</tr>';
-        tmp += '</thead>';
-        tmp += '<tbody>';
-        data.constructors.forEach(item => {
-          tmp += '<tr>';
-          tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
-          tmp += '<td>' + item.desc + '</td>';
-          tmp += '<td class="defined-by">';
-          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
-          tmp += '</td>';
-          tmp += '</tr>';
-        });
-        tmp += '</tbody>';
-        tmp += '</table>\n';
-      }
+      // // constructors - basic summary
+      // if (hasValue(data.constructors)) {
+      //   tmp += '<a class="anchor" id="constructors"></a>';
+      //   tmp += '<h2><a class="anchorable" href="#constructors">Constructors</a></h2>';
+      //   tmp += '<table class="constructors">';
+      //   tmp += '<thead>';
+      //   tmp += '<tr>';
+      //   tmp += '<th>name</th>';
+      //   tmp += '<th>summary</th>';
+      //   tmp += '<th class="defined-by">defined by</th>';
+      //   tmp += '</tr>';
+      //   tmp += '</thead>';
+      //   tmp += '<tbody>';
+      //   data.constructors.forEach(item => {
+      //     tmp += '<tr>';
+      //     tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
+      //     tmp += '<td>' + item.desc + '</td>';
+      //     tmp += '<td class="defined-by">';
+      //     tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
+      //     tmp += '</td>';
+      //     tmp += '</tr>';
+      //   });
+      //   tmp += '</tbody>';
+      //   tmp += '</table>\n';
+      // }
 
       // methods - basic summary
       if (hasValue(data.methods)) {
-        tmp += '<a class="anchor" id="methods"></a>';
-        tmp += '<h2><a class="anchorable" href="#methods">Methods</a></h2>';
-        tmp += '<table class="methods">';
-        tmp += '<thead>';
-        tmp += '<tr>';
-        tmp += '<th>name</th>';
-        tmp += '<th>summary</th>';
-        tmp += '<th class="defined-by">defined by</th>';
-        tmp += '</tr>';
-        tmp += '</thead>';
-        tmp += '<tbody>';
+        tmp += '[[methods]]\n';
+        tmp += '== Methods\n';
+        tmp += '[options="header,footer"]\n'
+        tmp += '|===\n'
+        tmp += '|name|summary|defined by\n'
         data.methods.forEach(item => {
-          tmp += '<tr>';
-          tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
-          tmp += '<td>' + item.desc + '</td>';
-          tmp += '<td class="defined-by">';
-          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
-          tmp += '</td>';
-          tmp += '</tr>';
+          tmp += '|link:' + item.name + '[' + item.name + '()]|' + item.desc + '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
         });
-        tmp += '</tbody>';
-        tmp += '</table>\n';
+        tmp += '|===\n'
       }
 
-      // events - basic summary
-      if (hasValue(data.events)) {
-        tmp += '<a class="anchor" id="events"></a>';
-        tmp += '<h2><a class="anchorable" href="#events">Events</a></h2>';
-        tmp += '<table class="events">';
-        tmp += '<thead>';
-        tmp += '<tr>';
-        tmp += '<th>name</th>';
-        tmp += '<th>summary</th>';
-        tmp += '<th class="defined-by">defined by</th>';
-        tmp += '</tr>';
-        tmp += '</thead>';
-        tmp += '<tbody>';
-        data.events.forEach(item => {
-          tmp += '<tr>';
-          tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
-          tmp += '<td>' + item.desc + '</td>';
-          tmp += '<td class="defined-by">';
-          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
-          tmp += '</td>';
-          tmp += '</tr>';
-        });
-        tmp += '</tbody>';
-        tmp += '</table>\n';
-      }
+      // // events - basic summary
+      // if (hasValue(data.events)) {
+      //   tmp += '<a class="anchor" id="events"></a>';
+      //   tmp += '<h2><a class="anchorable" href="#events">Events</a></h2>';
+      //   tmp += '<table class="events">';
+      //   tmp += '<thead>';
+      //   tmp += '<tr>';
+      //   tmp += '<th>name</th>';
+      //   tmp += '<th>summary</th>';
+      //   tmp += '<th class="defined-by">defined by</th>';
+      //   tmp += '</tr>';
+      //   tmp += '</thead>';
+      //   tmp += '<tbody>';
+      //   data.events.forEach(item => {
+      //     tmp += '<tr>';
+      //     tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
+      //     tmp += '<td>' + item.desc + '</td>';
+      //     tmp += '<td class="defined-by">';
+      //     tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
+      //     tmp += '</td>';
+      //     tmp += '</tr>';
+      //   });
+      //   tmp += '</tbody>';
+      //   tmp += '</table>\n';
+      // }
 
-      // constructors 2 - enhanced detail
-      if (hasValue(data.constructors)) {
-        tmp += '<h2>Constructors</h2>';
-        data.constructors.forEach(constructor => {
-          tmp += '<a class="anchor" id="' + constructor.name + '"></a>';
-          tmp += '<h3><a class="anchorable" href="#' + constructor.name + '">' + constructor.name + '</a></h3>';
-          tmp += '<div class="signature">' + constructor.signature + '</div>';
-          tmp += '<p>constructor.desc</p>\n';
-          if (hasValue(constructor.examples)) {
-            tmp += '<h5>Examples</h5>';
-            constructor.examples.forEach(example => {
-              tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>\n';
-            })
-          }
-          if (hasValue(constructor.params)) {
-            tmp += '<h5>Parameters</h5>';
-            tmp += '<ul>';
-            constructor.params.forEach(param => {
-              tmp += '<li>';
-              tmp += '<span class="param-name">' + param.name + '</span>';
-              if (param.types[0].includes('tinymce', 0)) {
-                tmp += '<a href="' + baseurl + '/apis/' + param.types[0] + '"><span class="param-type">' + param.types[0] + '</span></a>';
-              } else {
-                tmp += '<span class="param-type">' + param.types[0] + '</span>';    
-              }
-              tmp += '</li>';
-            })
-            tmp += '</ul>\n';
-          }
+      // // constructors 2 - enhanced detail
+      // if (hasValue(data.constructors)) {
+      //   tmp += '<h2>Constructors</h2>';
+      //   data.constructors.forEach(constructor => {
+      //     tmp += '<a class="anchor" id="' + constructor.name + '"></a>';
+      //     tmp += '<h3><a class="anchorable" href="#' + constructor.name + '">' + constructor.name + '</a></h3>';
+      //     tmp += '<div class="signature">' + constructor.signature + '</div>';
+      //     tmp += '<p>constructor.desc</p>\n';
+      //     if (hasValue(constructor.examples)) {
+      //       tmp += '<h5>Examples</h5>';
+      //       constructor.examples.forEach(example => {
+      //         tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>\n';
+      //       })
+      //     }
+      //     if (hasValue(constructor.params)) {
+      //       tmp += '<h5>Parameters</h5>';
+      //       tmp += '<ul>';
+      //       constructor.params.forEach(param => {
+      //         tmp += '<li>';
+      //         tmp += '<span class="param-name">' + param.name + '</span>';
+      //         if (param.types[0].includes('tinymce', 0)) {
+      //           tmp += '<a href="' + baseurl + '/apis/' + param.types[0] + '"><span class="param-type">' + param.types[0] + '</span></a>';
+      //         } else {
+      //           tmp += '<span class="param-type">' + param.types[0] + '</span>';    
+      //         }
+      //         tmp += '</li>';
+      //       })
+      //       tmp += '</ul>\n';
+      //     }
 
-          if (hasValue(constructor.return) && hasValue(constructor.return.types)) {
-            // untested - no data
-            tmp += '<h5>Return value</h5>';
-            tmp += '<ul>';
-            constructor.return.types.forEach(type => {
-              tmp += '<li>';
-              if (type.includes('tinymce', 0)) {
-                tmp += '<a href="' + baseurl + '/apis/' + type + '"><span class="return-type">' + type + '</span></a>';
-              } else {
-                tmp += '<span class="return-type">' + type + '</span>';
-              }
-              tmp += ' - ' + constructor.return.desc 
-              tmp += '</li>\n';
-            });
-            tmp += '</ul>\n';
-          };
-        });
-      }
+      //     if (hasValue(constructor.return) && hasValue(constructor.return.types)) {
+      //       // untested - no data
+      //       tmp += '<h5>Return value</h5>';
+      //       tmp += '<ul>';
+      //       constructor.return.types.forEach(type => {
+      //         tmp += '<li>';
+      //         if (type.includes('tinymce', 0)) {
+      //           tmp += '<a href="' + baseurl + '/apis/' + type + '"><span class="return-type">' + type + '</span></a>';
+      //         } else {
+      //           tmp += '<span class="return-type">' + type + '</span>';
+      //         }
+      //         tmp += ' - ' + constructor.return.desc 
+      //         tmp += '</li>\n';
+      //       });
+      //       tmp += '</ul>\n';
+      //     };
+      //   });
+      // }
 
-      // methods 2 - enhanced details
-      if (hasValue(data.methods)) {
-        tmp += '<h2>Methods</h2>';
-        data.methods.forEach(method => {
-          tmp += '<a class="anchor" id="' + method.name + '"></a>';
-          tmp += '<h3><a class="anchorable" href="#' + method.name + '">' + method.name + '</a></h3>';
-          tmp += '<div class="signature">' + method.signature + '</div>';
-          tmp += '<p>' + method.desc + '</p>\n';
-          if (hasValue(method.examples)) {
-            tmp += '<h5>Examples</h5>';
-            method.examples.forEach(example => {
-              tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>\n';
-            });
-          }
-          if (hasValue(method.params)) {
-            tmp += '<h5>Parameters</h5>';
-            tmp += '<ul>';
-            method.params.forEach(param => {
-              tmp += '<li>';
-              tmp += '<span class="param-name">' + param.name + '</span>';
-              if (param.types[0].includes('tinymce', 0)) {
-                tmp += '<a href="' + baseurl + '/apis/' + param.types[0] + '"><span class="param-type">' + param.types[0] + '</span></a>';
-              } else {
-                tmp += '<span class="param-type">' + param.types[0] + '</span>';
-              }
-              tmp += ' - param.desc';
-              tmp += '</li>\n';
-            })
-            tmp += '</ul>\n';
-          }
+      // // methods 2 - enhanced details
+      // if (hasValue(data.methods)) {
+      //   tmp += '<h2>Methods</h2>';
+      //   data.methods.forEach(method => {
+      //     tmp += '<a class="anchor" id="' + method.name + '"></a>';
+      //     tmp += '<h3><a class="anchorable" href="#' + method.name + '">' + method.name + '</a></h3>';
+      //     tmp += '<div class="signature">' + method.signature + '</div>';
+      //     tmp += '<p>' + method.desc + '</p>\n';
+      //     if (hasValue(method.examples)) {
+      //       tmp += '<h5>Examples</h5>';
+      //       method.examples.forEach(example => {
+      //         tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>\n';
+      //       });
+      //     }
+      //     if (hasValue(method.params)) {
+      //       tmp += '<h5>Parameters</h5>';
+      //       tmp += '<ul>';
+      //       method.params.forEach(param => {
+      //         tmp += '<li>';
+      //         tmp += '<span class="param-name">' + param.name + '</span>';
+      //         if (param.types[0].includes('tinymce', 0)) {
+      //           tmp += '<a href="' + baseurl + '/apis/' + param.types[0] + '"><span class="param-type">' + param.types[0] + '</span></a>';
+      //         } else {
+      //           tmp += '<span class="param-type">' + param.types[0] + '</span>';
+      //         }
+      //         tmp += ' - param.desc';
+      //         tmp += '</li>\n';
+      //       })
+      //       tmp += '</ul>\n';
+      //     }
         
-          if (hasValue(method.return) && hasValue(method.return.types)) {
-            tmp += '<h5>Return value</h5>';
-            tmp += '<ul>';
-            method.return.types.forEach(type => {
-              tmp += '<li>';
-              if (type.includes('tinymce', 0)) {
-                tmp += '<a href="' + baseurl + '/apis/' + type + '"><span class="return-type">' + type + '</span></a>';
-              } else {
-                tmp += '<span class="return-type">' + type + '</span>';
-              }
-              tmp += ' - ' + method.return.desc 
-              tmp += '</li>\n';
-            });
-            tmp += '</ul>\n';
-            console.log("************* winniung", tmp)
-          }
-        });
-      }
+      //     if (hasValue(method.return) && hasValue(method.return.types)) {
+      //       tmp += '<h5>Return value</h5>';
+      //       tmp += '<ul>';
+      //       method.return.types.forEach(type => {
+      //         tmp += '<li>';
+      //         if (type.includes('tinymce', 0)) {
+      //           tmp += '<a href="' + baseurl + '/apis/' + type + '"><span class="return-type">' + type + '</span></a>';
+      //         } else {
+      //           tmp += '<span class="return-type">' + type + '</span>';
+      //         }
+      //         tmp += ' - ' + method.return.desc 
+      //         tmp += '</li>\n';
+      //       });
+      //       tmp += '</ul>\n';
+      //     }
+      //   });
+      // }
 
 
-      // events 2 - enhanced details
-      if (hasValue(data.events)) {
-        tmp += '<h2>Events</h2>';
-        data.events.forEach(event => {
-          tmp += '<a class="anchor" id="' + event.name + '"></a>';
-          tmp += '<h3><a class="anchorable" href="#' + event.name + '">' + event.name + '</a></h3>';
-          tmp += '<p>' + event.desc + '</p>';
-        });
-        if (hasValue(method.params)) {
-          tmp += '<h5>Parameters</h5>';
-          tmp += '<ul>';
-          method.params.forEach(param => {
-            tmp += '<li>';
-            tmp += '<span class="param-name">' + param.name + '</span>';
-            if (param.types[0].includes('tinymce', 0)) {
-              tmp += '<a href="' + baseurl + '/apis/' + param.types[0] + '"><span class="return-type">' + param.types[0] + '</span></a>';
-            } else {
-              tmp += '<span class="return-type">' + param.types[0] + '</span>';
-            }
-            tmp += ' - ' + param.desc 
-            tmp += '</li>';
-          })
-          tmp += '</ul>';
-        }
-      }
+      // // events 2 - enhanced details
+      // if (hasValue(data.events)) {
+      //   tmp += '<h2>Events</h2>';
+      //   data.events.forEach(event => {
+      //     tmp += '<a class="anchor" id="' + event.name + '"></a>';
+      //     tmp += '<h3><a class="anchorable" href="#' + event.name + '">' + event.name + '</a></h3>';
+      //     tmp += '<p>' + event.desc + '</p>';
+      //   });
+      //   if (hasValue(method.params)) {
+      //     tmp += '<h5>Parameters</h5>';
+      //     tmp += '<ul>';
+      //     method.params.forEach(param => {
+      //       tmp += '<li>';
+      //       tmp += '<span class="param-name">' + param.name + '</span>';
+      //       if (param.types[0].includes('tinymce', 0)) {
+      //         tmp += '<a href="' + baseurl + '/apis/' + param.types[0] + '"><span class="return-type">' + param.types[0] + '</span></a>';
+      //       } else {
+      //         tmp += '<span class="return-type">' + param.types[0] + '</span>';
+      //       }
+      //       tmp += ' - ' + param.desc 
+      //       tmp += '</li>\n';
+      //     })
+      //     tmp += '</ul>\n';
+      //   }
+      // }
 
       // return the applied antora page mutation
       page[1].content = tmp
