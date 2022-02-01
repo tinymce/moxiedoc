@@ -8,6 +8,8 @@ var YAML = require('js-yaml')
 var BASE_PATH = process.env.BASE_PATH || '/_data/antora';
 
 var AntoraTemplate = require('./antora.converter.js');
+// correlates to tinymce-docs antora path
+var AntoraNavBaseDir = 'apis/'; 
 
 var namespaceDescriptions = {
   'tinymce': 'Global APIs for working with the editor.',
@@ -42,6 +44,12 @@ exports.template = function (root, toPath) {
 
   var YMLNav = getNavFile(sortedTypes);
   var AdocNav = YMLNavToAdoc (YMLNav);
+
+  addPageToArchive({
+    filename: '_data/nav.yml',
+    content:  YAML.dump(YMLNav)
+
+  });
 
   addPageToArchive({
     filename: '_data/moxiedoc_nav.adoc',
@@ -81,14 +89,17 @@ exports.template = function (root, toPath) {
 };
 
 function YMLNavToAdoc (navyml) {
-  var adoc = '';
+  // Api index page
+  var adoc = '* xref:' + AntoraNavBaseDir + 'index.adoc' + '[API Reference]';
   var pages = navyml[0].pages
+
+  // generate API namespaces
   pages.forEach(function (namespace) {
     // main namespace level navigation (namespace index)
-    adoc += '** xref:' + namespace.url + '.adoc' + '[' + namespace.url  + ']\n';
+    adoc += '** xref:' + AntoraNavBaseDir + namespace.url + '/' + namespace.url + '.adoc' + '[' + namespace.url  + ']\n';
     namespace.pages.forEach(function (page) {
       // namespace level pages
-      adoc += '*** xref:' + page.url + '.adoc' + '[' + page.url+ ']\n';
+      adoc += '*** xref:' + AntoraNavBaseDir + namespace.url + '/' + page.url + '.adoc' + '[' + page.url+ ']\n';
     });
   })
 
