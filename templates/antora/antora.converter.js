@@ -14,12 +14,12 @@ module.exports = function () {
     }
   };
 
-  // runs a bunch of required cleanup filters, where embedded source code can break asciidoc rendering
+  // runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
   function cleanFilter (string) {
     return safe_tags(string);
   };
 
-  // escape < brackets > from breaking asciidoc
+  // escape < brackets > & from breaking asciidoc
   function safe_tags(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
   }
@@ -117,35 +117,26 @@ module.exports = function () {
         tmp += '|===\n';
       }
 
-      // // constructors - basic summary
-      // if (hasValue(data.constructors)) {
-      //   tmp += '<a class="anchor" id="constructors"></a>';
-      //   tmp += '<h2><a class="anchorable" href="#constructors">Constructors</a></h2>';
-      //   tmp += '<table class="constructors">';
-      //   tmp += '<thead>';
-      //   tmp += '<tr>';
-      //   tmp += '<th>name</th>';
-      //   tmp += '<th>summary</th>';
-      //   tmp += '<th class="defined-by">defined by</th>';
-      //   tmp += '</tr>';
-      //   tmp += '</thead>';
-      //   tmp += '<tbody>';
-      //   data.constructors.forEach(item => {
-      //     tmp += '<tr>';
-      //     tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
-      //     tmp += '<td>' + item.desc + '</td>';
-      //     tmp += '<td class="defined-by">';
-      //     tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
-      //     tmp += '</td>';
-      //     tmp += '</tr>';
-      //   });
-      //   tmp += '</tbody>';
-      //   tmp += '</table>\n';
-      // }
+      // constructors - basic summary
+      if (hasValue(data.constructors)) {
+        tmp += '[[constructors]]\n';
+        tmp += '\n== Constructors\n';
+
+        tmp += '[options="header"]\n'
+        tmp += '|===\n'
+        tmp += '|Name|Summary|Defined by\n'
+
+        data.constructors.forEach(item => {
+          tmp += '|link:#' + item.name + '[' + item.name + '()]';
+          tmp += '|' + item.desc;
+          tmp += '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
+        });
+        tmp += '|===\n'
+      }
 
       // methods - basic summary
       if (hasValue(data.methods)) {
-        tmp += '[[methods]]\n';
+        tmp += '[[' + data.name + ']]\n';
         tmp += '\n== ' + data.name + ' Reference\n';
         tmp += '[options="header"]\n'
         tmp += '|===\n'
