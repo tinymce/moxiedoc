@@ -14,6 +14,15 @@ module.exports = function () {
     }
   };
 
+  // runs a bunch of required cleanup filters, where embedded source code can break asciidoc rendering
+  function cleanFilter (string) {
+    return safe_tags(string);
+  };
+
+  // escape entities from breaking asciidoc
+  function safe_tags(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
+  }
 
   function convert(memberData) {
     return memberData.map(function (page) {
@@ -53,9 +62,13 @@ module.exports = function () {
 
       // examples
       if (hasValue(data.examples)) {
-        tmp += '<h2>Examples</h2>' + '\n';
+        tmp += '[[examples]]\n';
+        tmp += '\n== Examples\n';
         data.examples.forEach(example => {
-          tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>\n';
+          tmp += '[source, javascript]\n';
+          tmp += '----\n';
+          tmp += example.content + '\n';
+          tmp += '----\n';
         });
       }
 
@@ -166,7 +179,7 @@ module.exports = function () {
         tmp += '|===\n'
         tmp += '|Name|Summary|Defined by\n'
         data.methods.forEach(item => {
-          tmp += '|link:' + item.name + '[' + item.name + '()]|' + item.desc + '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
+          tmp += '|link:' + item.name + '[' + item.name + '()]|' + cleanFilter(item.desc) + '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
         });
         tmp += '|===\n'
       }
@@ -250,7 +263,6 @@ module.exports = function () {
       if (hasValue(data.methods)) {
         tmp += '\n== Methods\n';
         data.methods.forEach(method => {
-
           tmp += '[[' + method.name + ']]\n';
           tmp += '\n=== ' + method.name + '()\n';
           tmp += '[source, javascript]\n';
@@ -280,7 +292,6 @@ module.exports = function () {
               tmp += ' - ' + param.desc + '\n';
             })
           }
-        
           if (hasValue(method.return) && hasValue(method.return.types)) {
             tmp += '\n==== Return value\n';
             method.return.types.forEach(type => {
