@@ -28,7 +28,6 @@ module.exports = function () {
     return memberData.map(function (page) {
       // page[0] is json
       // page[1] is adoc
-
       var data = JSON.parse(page[0].content);
       var tmp = page[1].content;
       
@@ -43,7 +42,6 @@ module.exports = function () {
       // data.keywords = []
       // data.borrows = data.borrows || []
       // data.examples = data.examples || []
-
 
       // summary
       if (hasValue(data.summary)) {
@@ -77,7 +75,7 @@ module.exports = function () {
       if (hasValue(data.settings)) {
         tmp += '[[settings]]\n';
         tmp += '\n== Settings\n';
-
+        
         tmp += '[options="header"]\n'
         tmp += '|===\n'
         tmp += '|Name|Type|Summary|Defined by\n'
@@ -90,46 +88,34 @@ module.exports = function () {
             tmp += '|' + item.dataTypes[0];    
           }
           tmp += '|' + item.desc;
-          tmp += '|' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']';
+          tmp += '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
         })
-        tmp += '\n';
+        tmp += '|===\n';
       }
 
-      // // properties
-      // if (hasValue(data.properties)) {
-      //   tmp += '<a class="anchor" id="properties"></a>';
-      //   tmp += '<h2><a class="anchorable" href="#properties">Properties</a></h2>';
-      //   tmp += '<table class="properties">';
-      //   tmp += '<thead>';
-      //   tmp += '<tr>';
-      //   tmp += '<th>name</th>';
-      //   tmp += '<th>type</th>';
-      //   tmp += '<th>summary</th>';
-      //   tmp += '<th class="defined-by">defined by</th>';
-      //   tmp += '</tr>';
-      //   tmp += '</thead>';
-      //   tmp += '<tbody>';
-      //   data.properties.forEach(item => {
-      //     tmp += '<tr>';
-      //     tmp += '<td>{{ item.name }}</td>';
-      //     tmp += '<td>';
+      // properties
+      if (hasValue(data.properties)) {
+        tmp += '[[properties]]\n';
+        tmp += '\n== Properties\n';
+
+        tmp += '[options="header"]\n'
+        tmp += '|===\n'
+        tmp += '|Name|Type|Summary|Defined by\n'
+      
+        data.properties.forEach(item => {
+          tmp += '|' + item.name;
           
-      //     if (item.dataTypes[0].includes('tinymce', 0)) {
-      //       tmp += '<a href="' + baseurl + '/apis/' + item.dataTypes[0] + '"><span class="param-type">' + item.dataTypes[0] + '</span></a>';
-      //     } else {
-      //       tmp += '<span class="param-type">' + item.dataTypes[0] + '</span>';
-      //     }
-        
-      //     tmp += '</td>';
-      //     tmp += '<td>' + item.desc + '</td>';
-      //     tmp += '<td class="defined-by">';
-      //     tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
-      //     tmp += '</td>';
-      //     tmp += '</tr>';
-      //   })
-      //   tmp += '</tbody>';
-      //   tmp += '</table>\n';
-      // }
+          if (item.dataTypes[0].includes('tinymce', 0)) {
+            tmp += '|link:' + baseurl + '/apis/' + item.dataTypes[0] + '[' + item.dataTypes[0] + ']';
+          } else {
+            tmp += '|' + item.dataTypes[0];
+          }
+    
+          tmp += '|' + item.desc;
+          tmp += '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
+        })
+        tmp += '|===\n';
+      }
 
       // // constructors - basic summary
       // if (hasValue(data.constructors)) {
@@ -269,11 +255,11 @@ module.exports = function () {
           if (hasValue(method.params)) {
             tmp += '\n==== Parameters\n';
             method.params.forEach(param => {
-              tmp += '\n* `+' + param.name;
+              tmp += '\n* `' + param.name;
               if (param.types[0].includes('tinymce', 0)) {
-                tmp += ' link:' + baseurl + '/apis/' + param.types[0] + '[' + param.types[0] + ']';
+                tmp += ' link:' + baseurl + '/apis/' + param.types[0] + '[' + param.types[0] + ']`';
               } else {
-                tmp += ' (' + param.types[0] + ')+`';
+                tmp += ' (' + param.types[0] + ')`';
               }
               tmp += ' - ' + param.desc + '\n';
             })
@@ -281,11 +267,11 @@ module.exports = function () {
           if (hasValue(method.return) && hasValue(method.return.types)) {
             tmp += '\n==== Return value\n';
             method.return.types.forEach(type => {
-              tmp += '\n* `+';
+              tmp += '\n* `';
               if (type.includes('tinymce', 0)) {
-                tmp += 'link:' + baseurl + '/apis/' + type + '[' + type + ']';
+                tmp += 'link:' + baseurl + '/apis/' + type + '[' + type + ']`';
               } else {
-                tmp += '(' + type + ')+`';
+                tmp += '(' + type + ')`';
               }
               tmp += ' - ' + method.return.desc  + '\n';
             });
@@ -294,7 +280,6 @@ module.exports = function () {
           tmp += "\n'''\n";
         });
       }
-
 
       // // events 2 - enhanced details
       // if (hasValue(data.events)) {
