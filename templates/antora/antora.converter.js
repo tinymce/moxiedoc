@@ -142,36 +142,28 @@ module.exports = function () {
         tmp += '|===\n'
         tmp += '|Name|Summary|Defined by\n'
         data.methods.forEach(item => {
-          tmp += '|link:' + item.name + '[' + item.name + '()]|' + cleanFilter(item.desc) + '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
+          tmp += '|link:#' + item.name + '[' + item.name + '()]|' + cleanFilter(item.desc) + '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
         });
         tmp += '|===\n'
       }
 
-      // // events - basic summary
-      // if (hasValue(data.events)) {
-      //   tmp += '<a class="anchor" id="events"></a>';
-      //   tmp += '<h2><a class="anchorable" href="#events">Events</a></h2>';
-      //   tmp += '<table class="events">';
-      //   tmp += '<thead>';
-      //   tmp += '<tr>';
-      //   tmp += '<th>name</th>';
-      //   tmp += '<th>summary</th>';
-      //   tmp += '<th class="defined-by">defined by</th>';
-      //   tmp += '</tr>';
-      //   tmp += '</thead>';
-      //   tmp += '<tbody>';
-      //   data.events.forEach(item => {
-      //     tmp += '<tr>';
-      //     tmp += '<td><a href="' + item.name + '">' + item.name + '()</a></td>';
-      //     tmp += '<td>' + item.desc + '</td>';
-      //     tmp += '<td class="defined-by">';
-      //     tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
-      //     tmp += '</td>';
-      //     tmp += '</tr>';
-      //   });
-      //   tmp += '</tbody>';
-      //   tmp += '</table>\n';
-      // }
+      // events - basic summary
+      // untested snippet, no events data
+      if (hasValue(data.events)) {
+        tmp += '[[events]]\n';
+        tmp += '\n== Events\n';
+
+        tmp += '[options="header"]\n'
+        tmp += '|===\n'
+        tmp += '|Name|Summary|Defined by\n'
+
+        data.events.forEach(item => {
+          tmp += '|link:#' + item.name + '[' + item.name + '()]';
+          tmp += '|' + item.desc;
+          tmp += '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
+        });
+        tmp += '|===\n'
+      }
 
       // // constructors 2 - enhanced detail
       // if (hasValue(data.constructors)) {
