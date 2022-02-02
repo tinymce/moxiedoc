@@ -161,8 +161,8 @@ module.exports = function () {
       // methods - basic summary
       if (hasValue(data.methods)) {
         tmp += '[[methods]]\n';
-        tmp += '== ' + data.name + ' Reference\n';
-        tmp += '[options="header,footer"]\n'
+        tmp += '\n== ' + data.name + ' Reference\n';
+        tmp += '[options="header"]\n'
         tmp += '|===\n'
         tmp += '|Name|Summary|Defined by\n'
         data.methods.forEach(item => {
@@ -248,16 +248,19 @@ module.exports = function () {
 
       // methods 2 - enhanced details
       if (hasValue(data.methods)) {
-        tmp += '== Methods\n';
+        tmp += '\n== Methods\n';
         data.methods.forEach(method => {
 
           tmp += '[[' + method.name + ']]\n';
-          tmp += '=== ' + method.name + '\n';
+          tmp += '\n=== ' + method.name + '()\n';
+          tmp += '[source, javascript]\n';
+          tmp += '----\n';
           tmp += method.signature + '\n';
+          tmp += '----\n';
           tmp += method.desc + '\n';
-
+          
           if (hasValue(method.examples)) {
-            tmp += '===== Examples\n';
+            tmp += '==== Examples\n';
             method.examples.forEach(example => {
               tmp += '[source, javascript]\n';
               tmp += '----\n';
@@ -266,30 +269,32 @@ module.exports = function () {
             });
           }
           if (hasValue(method.params)) {
-            tmp += '===== Parameters\n';
+            tmp += '\n==== Parameters\n';
             method.params.forEach(param => {
-              tmp += '* ' + param.name;
+              tmp += '\n* `+' + param.name;
               if (param.types[0].includes('tinymce', 0)) {
                 tmp += ' link:' + baseurl + '/apis/' + param.types[0] + '[' + param.types[0] + ']';
               } else {
-                tmp += param.types[0];
+                tmp += ' (' + param.types[0] + ')+`';
               }
               tmp += ' - ' + param.desc + '\n';
             })
           }
         
           if (hasValue(method.return) && hasValue(method.return.types)) {
-            tmp += '===== Return value';
+            tmp += '\n==== Return value\n';
             method.return.types.forEach(type => {
-              tmp += '* ';
+              tmp += '\n* `+';
               if (type.includes('tinymce', 0)) {
                 tmp += 'link:' + baseurl + '/apis/' + type + '[' + type + ']';
               } else {
-                tmp += type;
+                tmp += '(' + type + ')+`';
               }
               tmp += ' - ' + method.return.desc  + '\n';
             });
           }
+
+          tmp += "\n'''\n";
         });
       }
 
