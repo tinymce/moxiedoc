@@ -19,7 +19,7 @@ module.exports = function () {
     return safe_tags(string);
   };
 
-  // escape entities from breaking asciidoc
+  // escape < brackets > from breaking asciidoc
   function safe_tags(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
   }
@@ -53,10 +53,10 @@ module.exports = function () {
       // borrows
       // untested snipped, no class extends data
       if (hasValue(data.borrows)) {
-        tmp += '<a class="anchor" id="extends"></a>' + '\n'
-        tmp += '<h2><a class="anchorable" href="#extends">Extends</a></h2>' + '\n'
+        tmp += '[[extends]]\n';
+        tmp += '\n== Extends\n';
         data.borrows.forEach(item => {
-          tmp += '<a href="' + baseurl + '/api/' + item + '">' + item + '</a>' + '\n'
+          tmp += 'link:' + baseurl + '/api/' + item + '[' + item + ']\n'
         });
       }
 
@@ -75,38 +75,24 @@ module.exports = function () {
       // settings
       // untested snippet, no settings data
       if (hasValue(data.settings)) {
-        tmp += '<a class="anchor" id="settings"></a>';
-        tmp += '<h2><a class="anchorable" href="#settings">Settings</a></h2>';
-        tmp += '<table class="settings">';
-        tmp += '<thead>';
-        tmp += '<tr>';
-        tmp += '<th>name</th>';
-        tmp += '<th>type</th>';
-        tmp += '<th>summary</th>';
-        tmp += '<th class="defined-by">defined by</th>';
-        tmp += '</tr>';
-        tmp += '</thead>';
-        tmp += '<tbody>';
+        tmp += '[[settings]]\n';
+        tmp += '\n== Settings\n';
+
+        tmp += '[options="header"]\n'
+        tmp += '|===\n'
+        tmp += '|Name|Type|Summary|Defined by\n'
 
         data.settings.forEach(item => {
-          tmp += '<tr>';
-          tmp += '<td>' + item.name + '</td>';
-          tmp += '<td>';
+          tmp += '|' + item.name;
           if (item.dataTypes[0].includes('tinymce', 0)) {
-            tmp += '<a href="' + baseurl + '/apis/' + item.dataTypes[0] + '"><span class="param-type">' + item.dataTypes[0] + '</span></a>';
+            tmp += '|link:' + baseurl + '/apis/' + item.dataTypes[0] + '[' + item.dataTypes[0] + ']';
           } else {
-            tmp += '<span class="param-type">' + item.dataTypes[0] + '</span>';    
+            tmp += '|' + item.dataTypes[0];    
           }
-          tmp += '</td>';
-          tmp += '<td>' + item.desc + '</td>';
-          tmp += '<td class="defined-by">';
-          tmp += '<a href="' + baseurl + '/apis/' + item.definedBy + '">' + item.definedBy + '</a>';
-          tmp += '</td>';
-          tmp += '</tr>';
+          tmp += '|' + item.desc;
+          tmp += '|' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']';
         })
-
-        tmp += '</tbody>';
-        tmp += '</table>\n';
+        tmp += '\n';
       }
 
       // // properties
