@@ -165,54 +165,54 @@ module.exports = function () {
         tmp += '|===\n'
       }
 
-      // // constructors 2 - enhanced detail
-      // if (hasValue(data.constructors)) {
-      //   tmp += '<h2>Constructors</h2>';
-      //   data.constructors.forEach(constructor => {
-      //     tmp += '<a class="anchor" id="' + constructor.name + '"></a>';
-      //     tmp += '<h3><a class="anchorable" href="#' + constructor.name + '">' + constructor.name + '</a></h3>';
-      //     tmp += '<div class="signature">' + constructor.signature + '</div>';
-      //     tmp += '<p>constructor.desc</p>\n';
-      //     if (hasValue(constructor.examples)) {
-      //       tmp += '<h5>Examples</h5>';
-      //       constructor.examples.forEach(example => {
-      //         tmp += '<pre class="prettyprint"><code class="js" data-lang="js">' + example.content + '</code></pre>\n';
-      //       })
-      //     }
-      //     if (hasValue(constructor.params)) {
-      //       tmp += '<h5>Parameters</h5>';
-      //       tmp += '<ul>';
-      //       constructor.params.forEach(param => {
-      //         tmp += '<li>';
-      //         tmp += '<span class="param-name">' + param.name + '</span>';
-      //         if (param.types[0].includes('tinymce', 0)) {
-      //           tmp += '<a href="' + baseurl + '/apis/' + param.types[0] + '"><span class="param-type">' + param.types[0] + '</span></a>';
-      //         } else {
-      //           tmp += '<span class="param-type">' + param.types[0] + '</span>';    
-      //         }
-      //         tmp += '</li>';
-      //       })
-      //       tmp += '</ul>\n';
-      //     }
+      // constructors 2 - enhanced detail
+      if (hasValue(data.constructors)) {
 
-      //     if (hasValue(constructor.return) && hasValue(constructor.return.types)) {
-      //       // untested - no data
-      //       tmp += '<h5>Return value</h5>';
-      //       tmp += '<ul>';
-      //       constructor.return.types.forEach(type => {
-      //         tmp += '<li>';
-      //         if (type.includes('tinymce', 0)) {
-      //           tmp += '<a href="' + baseurl + '/apis/' + type + '"><span class="return-type">' + type + '</span></a>';
-      //         } else {
-      //           tmp += '<span class="return-type">' + type + '</span>';
-      //         }
-      //         tmp += ' - ' + constructor.return.desc 
-      //         tmp += '</li>\n';
-      //       });
-      //       tmp += '</ul>\n';
-      //     };
-      //   });
-      // }
+        tmp += '\n== Constructors\n';
+
+        data.constructors.forEach(constructor => {
+          tmp += '[[' + constructor.name + ']]\n';
+          tmp += '\n=== link:#' + constructor.name + '[' + constructor.name + ']\n';
+          tmp += '`' + constructor.signature + '` ';
+          tmp += constructor.desc + '\n';
+          if (hasValue(constructor.examples)) {
+            tmp += '\===== Examples';
+            constructor.examples.forEach(example => {
+              tmp += '[source, javascript]\n';
+              tmp += '----\n';
+              tmp += example.content + '\n';
+              tmp += '----\n';
+            })
+            tmp += '\n';
+          }
+          if (hasValue(constructor.params)) {
+            tmp += '\n===== Parameters';
+            constructor.params.forEach(param => {
+              tmp += '\n* `' + param.name;
+              if (param.types[0].includes('tinymce', 0)) {
+                tmp += ' link:' + baseurl + '/apis/' + param.types[0] + '[' + param.types[0] + ']`';
+              } else {
+                tmp += ': ' + param.types[0] + '`';    
+              }
+              tmp += '\n';
+            })
+            tmp += '\n';
+          }
+
+          if (hasValue(constructor.return) && hasValue(constructor.return.types)) {
+            // untested - no data
+            constructor.return.types.forEach(type => {
+              if (type.includes('tinymce', 0)) {
+                tmp += '\n* `link:' + baseurl + '/apis/' + type + '[' + type + ']`';
+              } else {
+                tmp += '\n* `' + type + '`';
+              }
+              tmp += ' - ' + constructor.return.desc + '\n'
+            });
+            tmp += '\n';
+          };
+        });
+      }
 
       // methods 2 - enhanced details
       if (hasValue(data.methods)) {
