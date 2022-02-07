@@ -264,31 +264,29 @@ module.exports = function () {
         });
       }
 
-      // // events 2 - enhanced details
-      // if (hasValue(data.events)) {
-      //   tmp += '<h2>Events</h2>';
-      //   data.events.forEach(event => {
-      //     tmp += '<a class="anchor" id="' + event.name + '"></a>';
-      //     tmp += '<h3><a class="anchorable" href="#' + event.name + '">' + event.name + '</a></h3>';
-      //     tmp += '<p>' + event.desc + '</p>';
-      //   });
-      //   if (hasValue(method.params)) {
-      //     tmp += '<h5>Parameters</h5>';
-      //     tmp += '<ul>';
-      //     method.params.forEach(param => {
-      //       tmp += '<li>';
-      //       tmp += '<span class="param-name">' + param.name + '</span>';
-      //       if (param.types[0].includes('tinymce', 0)) {
-      //         tmp += '<a href="' + baseurl + '/apis/' + param.types[0] + '"><span class="return-type">' + param.types[0] + '</span></a>';
-      //       } else {
-      //         tmp += '<span class="return-type">' + param.types[0] + '</span>';
-      //       }
-      //       tmp += ' - ' + param.desc 
-      //       tmp += '</li>\n';
-      //     })
-      //     tmp += '</ul>\n';
-      //   }
-      // }
+      // events 2 - enhanced details
+      // untested snippet, no events data
+      if (hasValue(data.events)) {
+        tmp += '\n== Events\n';
+        data.events.forEach(event => {
+          tmp += '[[' + event.name + ']]\n';
+          tmp += '\n=== ' + event.name + '()\n';
+          tmp += event.desc + '\n';
+        });
+        if (hasValue(method.params)) {
+          tmp += '\n===== Parameters\n';
+          method.params.forEach(param => {
+            tmp += '\n* `' + param.name;
+            if (param.types[0].includes('tinymce', 0)) {
+              tmp += ' link:' + baseurl + '/apis/' + param.types[0] + '[' + param.types[0] + ']`';
+            } else {
+              tmp += ' (' + param.types[0] + ')`';
+            }
+            tmp += ' - ' + param.desc 
+            tmp += '\n';
+          })
+        }
+      }
 
       // return the applied antora page mutation
       page[1].content = tmp
