@@ -16,12 +16,39 @@ module.exports = function () {
 
   // runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
   function cleanFilter (string) {
-    return safe_tags(string);
+    return encodeCode(encodeLinks(encodeEM(encodeBR(escapeComments(string)))));
   };
 
-  // escape < brackets > & from breaking asciidoc
-  function safe_tags(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
+  // escape comments from breaking asciidoc
+  function escapeComments(str) {
+    return str.replace(/<!--/,'&lt;!--').replace(/-->/,'--&gt;') ;
+  }
+  // convert BRs found into asciidoc
+  function encodeBR(str) {
+    return str.replace(/<br\s*\/?>/g,'\n');
+  }
+  // convert <em> into italics
+  function encodeEM(str) {
+    return str.replace(/<em>/,'_').replace(/<\/em>/, '_');
+  }
+  // convert <em> into italics
+  function encodeCode(str) {
+    var regex = /<code>(.*?)<\/code>/g;
+    var matches;
+    while (matches = regex.exec(str)) {
+      str = str.replace(matches[0], '`' + matches[1] + '`').replace('"`', '`').replace('`"', '`');
+    }
+    return str
+  }
+  // convert <a href> into italics
+  function encodeLinks(str) {
+    var matches = str.match('[^<]*(<a href="([^"]+)">([^<]+)<\/a>)');
+    if (matches !== null) {
+      var asciidoc = 'link:' + matches[2] + '[' + matches[3] + ']';
+      return str.replace(matches[1], asciidoc)
+    } else {
+      return str
+    }
   }
 
   function convert(memberData) {
@@ -106,12 +133,12 @@ module.exports = function () {
           tmp += '|' + item.name;
           
           if (item.dataTypes[0].includes('tinymce', 0)) {
-            tmp += '|link:' + baseurl + '/apis/' + item.dataTypes[0] + '[' + item.dataTypes[0] + ']';
+            tmp += '|`link:' + baseurl + '/apis/' + item.dataTypes[0] + '[' + item.dataTypes[0] + ']`';
           } else {
-            tmp += '|' + item.dataTypes[0];
+            tmp += '|`' + item.dataTypes[0] + '`';
           }
     
-          tmp += '|' + item.desc;
+          tmp += '|' + cleanFilter(item.desc);
           tmp += '|link:' + baseurl + '/apis/' + item.definedBy + '[' + item.definedBy + ']\n';
         })
         tmp += '|===\n';
