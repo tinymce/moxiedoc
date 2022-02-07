@@ -13,7 +13,10 @@ module.exports = function () {
       return false;
     }
   };
-
+  // uppercase first char
+  function UCFirst (string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
   // runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
   function cleanFilter (string) {
     return encodeCode(encodeLinks(encodeEM(encodeBR(escapeComments(string)))));
@@ -203,7 +206,7 @@ module.exports = function () {
           tmp += '`' + constructor.signature + '` ';
           tmp += constructor.desc + '\n';
           if (hasValue(constructor.examples)) {
-            tmp += '\===== Examples';
+            tmp += '\n===== Examples';
             constructor.examples.forEach(example => {
               tmp += '[source, javascript]\n';
               tmp += '----\n';
@@ -251,10 +254,10 @@ module.exports = function () {
           tmp += '----\n';
           tmp += method.signature + '\n';
           tmp += '----\n';
-          tmp += method.desc + '\n';
+          tmp += cleanFilter(method.desc) + '\n';
           
           if (hasValue(method.examples)) {
-            tmp += '==== Examples\n';
+            tmp += '\n==== Examples\n';
             method.examples.forEach(example => {
               tmp += '[source, javascript]\n';
               tmp += '----\n';
@@ -269,9 +272,9 @@ module.exports = function () {
               if (param.types[0].includes('tinymce', 0)) {
                 tmp += ' link:' + baseurl + '/apis/' + param.types[0] + '[' + param.types[0] + ']`';
               } else {
-                tmp += ' (' + param.types[0] + ')`';
+                tmp += ' (' + UCFirst(param.types[0]) + ')`';
               }
-              tmp += ' - ' + param.desc + '\n';
+              tmp += ' - ' + cleanFilter(param.desc) + '\n';
             })
           }
           if (hasValue(method.return) && hasValue(method.return.types)) {
