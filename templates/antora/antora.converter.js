@@ -14,27 +14,31 @@ module.exports = function () {
     }
   };
   // uppercase first char
-  function UCFirst (string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  function UCFirst (str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
   // runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
-  function cleanFilter (string) {
-    return encodeCode(encodeLinks(encodeEM(encodeBR(escapeComments(string)))));
+  function cleanFilter (str) {
+    var comments = escapeComments(str)
+    var br = encodeBR(comments);
+    var em = encodeEM(br);
+    var links = encodeLinks(em);
+    var code = encodeCode(links);
+    return code;
   };
-
   // escape comments from breaking asciidoc
   function escapeComments(str) {
     return str.replace(/<!--/,'&lt;!--').replace(/-->/,'--&gt;') ;
   }
-  // convert BRs found into asciidoc
+  // convert BRs found into asciidoc \n
   function encodeBR(str) {
     return str.replace(/<br\s*\/?>/g,'\n');
   }
-  // convert <em> into italics
+  // convert <em> into _italics_ asciidoc
   function encodeEM(str) {
     return str.replace(/<em>/,'_').replace(/<\/em>/, '_');
   }
-  // convert <em> into italics
+  // convert <code> into backtick asciidoc
   function encodeCode(str) {
     var regex = /<code>(.*?)<\/code>/g;
     var matches;
@@ -43,7 +47,7 @@ module.exports = function () {
     }
     return str
   }
-  // convert <a href> into italics
+  // convert <a href> into asciidoc link
   function encodeLinks(str) {
     var matches = str.match('[^<]*(<a href="([^"]+)">([^<]+)<\/a>)');
     if (matches !== null) {
