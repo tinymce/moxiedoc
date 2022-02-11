@@ -63,7 +63,7 @@ exports.template = function (root, toPath) {
 
   getNamespacesFromTypes(sortedTypes).map(function (namespace) {
     // TODO flatten FS here for antora if needed.
-    var fileName = (BASE_PATH + '/' + namespace + '/' + namespace + '.adoc').toLowerCase();
+    var fileName = (BASE_PATH + '/' + namespace + '.adoc').toLowerCase();
     if (namespace in namespaceDescriptions) {
       var namespaceDescription = namespaceDescriptions[namespace];
     } else {
@@ -78,11 +78,6 @@ exports.template = function (root, toPath) {
     };
   }).forEach(addPageToArchive);
 
-  addPageToArchive({
-    filename: BASE_PATH + '/index.adoc',
-    content: rootTemplate({})
-  });
-
   archive.saveAs(toPath, function (err) {
     if (err) throw err;
   });
@@ -90,16 +85,16 @@ exports.template = function (root, toPath) {
 
 function YMLNavToAdoc (navyml) {
   // Api index page
-  var adoc = '* xref:' + AntoraNavBaseDir + 'index.adoc' + '[API Reference]';
+  var adoc = '* API Reference\n';
   var pages = navyml[0].pages
 
   // generate API namespaces
   pages.forEach(function (namespace) {
     // main namespace level navigation (namespace index)
-    adoc += '** xref:' + AntoraNavBaseDir + namespace.url + '/' + namespace.url + '.adoc' + '[' + namespace.url  + ']\n';
+    adoc += '** ' + namespace.url + '\n';
     namespace.pages.forEach(function (page) {
       // namespace level pages
-      adoc += '*** xref:' + AntoraNavBaseDir + namespace.url + '/' + page.url + '.adoc' + '[' + page.url+ ']\n';
+      adoc += '*** xref:' + AntoraNavBaseDir + page.url + '.adoc' + '[' + page.url+ ']\n';
     });
   })
 
@@ -278,10 +273,10 @@ function createFileName(data, ext) {
     }
 
     if (data.fullName === 'tinymce') {
-      return (BASE_PATH + '/tinymce/tinymce.root.adoc').toLowerCase();
+      return (BASE_PATH + '/tinymce.root.adoc').toLowerCase();
     }
 
-    return (BASE_PATH + '/' + namespace + '/' + data.fullName + '.adoc').toLowerCase();
+    return (BASE_PATH + '/' + data.fullName + '.adoc').toLowerCase();
   } else if ('json' === ext) {
     return ('_data/api/' + data.type + '_' + data.fullName.replace(/\./g, '_') + '.json').toLowerCase();
   }
