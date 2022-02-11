@@ -88,7 +88,7 @@ module.exports = function () {
         tmp += '[[extends]]\n';
         tmp += '\n== Extends\n';
         data.borrows.forEach(item => {
-          tmp += 'link:' + baseurl + 'apis/' + item + '[' + item + ']\n'
+          tmp += 'link:' + baseurl + item + '[' + item + ']\n'
         });
       }
 
@@ -117,12 +117,12 @@ module.exports = function () {
         data.settings.forEach(item => {
           tmp += '|' + item.name;
           if (item.dataTypes[0].includes('tinymce', 0)) {
-            tmp += '|link:' + baseurl + 'apis/' + item.dataTypes[0] + '.html[' + item.dataTypes[0] + ']';
+            tmp += '|link:' + baseurl + item.dataTypes[0] + '.html[' + item.dataTypes[0] + ']';
           } else {
             tmp += '|' + item.dataTypes[0];    
           }
           tmp += '|' + item.desc;
-          tmp += '|link:' + baseurl + 'apis/' + item.definedBy + '.html[' + item.definedBy + ']\n';
+          tmp += '|link:' + baseurl + item.definedBy + '.html[' + item.definedBy + ']\n';
         })
         tmp += '|===\n';
       }
@@ -140,13 +140,13 @@ module.exports = function () {
           tmp += '|' + item.name;
           
           if (item.dataTypes[0].includes('tinymce', 0)) {
-            tmp += '|`link:' + baseurl + 'apis/' + item.dataTypes[0] + '.html[' + item.dataTypes[0] + ']`';
+            tmp += '|`link:' + baseurl + item.dataTypes[0] + '.html[' + item.dataTypes[0] + ']`';
           } else {
             tmp += '|`' + item.dataTypes[0] + '`';
           }
     
           tmp += '|' + cleanFilter(item.desc);
-          tmp += '|link:' + baseurl + 'apis/' + item.definedBy + '.html[' + item.definedBy + ']\n';
+          tmp += '|link:' + baseurl + item.definedBy + '.html[' + item.definedBy + ']\n';
         })
         tmp += '|===\n';
       }
@@ -163,7 +163,7 @@ module.exports = function () {
         data.constructors.forEach(item => {
           tmp += '|link:#' + item.name + '[' + item.name + '()]';
           tmp += '|' + item.desc;
-          tmp += '|link:' + baseurl + 'apis/' + item.definedBy + '.html[' + item.definedBy + ']\n';
+          tmp += '|link:' + baseurl + item.definedBy + '.html[' + item.definedBy + ']\n';
         });
         tmp += '|===\n'
       }
@@ -176,7 +176,7 @@ module.exports = function () {
         tmp += '|===\n'
         tmp += '|Name|Summary|Defined by\n'
         data.methods.forEach(item => {
-          tmp += '|link:#' + item.name + '[' + item.name + '()]|' + cleanFilter(item.desc) + '|link:' + baseurl + 'apis/' + item.definedBy + '.html[' + item.definedBy + ']\n';
+          tmp += '|link:#' + item.name + '[' + item.name + '()]|' + cleanFilter(item.desc) + '|link:' + baseurl + item.definedBy + '.html[' + item.definedBy + ']\n';
         });
         tmp += '|===\n'
       }
@@ -194,7 +194,7 @@ module.exports = function () {
         data.events.forEach(item => {
           tmp += '|link:#' + item.name + '[' + item.name + '()]';
           tmp += '|' + item.desc;
-          tmp += '|link:' + baseurl + 'apis/' + item.definedBy + '.html[' + item.definedBy + ']\n';
+          tmp += '|link:' + baseurl + item.definedBy + '.html[' + item.definedBy + ']\n';
         });
         tmp += '|===\n'
       }
@@ -224,7 +224,7 @@ module.exports = function () {
             constructor.params.forEach(param => {
               tmp += '\n* `' + param.name;
               if (param.types[0].includes('tinymce', 0)) {
-                tmp += ' link:' + baseurl + 'apis/' + param.types[0] + '.html[' + param.types[0] + ']`';
+                tmp += ' link:' + baseurl + param.types[0] + '.html[' + param.types[0] + ']`';
               } else {
                 tmp += ': ' + param.types[0] + '`';    
               }
@@ -237,7 +237,7 @@ module.exports = function () {
             // untested - no data
             constructor.return.types.forEach(type => {
               if (type.includes('tinymce', 0)) {
-                tmp += '\n* `link:' + baseurl + 'apis/' + type + '.html[' + type + ']`';
+                tmp += '\n* `link:' + baseurl + type + '.html[' + type + ']`';
               } else {
                 tmp += '\n* `' + type + '`';
               }
@@ -274,7 +274,7 @@ module.exports = function () {
             method.params.forEach(param => {
               tmp += '\n* `' + param.name;
               if (param.types[0].includes('tinymce', 0)) {
-                tmp += ' link:' + baseurl + 'apis/' + param.types[0] + '.html[' + param.types[0] + ']`';
+                tmp += ' link:' + baseurl + param.types[0] + '.html[' + param.types[0] + ']`';
               } else {
                 tmp += ' (' + UCFirst(param.types[0]) + ')`';
               }
@@ -286,7 +286,7 @@ module.exports = function () {
             method.return.types.forEach(type => {
               tmp += '\n* `';
               if (type.includes('tinymce', 0)) {
-                tmp += 'link:' + baseurl + 'apis/' + type + '.html[' + type + ']`';
+                tmp += 'link:' + baseurl + type + '.html[' + type + ']`';
               } else {
                 tmp += '(' + UCFirst(type) + ')`';
               }
@@ -312,7 +312,7 @@ module.exports = function () {
           method.params.forEach(param => {
             tmp += '\n* `' + param.name;
             if (param.types[0].includes('tinymce', 0)) {
-              tmp += ' link:' + baseurl + 'apis/' + param.types[0] + '.html[' + param.types[0] + ']`';
+              tmp += ' link:' + baseurl + param.types[0] + '.html[' + param.types[0] + ']`';
             } else {
               tmp += ' (' + UCFirst(param.types[0]) + ')`';
             }
