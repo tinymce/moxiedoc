@@ -1,6 +1,6 @@
 {
   "name": "@tinymce/moxiedoc",
-  "version": "0.1.1-rc",
+  "version": "0.2.0-rc",
   "description": "A tool for generating API documentation",
   "author": "Tiny Technologies, Inc",
   "bugs": {
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "prepublishOnly": "yarn build",
-    "copy-templates": "cd src && cp --parents templates/**/*.handlebars ../dist/ && cd ../",
+    "copy-templates": "cd src && rsync -R templates/**/*.handlebars ../dist/ && cd ../",
     "build": "tsc && yarn copy-templates",
     "lint": "eslint src/**/*.ts",
     "test": "yarn mocha"
