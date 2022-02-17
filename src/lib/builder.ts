@@ -76,7 +76,7 @@ class Builder {
     let ignoreFile: boolean;
     const self = this;
 
-    this.parser.on('parse', function () {
+    this.parser.on('parse', function (this: Parser) {
       ignoreFile = false;
       Reporter.info('Parsing file:', this.info.filePath);
     });
