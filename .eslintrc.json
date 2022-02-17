@@ -1,0 +1,12 @@
+{
+  "root": true,
+  "extends": "plugin:@tinymce/editor",
+  "parserOptions": {
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "rules": {
+    "@typescript-eslint/no-this-alias": "off",
+    "no-underscore-dangle": "off"
+  }
+}
