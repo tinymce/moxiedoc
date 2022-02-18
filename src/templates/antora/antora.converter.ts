@@ -189,7 +189,7 @@ const generateConstructor = (data: Record<string, any>): string => {
       }
 
       if (hasValue(constructor.params)) {
-        tmp += '\n==== Parameters';
+        tmp += '\n==== Parameters\n';
         constructor.params.forEach((param) => {
           tmp += '\n* `' + param.name + '` `(' + generateTypeLink(param.types[0]) + ')` - ' + cleanup(param.desc);
         });
@@ -198,6 +198,7 @@ const generateConstructor = (data: Record<string, any>): string => {
 
       if (hasValue(constructor.return) && hasValue(constructor.return.types)) {
         // untested - no data
+        tmp += '\n==== Return value\n';
         constructor.return.types.forEach((type) => {
           tmp += '\n* `' + generateTypeLink(type) + '` - ' + cleanup(constructor.return.desc);
         });
