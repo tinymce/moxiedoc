@@ -49,7 +49,7 @@ const encodeCode = (str: string) => {
 };
 
 // runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
-const runCleanupFilters = (str: string): string => {
+const cleanup = (str: string): string => {
   const filters = [ escapeComments, encodeBR, encodeEM, encodeStrong, encodeLinks, encodeCode ];
   return filters.reduce((acc, filter) => filter(acc), str);
 };
@@ -151,16 +151,19 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
         tmp += '|`' + item.dataTypes[0] + '`';
       }
 
-      tmp += '|' + runCleanupFilters(item.desc);
+      tmp += '|' + cleanup(item.desc);
       tmp += '|link:' + baseURL + item.definedBy + '.html[' + item.definedBy + ']\n';
     });
     tmp += '|===\n';
   }
 
+  tmp += '\n[[summary]]\n';
+  tmp += '== Summary\n';
+
   // constructors - basic summary
   if (hasValue(data.constructors)) {
     tmp += '\n[[constructors-summary]]\n';
-    tmp += '== Constructors\n';
+    tmp += '=== Constructors\n';
 
     tmp += '[options="header"]\n';
     tmp += '|===\n';
@@ -177,12 +180,12 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
   // methods - basic summary
   if (hasValue(data.methods)) {
     tmp += '\n[[methods-summary]]\n';
-    tmp += '== ' + data.name + ' Reference\n';
+    tmp += '=== Methods\n';
     tmp += '[options="header"]\n';
     tmp += '|===\n';
     tmp += '|Name|Summary|Defined by\n';
     data.methods.forEach((item) => {
-      tmp += '|link:#' + item.name + '[' + item.name + '()]|' + runCleanupFilters(item.desc) + '|link:' + baseURL + item.definedBy + '.html[' + item.definedBy + ']\n';
+      tmp += '|link:#' + item.name + '[' + item.name + '()]|' + cleanup(item.desc) + '|link:' + baseURL + item.definedBy + '.html[' + item.definedBy + ']\n';
     });
     tmp += '|===\n';
   }
@@ -191,7 +194,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
   // untested snippet, no events data
   if (hasValue(data.events)) {
     tmp += '\n[[events-summary]]\n';
-    tmp += '== Events\n';
+    tmp += '=== Events\n';
 
     tmp += '[options="header"]\n';
     tmp += '|===\n';
@@ -268,7 +271,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
       tmp += '----\n';
       tmp += method.signature + '\n';
       tmp += '----\n';
-      tmp += runCleanupFilters(method.desc) + '\n';
+      tmp += cleanup(method.desc) + '\n';
 
       if (hasValue(method.examples)) {
         tmp += '\n==== Examples\n';
@@ -289,7 +292,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
           } else {
             tmp += ' (' + uppercaseFirstChar(param.types[0]) + ')`';
           }
-          tmp += ' - ' + runCleanupFilters(param.desc) + '\n';
+          tmp += ' - ' + cleanup(param.desc) + '\n';
         });
       }
 
