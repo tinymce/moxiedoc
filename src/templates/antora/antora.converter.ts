@@ -268,7 +268,7 @@ const buildEvents = (data: Record<string, any>): string => {
     tmp += '== Events\n';
     data.events.forEach((event) => {
       tmp += '\n[[' + event.name + ']]\n';
-      tmp += '=== ' + event.name + '()\n';
+      tmp += '=== ' + event.name + '\n';
       tmp += cleanup(event.desc) + '\n';
 
       if (hasValue(event.params)) {
