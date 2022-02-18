@@ -91,8 +91,8 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
   // borrows
   // untested snipped, no class extends data
   if (hasValue(data.borrows)) {
-    tmp += '[[extends]]\n';
-    tmp += '\n== Extends\n';
+    tmp += '\n[[extends]]\n';
+    tmp += '== Extends\n';
     data.borrows.forEach((item) => {
       tmp += 'link:' + baseURL + item + '[' + item + ']\n';
     });
@@ -100,8 +100,8 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
 
   // examples
   if (hasValue(data.examples)) {
-    tmp += '[[examples]]\n';
-    tmp += '\n== Examples\n';
+    tmp += '\n[[examples]]\n';
+    tmp += '== Examples\n';
     data.examples.forEach((example) => {
       tmp += '[source, javascript]\n';
       tmp += '----\n';
@@ -113,8 +113,8 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
   // settings
   // untested snippet, no settings data
   if (hasValue(data.settings)) {
-    tmp += '[[settings]]\n';
-    tmp += '\n== Settings\n';
+    tmp += '\n[[settings]]\n';
+    tmp += '== Settings\n';
 
     tmp += '[options="header"]\n';
     tmp += '|===\n';
@@ -135,8 +135,8 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
 
   // properties
   if (hasValue(data.properties)) {
-    tmp += '[[properties]]\n';
-    tmp += '\n== Properties\n';
+    tmp += '\n[[properties]]\n';
+    tmp += '== Properties\n';
 
     tmp += '[options="header"]\n';
     tmp += '|===\n';
@@ -159,8 +159,8 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
 
   // constructors - basic summary
   if (hasValue(data.constructors)) {
-    tmp += '[[constructors]]\n';
-    tmp += '\n== Constructors\n';
+    tmp += '\n[[constructors-summary]]\n';
+    tmp += '== Constructors\n';
 
     tmp += '[options="header"]\n';
     tmp += '|===\n';
@@ -176,8 +176,8 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
 
   // methods - basic summary
   if (hasValue(data.methods)) {
-    tmp += '[[' + data.name + ']]\n';
-    tmp += '\n== ' + data.name + ' Reference\n';
+    tmp += '\n[[methods-summary]]\n';
+    tmp += '== ' + data.name + ' Reference\n';
     tmp += '[options="header"]\n';
     tmp += '|===\n';
     tmp += '|Name|Summary|Defined by\n';
@@ -190,8 +190,8 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
   // events - basic summary
   // untested snippet, no events data
   if (hasValue(data.events)) {
-    tmp += '[[events]]\n';
-    tmp += '\n== Events\n';
+    tmp += '\n[[events-summary]]\n';
+    tmp += '== Events\n';
 
     tmp += '[options="header"]\n';
     tmp += '|===\n';
@@ -207,16 +207,19 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
 
   // constructors 2 - enhanced detail
   if (hasValue(data.constructors)) {
-
-    tmp += '\n== Constructors\n';
+    tmp += '\n[[constructors]]\n';
+    tmp += '== Constructors\n';
 
     data.constructors.forEach((constructor) => {
-      tmp += '[[' + constructor.name + ']]\n';
-      tmp += '\n=== link:#' + constructor.name + '[' + constructor.name + ']\n';
-      tmp += '`' + constructor.signature + '` ';
-      tmp += constructor.desc + '\n';
+      tmp += '\n[[' + constructor.name + ']]\n';
+      tmp += '=== ' + constructor.name + '\n';
+      tmp += '[source, javascript]\n';
+      tmp += '----\n';
+      tmp += constructor.signature + '\n';
+      tmp += '----\n';
+      tmp += cleanup(constructor.desc) + '\n';
       if (hasValue(constructor.examples)) {
-        tmp += '\n===== Examples';
+        tmp += '\n==== Examples';
         constructor.examples.forEach((example) => {
           tmp += '[source, javascript]\n';
           tmp += '----\n';
@@ -226,7 +229,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
         tmp += '\n';
       }
       if (hasValue(constructor.params)) {
-        tmp += '\n===== Parameters';
+        tmp += '\n==== Parameters';
         constructor.params.forEach((param) => {
           tmp += '\n* `' + param.name;
           if (param.types[0].includes('tinymce', 0)) {
@@ -256,10 +259,11 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
 
   // methods 2 - enhanced details
   if (hasValue(data.methods)) {
-    tmp += '\n== Methods\n';
+    tmp += '\n[[methods]]\n';
+    tmp += '== Methods\n';
     data.methods.forEach((method) => {
-      tmp += '[[' + method.name + ']]\n';
-      tmp += '\n=== ' + method.name + '()\n';
+      tmp += '\n[[' + method.name + ']]\n';
+      tmp += '=== ' + method.name + '()\n';
       tmp += '[source, javascript]\n';
       tmp += '----\n';
       tmp += method.signature + '\n';
@@ -309,10 +313,11 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
   // events 2 - enhanced details
   // untested snippet, no events data
   if (hasValue(data.events)) {
-    tmp += '\n== Events\n';
+    tmp += '\n[[events]]\n';
+    tmp += '== Events\n';
     data.events.forEach((event) => {
-      tmp += '[[' + event.name + ']]\n';
-      tmp += '\n=== ' + event.name + '()\n';
+      tmp += '\n[[' + event.name + ']]\n';
+      tmp += '=== ' + event.name + '()\n';
       tmp += event.desc + '\n';
 
       if (hasValue(event.params)) {
