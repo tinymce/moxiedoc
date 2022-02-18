@@ -1,3 +1,6 @@
+import { Return } from '../../lib/member';
+import { Param } from '../../lib/param';
+
 export interface PageOutput {
   readonly type: 'adoc' | 'json';
   readonly filename: string;
@@ -44,12 +47,6 @@ const encodeCode = (str: string) => {
   return str;
 };
 
-// runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
-const cleanup = (str: string): string => {
-  const filters = [ escapeComments, encodeBR, encodeEM, encodeStrong, encodeLinks, encodeCode ];
-  return filters.reduce((acc, filter) => filter(acc), str);
-};
-
 // convert <a href> into asciidoc link
 const encodeLinks = (str: string): string => {
   const matches = /[^<]*(<a href="([^"]+)">([^<]+)<\/a>)/.exec(str);
@@ -61,6 +58,12 @@ const encodeLinks = (str: string): string => {
   }
 };
 
+// runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
+const cleanup = (str: string): string => {
+  const filters = [ escapeComments, encodeBR, encodeEM, encodeStrong, encodeLinks, encodeCode ];
+  return filters.reduce((acc, filter) => filter(acc), str);
+};
+
 const getNameFromFullName = (name: string): string =>
   name.split('.').slice(-1).join('');
 
@@ -70,7 +73,35 @@ const generateTypeLink = (type: string): string =>
 const generateDefinedByLink = (definedBy: string) =>
   'link:' + baseURL + definedBy.toLowerCase() + '.html[' + getNameFromFullName(definedBy) + ']';
 
-const generateSummary = (data: Record<string, any>): string => {
+const generateExamples = (examples: Array<{ content: string }>): string => {
+  let tmp = '\n==== Examples\n';
+  examples.forEach((example) => {
+    tmp += '[source, javascript]\n';
+    tmp += '----\n';
+    tmp += example.content + '\n';
+    tmp += '----\n';
+  });
+  return tmp;
+};
+
+const generateParameters = (params: Param[]) => {
+  let tmp = '\n==== Parameters\n';
+  params.forEach((param) => {
+    tmp += '\n* `' + param.name + ' (' + generateTypeLink(param.types[0]) + ')` - ' + cleanup(param.desc);
+  });
+  return tmp + '\n';
+};
+
+const generateReturn = (ret: Return) => {
+  let tmp = '\n==== Return value\n';
+  ret.types.forEach((type) => {
+    tmp += '\n* `' + generateTypeLink(type) + '` - ' + cleanup(ret.desc);
+  });
+  tmp += '\n';
+  return tmp;
+};
+
+const buildSummary = (data: Record<string, any>): string => {
   let tmp = '';
 
   // settings
@@ -161,7 +192,7 @@ const generateSummary = (data: Record<string, any>): string => {
   return tmp.length > 0 ? '\n[[summary]]\n== Summary\n' + tmp : tmp;
 };
 
-const generateConstructor = (data: Record<string, any>): string => {
+const buildConstructor = (data: Record<string, any>): string => {
   let tmp = '';
 
   if (hasValue(data.constructors)) {
@@ -178,31 +209,15 @@ const generateConstructor = (data: Record<string, any>): string => {
       tmp += cleanup(constructor.desc) + '\n';
 
       if (hasValue(constructor.examples)) {
-        tmp += '\n==== Examples\n';
-        constructor.examples.forEach((example) => {
-          tmp += '[source, javascript]\n';
-          tmp += '----\n';
-          tmp += example.content + '\n';
-          tmp += '----\n';
-        });
-        tmp += '\n';
+        tmp += generateExamples(constructor.examples);
       }
 
       if (hasValue(constructor.params)) {
-        tmp += '\n==== Parameters\n';
-        constructor.params.forEach((param) => {
-          tmp += '\n* `' + param.name + '` `(' + generateTypeLink(param.types[0]) + ')` - ' + cleanup(param.desc);
-        });
-        tmp += '\n';
+        tmp += generateParameters(constructor.params);
       }
 
       if (hasValue(constructor.return) && hasValue(constructor.return.types)) {
-        // untested - no data
-        tmp += '\n==== Return value\n';
-        constructor.return.types.forEach((type) => {
-          tmp += '\n* `' + generateTypeLink(type) + '` - ' + cleanup(constructor.return.desc);
-        });
-        tmp += '\n';
+        tmp += generateReturn(constructor.return);
       }
     });
   }
@@ -210,7 +225,7 @@ const generateConstructor = (data: Record<string, any>): string => {
   return tmp;
 };
 
-const generateMethods = (data: Record<string, any>): string => {
+const buildMethods = (data: Record<string, any>): string => {
   let tmp = '';
 
   if (hasValue(data.methods)) {
@@ -226,29 +241,15 @@ const generateMethods = (data: Record<string, any>): string => {
       tmp += cleanup(method.desc) + '\n';
 
       if (hasValue(method.examples)) {
-        tmp += '\n==== Examples\n';
-        method.examples.forEach((example) => {
-          tmp += '[source, javascript]\n';
-          tmp += '----\n';
-          tmp += example.content + '\n';
-          tmp += '----\n';
-        });
+        tmp += generateExamples(method.examples);
       }
 
       if (hasValue(method.params)) {
-        tmp += '\n==== Parameters\n';
-        method.params.forEach((param) => {
-          tmp += '\n* `' + param.name + ' (' + generateTypeLink(param.types[0]) + ')` - ' + cleanup(param.desc);
-        });
-        tmp += '\n';
+        tmp += generateParameters(method.params);
       }
 
       if (hasValue(method.return) && hasValue(method.return.types)) {
-        tmp += '\n==== Return value\n';
-        method.return.types.forEach((type) => {
-          tmp += '\n* `' + generateTypeLink(type) + '` - ' + cleanup(method.return.desc);
-        });
-        tmp += '\n';
+        tmp += generateReturn(method.return);
       }
 
       tmp += `\n'''\n`;
@@ -258,7 +259,7 @@ const generateMethods = (data: Record<string, any>): string => {
   return tmp;
 };
 
-const generateEvents = (data: Record<string, any>): string => {
+const buildEvents = (data: Record<string, any>): string => {
   let tmp = '';
 
   // untested snippet, no events data
@@ -271,11 +272,7 @@ const generateEvents = (data: Record<string, any>): string => {
       tmp += cleanup(event.desc) + '\n';
 
       if (hasValue(event.params)) {
-        tmp += '\n==== Parameters\n';
-        event.params.forEach((param) => {
-          tmp += '\n* `' + param.name + ' (' + generateTypeLink(param.types[0]) + ')` - ' + cleanup(param.desc);
-        });
-        tmp += '\n';
+        tmp += generateParameters(event.params);
       }
     });
   }
@@ -328,10 +325,10 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
     });
   }
 
-  tmp += generateSummary(data);
-  tmp += generateConstructor(data);
-  tmp += generateMethods(data);
-  tmp += generateEvents(data);
+  tmp += buildSummary(data);
+  tmp += buildConstructor(data);
+  tmp += buildMethods(data);
+  tmp += buildEvents(data);
 
   // return the applied antora page mutation
   page[1] = {
