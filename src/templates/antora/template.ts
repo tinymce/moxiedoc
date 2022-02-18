@@ -213,12 +213,6 @@ const compileTemplate = (filePath: string): HandlebarsTemplateDelegate => {
  */
 const createFileName = (data: Record<string, any>, ext: 'adoc' | 'json'): string => {
   if ('adoc' === ext) {
-    let namespace = getNamespaceFromFullName(data.fullName);
-
-    if (!namespace) {
-      namespace = 'tinymce';
-    }
-
     if (data.fullName === 'tinymce') {
       return (BASE_PATH + '/tinymce.root.adoc').toLowerCase();
     }
