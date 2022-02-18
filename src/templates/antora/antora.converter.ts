@@ -191,7 +191,7 @@ const generateConstructor = (data: Record<string, any>): string => {
       if (hasValue(constructor.params)) {
         tmp += '\n==== Parameters';
         constructor.params.forEach((param) => {
-          tmp += '\n* `' + param.name + '` `(' + generateTypeLink(param.types[0]) + ')`';
+          tmp += '\n* `' + param.name + '` `(' + generateTypeLink(param.types[0]) + ')` - ' + cleanup(param.desc);
         });
         tmp += '\n';
       }
