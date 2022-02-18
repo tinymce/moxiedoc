@@ -21,15 +21,6 @@ const BASE_PATH = process.env.BASE_PATH || '/_data/antora';
 // correlates to tinymce-docs antora path
 const AntoraNavBaseDir = 'apis/';
 
-const namespaceDescriptions = {
-  'tinymce': 'Global APIs for working with the editor.',
-  'tinymce.dom': 'APIs for working with the DOM from within the editor.',
-  'tinymce.editor.ui': 'APIs for registering User Interface components.',
-  'tinymce.geom': 'Various rectangle APIs.',
-  'tinymce.html': 'APIs for working with HTML within the editor.',
-  'tinymce.util': 'Browser related APIs.'
-};
-
 const navToAdoc = (navyml: NavFile[]): string => {
   // Api index page
   const indexPage = navyml[0];
@@ -284,8 +275,6 @@ const getSyntaxString = (memberData: Record<string, any>) => {
  */
 const template = (root: Api, toPath: string): void => {
   const archive = new ZipWriter();
-  // const rootTemplate = compileTemplate('root.handlebars');
-  const namespaceTemplate = compileTemplate('namespace.handlebars');
   const memberTemplate = compileTemplate('member.handlebars');
 
   // bind new archive to function
@@ -319,20 +308,6 @@ const template = (root: Api, toPath: string): void => {
   const pages: PageOutput[][] = sortedTypes.map(getMemberPages.bind(null, root, memberTemplate));
   const convertedPages = AntoraTemplate.convert(pages);
   flatten(convertedPages).forEach(addPage);
-
-  const namespaces = getNamespacesFromTypes(sortedTypes);
-  Object.entries(namespaces).map(([ url, title ]) => {
-    // TODO: flatten FS here for antora if needed.
-    const fileName = (BASE_PATH + '/' + url + '.adoc').toLowerCase();
-    const namespaceDescription = (url in namespaceDescriptions) ? namespaceDescriptions[url] : url;
-    return {
-      filename: fileName,
-      content: namespaceTemplate({
-        title,
-        desc: namespaceDescription
-      })
-    };
-  }).forEach(addPage);
 
   archive.saveAs(toPath, (err) => {
     if (err) {
