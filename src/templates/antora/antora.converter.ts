@@ -84,7 +84,7 @@ const generateExamples = (examples: Array<{ content: string }>): string => {
   return tmp;
 };
 
-const generateParameters = (params: Param[]) => {
+const generateParameters = (params: Param[]): string => {
   let tmp = '\n==== Parameters\n';
   params.forEach((param) => {
     tmp += '\n* `' + param.name + ' (' + generateTypeLink(param.types[0]) + ')` - ' + cleanup(param.desc);
@@ -92,7 +92,7 @@ const generateParameters = (params: Param[]) => {
   return tmp + '\n';
 };
 
-const generateReturn = (ret: Return) => {
+const generateReturn = (ret: Return): string => {
   let tmp = '\n==== Return value\n';
   ret.types.forEach((type) => {
     tmp += '\n* `' + generateTypeLink(type) + '` - ' + cleanup(ret.desc);
