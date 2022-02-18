@@ -134,10 +134,13 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
     tmp += '|===\n';
   }
 
+  tmp += '\n[[summary]]\n';
+  tmp += '== Summary\n';
+
   // properties
   if (hasValue(data.properties)) {
     tmp += '\n[[properties]]\n';
-    tmp += '== Properties\n';
+    tmp += '=== Properties\n';
 
     tmp += '[options="header"]\n';
     tmp += '|===\n';
@@ -151,9 +154,6 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
     });
     tmp += '|===\n';
   }
-
-  tmp += '\n[[summary]]\n';
-  tmp += '== Summary\n';
 
   // constructors - basic summary
   if (hasValue(data.constructors)) {
