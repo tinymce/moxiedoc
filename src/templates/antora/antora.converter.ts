@@ -34,6 +34,10 @@ const encodeBR = (str: string): string =>
 const encodeEM = (str: string): string =>
   str.replace(/<\/?em>/g, '_');
 
+// convert <strong> into *bold* asciidoc
+const encodeStrong = (str: string): string =>
+  str.replace(/<\/?strong>/g, '*');
+
 // convert <code> into backtick asciidoc
 const encodeCode = (str: string) => {
   const regex = /<code>(.*?)<\/code>/g;
@@ -45,8 +49,8 @@ const encodeCode = (str: string) => {
 };
 
 // runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
-const cleanFilter = (str: string): string => {
-  const filters = [ escapeComments, encodeBR, encodeEM, encodeLinks, encodeCode ];
+const runCleanupFilters = (str: string): string => {
+  const filters = [ escapeComments, encodeBR, encodeEM, encodeStrong, encodeLinks, encodeCode ];
   return filters.reduce((acc, filter) => filter(acc), str);
 };
 
@@ -147,7 +151,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
         tmp += '|`' + item.dataTypes[0] + '`';
       }
 
-      tmp += '|' + cleanFilter(item.desc);
+      tmp += '|' + runCleanupFilters(item.desc);
       tmp += '|link:' + baseURL + item.definedBy + '.html[' + item.definedBy + ']\n';
     });
     tmp += '|===\n';
@@ -178,7 +182,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
     tmp += '|===\n';
     tmp += '|Name|Summary|Defined by\n';
     data.methods.forEach((item) => {
-      tmp += '|link:#' + item.name + '[' + item.name + '()]|' + cleanFilter(item.desc) + '|link:' + baseURL + item.definedBy + '.html[' + item.definedBy + ']\n';
+      tmp += '|link:#' + item.name + '[' + item.name + '()]|' + runCleanupFilters(item.desc) + '|link:' + baseURL + item.definedBy + '.html[' + item.definedBy + ']\n';
     });
     tmp += '|===\n';
   }
@@ -260,7 +264,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
       tmp += '----\n';
       tmp += method.signature + '\n';
       tmp += '----\n';
-      tmp += cleanFilter(method.desc) + '\n';
+      tmp += runCleanupFilters(method.desc) + '\n';
 
       if (hasValue(method.examples)) {
         tmp += '\n==== Examples\n';
@@ -281,7 +285,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
           } else {
             tmp += ' (' + uppercaseFirstChar(param.types[0]) + ')`';
           }
-          tmp += ' - ' + cleanFilter(param.desc) + '\n';
+          tmp += ' - ' + runCleanupFilters(param.desc) + '\n';
         });
       }
 
