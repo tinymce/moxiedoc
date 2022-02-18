@@ -87,7 +87,7 @@ const generateExamples = (examples: Array<{ content: string }>): string => {
 const generateParameters = (params: Param[]): string => {
   let tmp = '\n==== Parameters\n';
   params.forEach((param) => {
-    tmp += '\n* `' + param.name + ' (' + generateTypeLink(param.types[0]) + ')` - ' + cleanup(param.desc);
+    tmp += '\n* `' + param.name + ' (' + param.types.map(generateTypeLink).join(' | ') + ')` - ' + cleanup(param.desc);
   });
   return tmp + '\n';
 };
