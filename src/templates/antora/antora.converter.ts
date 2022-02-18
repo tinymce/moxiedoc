@@ -302,7 +302,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
 
   // summary
   if (hasValue(data.summary)) {
-    tmp += cleanup(data.summary) + '\n';
+    tmp += '\n' + cleanup(data.summary) + '\n';
   }
 
   // borrows
