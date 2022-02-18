@@ -9,7 +9,8 @@ import { Type } from '../../lib/type';
 import * as AntoraTemplate from './antora.converter';
 
 interface NavFile {
-  readonly url: string;
+  readonly title: string;
+  readonly path: string;
   readonly pages?: NavFile[];
 }
 
@@ -31,16 +32,16 @@ const namespaceDescriptions = {
 
 const navToAdoc = (navyml: NavFile[]): string => {
   // Api index page
-  let adoc = '* API Reference\n';
-  const pages = navyml[0].pages;
+  const indexPage = navyml[0];
+  let adoc = '* ' + indexPage.title + '\n';
 
   // generate API namespaces
-  pages.forEach((namespace) => {
+  indexPage.pages.forEach((namespace) => {
     // main namespace level navigation (namespace index)
-    adoc += '** ' + namespace.url + '\n';
+    adoc += '** ' + namespace.path + '\n';
     namespace.pages.forEach((page) => {
       // namespace level pages
-      adoc += '*** xref:' + AntoraNavBaseDir + page.url + '.adoc' + '[' + page.url + ']\n';
+      adoc += '*** xref:' + AntoraNavBaseDir + page.path + '.adoc' + '[' + page.title + ']\n';
     });
   });
 
@@ -50,12 +51,15 @@ const navToAdoc = (navyml: NavFile[]): string => {
 const getNamespaceFromFullName = (fullName: string) =>
   fullName.split('.').slice(0, -1).join('.');
 
-const getNamespacesFromTypes = (types: Type[]): string[] => {
-  return types.reduce((namespaces: string[], type: Type) => {
+const getNamespacesFromTypes = (types: Type[]): Record<string, string> => {
+  return types.reduce((namespaces: Record<string, string>, type: Type) => {
     const fullName = type.fullName.toLowerCase();
-    const namespace = getNamespaceFromFullName(fullName);
-    return namespace && namespaces.indexOf(namespace) === -1 ? namespaces.concat(namespace) : namespaces;
-  }, []);
+    const url = getNamespaceFromFullName(fullName);
+    if (url && !namespaces[url]) {
+      namespaces[url] = getNamespaceFromFullName(type.fullName);
+    }
+    return namespaces;
+  }, {});
 };
 
 /**
@@ -64,25 +68,31 @@ const getNamespacesFromTypes = (types: Type[]): string[] => {
  */
 const getNavFile = (types: Type[]): NavFile[] => {
   const namespaces = getNamespacesFromTypes(types);
-  const pages = namespaces.map((namespace) => {
+  const pages = Object.entries(namespaces).map(([ url, title ]): NavFile => {
     const innerPages = types.filter((type) => {
       const fullName = type.fullName.toLowerCase();
-      return getNamespaceFromFullName(fullName) === namespace;
-    }).map((type) => ({ url: type.fullName.toLowerCase() }));
+      return getNamespaceFromFullName(fullName) === url;
+    }).map((type): NavFile => {
+      return { title: type.fullName, path: type.fullName.toLowerCase() };
+    });
 
-    if (namespace === 'tinymce') {
+    if (url === 'tinymce') {
       innerPages.unshift({
-        url: 'tinymce.root'
+        title: 'tinymce',
+        path: 'tinymce.root'
       });
     }
+
     return {
-      url: namespace,
+      title,
+      path: url,
       pages: innerPages
     };
   });
 
   return [{
-    url: BASE_PATH,
+    title: 'API Reference',
+    path: BASE_PATH,
     pages
   }];
 };
@@ -311,14 +321,15 @@ const template = (root: Api, toPath: string): void => {
   const convertedPages = AntoraTemplate.convert(pages);
   flatten(convertedPages).forEach(addPage);
 
-  getNamespacesFromTypes(sortedTypes).map((namespace) => {
+  const namespaces = getNamespacesFromTypes(sortedTypes);
+  Object.entries(namespaces).map(([ url, title ]) => {
     // TODO: flatten FS here for antora if needed.
-    const fileName = (BASE_PATH + '/' + namespace + '.adoc').toLowerCase();
-    const namespaceDescription = (namespace in namespaceDescriptions) ? namespaceDescriptions[namespace] : namespace;
+    const fileName = (BASE_PATH + '/' + url + '.adoc').toLowerCase();
+    const namespaceDescription = (url in namespaceDescriptions) ? namespaceDescriptions[url] : url;
     return {
       filename: fileName,
       content: namespaceTemplate({
-        title: namespace,
+        title,
         desc: namespaceDescription
       })
     };
