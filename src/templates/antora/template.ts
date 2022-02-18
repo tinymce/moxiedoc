@@ -252,9 +252,8 @@ const addPageToArchive = function (this: ZipWriter, page: { filename: string; co
  * @return {[type]}        [description]
  */
 const getSyntaxString = (memberData: Record<string, any>) => {
-  const params = memberData.params.map((param) => param.name + ':' + param.types[0]).join(', ');
-
-  const returnType = memberData.return ? (':' + memberData.return.types.join(', ')) : '';
+  const params = memberData.params.map((param) => param.name + ': ' + param.types[0]).join(', ');
+  const returnType = memberData.return ? (': ' + memberData.return.types.join(' | ')) : '';
 
   switch (memberData.type) {
     case 'callback':
