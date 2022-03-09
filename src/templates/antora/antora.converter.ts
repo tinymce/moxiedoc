@@ -58,9 +58,13 @@ const encodeLinks = (str: string): string => {
   }
 };
 
+// convert content that looks like asciidoc attributes (e.g {0}) to literal strings
+const escapeAttributes = (str: string): string =>
+  str.replace(/(\{\s*[\w\d-]+\s*\})/g, '+$1+');
+
 // runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
 const cleanup = (str: string): string => {
-  const filters = [ escapeComments, encodeBR, encodeEM, encodeStrong, encodeLinks, encodeCode ];
+  const filters = [ escapeComments, encodeBR, encodeEM, encodeStrong, encodeLinks, encodeCode, escapeAttributes ];
   return filters.reduce((acc, filter) => filter(acc), str);
 };
 
