@@ -8,7 +8,7 @@ import { MoxiedocSettings, process as moxieDocProcess } from './moxiedoc';
 process.argv[1] = 'moxiedoc';
 
 program
-  .version('0.1.0')
+  .version('0.2.0')
   .usage('[options] <dir ...>')
   .option('-o, --out <path>', 'output path, default: out')
   .option('-t, --template <template>', 'template name')

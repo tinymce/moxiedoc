@@ -2,7 +2,7 @@ import { Param, ParamData } from './param';
 import { Target } from './target';
 import { Type } from './type';
 
-interface ReturnType {
+export interface Return {
   readonly types: string[];
   readonly desc: string;
 }
@@ -10,7 +10,7 @@ interface ReturnType {
 export interface MemberData extends Target {
   readonly dataTypes?: string[];
   readonly mixType?: string;
-  readonly return?: ReturnType;
+  readonly return?: Return;
   readonly staticLink?: boolean;
   readonly type?: string;
   readonly params?: ParamData[];
@@ -26,7 +26,7 @@ class Member extends Target {
   public _parentType: Type;
   public dataTypes: string[];
   public mixType: string;
-  public return: ReturnType;
+  public return: Return;
   public staticLink: boolean;
   public type: string;
 
