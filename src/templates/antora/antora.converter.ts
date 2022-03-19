@@ -71,11 +71,16 @@ const cleanup = (str: string): string => {
 const getNameFromFullName = (name: string): string =>
   name.split('.').slice(-1).join('');
 
-const generateTypeXref = (type: string): string =>
-  type.includes('tinymce', 0) ? 'xref:' + basePath + type.toLowerCase() + '.adoc[' + getNameFromFullName(type) + ']' : type;
+const getFilePathFromFullName = (name: string): string => {
+  const filename = name.toLowerCase() === 'tinymce' ? 'tinymce.root' : name.toLowerCase();
+  return basePath + filename + '.adoc';
+};
 
-const generateDefinedByXref = (definedBy: string) =>
-  'xref:' + basePath + definedBy.toLowerCase() + '.adoc[' + getNameFromFullName(definedBy) + ']';
+const generateTypeXref = (type: string): string =>
+  type.includes('tinymce', 0) ? 'xref:' + getFilePathFromFullName(type) + '[' + getNameFromFullName(type) + ']' : type;
+
+const generateDefinedByXref = (definedBy: string): string =>
+  'xref:' + getFilePathFromFullName(definedBy) + '[' + getNameFromFullName(definedBy) + ']';
 
 const generateExamples = (examples: Array<{ content: string }>): string => {
   let tmp = '\n==== Examples\n';
