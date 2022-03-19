@@ -39,7 +39,7 @@ const encodeStrong = (str: string): string =>
 
 // convert <code> into backtick asciidoc
 const encodeCode = (str: string) => {
-  const regex = /<code>(.*?)<\/code>/g;
+  const regex = /<code>(.*?)<\/code>/;
   let matches;
   while ((matches = regex.exec(str))) {
     str = str.replace(matches[0], '`' + matches[1] + '`').replace('"`', '`').replace('`"', '`');
