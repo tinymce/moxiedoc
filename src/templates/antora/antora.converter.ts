@@ -119,7 +119,7 @@ const buildSummary = (data: Record<string, any>): string => {
     tmp += '\n[[settings]]\n';
     tmp += '=== Settings\n';
 
-    tmp += '[options="header"]\n';
+    tmp += '[cols="2,1,4,1",options="header"]\n';
     tmp += '|===\n';
     tmp += '|Name|Type|Summary|Defined by\n';
 
@@ -137,7 +137,7 @@ const buildSummary = (data: Record<string, any>): string => {
     tmp += '\n[[properties]]\n';
     tmp += '=== Properties\n';
 
-    tmp += '[options="header"]\n';
+    tmp += '[cols="2,1,4,1",options="header"]\n';
     tmp += '|===\n';
     tmp += '|Name|Type|Summary|Defined by\n';
 
@@ -155,7 +155,7 @@ const buildSummary = (data: Record<string, any>): string => {
     tmp += '\n[[constructors-summary]]\n';
     tmp += '=== Constructors\n';
 
-    tmp += '[options="header"]\n';
+    tmp += '[cols="2,5,1",options="header"]\n';
     tmp += '|===\n';
     tmp += '|Name|Summary|Defined by\n';
 
@@ -171,7 +171,7 @@ const buildSummary = (data: Record<string, any>): string => {
   if (hasValue(data.methods)) {
     tmp += '\n[[methods-summary]]\n';
     tmp += '=== Methods\n';
-    tmp += '[options="header"]\n';
+    tmp += '[cols="2,5,1",options="header"]\n';
     tmp += '|===\n';
     tmp += '|Name|Summary|Defined by\n';
     data.methods.forEach((item) => {
@@ -186,7 +186,7 @@ const buildSummary = (data: Record<string, any>): string => {
     tmp += '\n[[events-summary]]\n';
     tmp += '=== Events\n';
 
-    tmp += '[options="header"]\n';
+    tmp += '[cols="2,5,1",options="header"]\n';
     tmp += '|===\n';
     tmp += '|Name|Summary|Defined by\n';
 
