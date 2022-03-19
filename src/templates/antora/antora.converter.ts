@@ -8,7 +8,7 @@ export interface PageOutput {
 }
 
 // TODO: we can pass this through later
-const baseURL = '';
+const basePath = 'apis/';
 
 const hasValue = <T>(x: T): x is NonNullable<T> => {
   // empty helper for strings, objects, arrays
@@ -71,11 +71,11 @@ const cleanup = (str: string): string => {
 const getNameFromFullName = (name: string): string =>
   name.split('.').slice(-1).join('');
 
-const generateTypeLink = (type: string): string =>
-  type.includes('tinymce', 0) ? 'link:' + baseURL + type.toLowerCase() + '.html[' + getNameFromFullName(type) + ']' : type;
+const generateTypeXref = (type: string): string =>
+  type.includes('tinymce', 0) ? 'xref:' + basePath + type.toLowerCase() + '.adoc[' + getNameFromFullName(type) + ']' : type;
 
-const generateDefinedByLink = (definedBy: string) =>
-  'link:' + baseURL + definedBy.toLowerCase() + '.html[' + getNameFromFullName(definedBy) + ']';
+const generateDefinedByXref = (definedBy: string) =>
+  'xref:' + basePath + definedBy.toLowerCase() + '.adoc[' + getNameFromFullName(definedBy) + ']';
 
 const generateExamples = (examples: Array<{ content: string }>): string => {
   let tmp = '\n==== Examples\n';
@@ -91,7 +91,7 @@ const generateExamples = (examples: Array<{ content: string }>): string => {
 const generateParameters = (params: Param[]): string => {
   let tmp = '\n==== Parameters\n';
   params.forEach((param) => {
-    tmp += '\n* `' + param.name + ' (' + param.types.map(generateTypeLink).join(' | ') + ')` - ' + cleanup(param.desc);
+    tmp += '\n* `' + param.name + ' (' + param.types.map(generateTypeXref).join(' | ') + ')` - ' + cleanup(param.desc);
   });
   return tmp + '\n';
 };
@@ -99,7 +99,7 @@ const generateParameters = (params: Param[]): string => {
 const generateReturn = (ret: Return): string => {
   let tmp = '\n==== Return value\n';
   ret.types.forEach((type) => {
-    tmp += '\n* `' + generateTypeLink(type) + '` - ' + cleanup(ret.desc);
+    tmp += '\n* `' + generateTypeXref(type) + '` - ' + cleanup(ret.desc);
   });
   tmp += '\n';
   return tmp;
@@ -120,9 +120,9 @@ const buildSummary = (data: Record<string, any>): string => {
 
     data.settings.forEach((item) => {
       tmp += '|' + item.name;
-      tmp += '|`' + generateTypeLink(item.dataTypes[0]) + '`';
+      tmp += '|`' + generateTypeXref(item.dataTypes[0]) + '`';
       tmp += '|' + cleanup(item.desc);
-      tmp += '|`' + generateDefinedByLink(item.definedBy) + '`\n';
+      tmp += '|`' + generateDefinedByXref(item.definedBy) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -138,9 +138,9 @@ const buildSummary = (data: Record<string, any>): string => {
 
     data.properties.forEach((item) => {
       tmp += '|' + item.name;
-      tmp += '|`' + generateTypeLink(item.dataTypes[0]) + '`';
+      tmp += '|`' + generateTypeXref(item.dataTypes[0]) + '`';
       tmp += '|' + cleanup(item.desc);
-      tmp += '|`' + generateDefinedByLink(item.definedBy) + '`\n';
+      tmp += '|`' + generateDefinedByXref(item.definedBy) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -155,9 +155,9 @@ const buildSummary = (data: Record<string, any>): string => {
     tmp += '|Name|Summary|Defined by\n';
 
     data.constructors.forEach((item) => {
-      tmp += '|link:#' + item.name + '[' + item.name + '()]';
+      tmp += '|xref:#' + item.name + '[' + item.name + '()]';
       tmp += '|' + cleanup(item.desc);
-      tmp += '|`' + generateDefinedByLink(item.definedBy) + '`\n';
+      tmp += '|`' + generateDefinedByXref(item.definedBy) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -170,7 +170,7 @@ const buildSummary = (data: Record<string, any>): string => {
     tmp += '|===\n';
     tmp += '|Name|Summary|Defined by\n';
     data.methods.forEach((item) => {
-      tmp += '|link:#' + item.name + '[' + item.name + '()]|' + cleanup(item.desc) + '|`' + generateDefinedByLink(item.definedBy) + '`\n';
+      tmp += '|xref:#' + item.name + '[' + item.name + '()]|' + cleanup(item.desc) + '|`' + generateDefinedByXref(item.definedBy) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -186,9 +186,9 @@ const buildSummary = (data: Record<string, any>): string => {
     tmp += '|Name|Summary|Defined by\n';
 
     data.events.forEach((item) => {
-      tmp += '|link:#' + item.name + '[' + item.name + ']';
+      tmp += '|xref:#' + item.name + '[' + item.name + ']';
       tmp += '|' + cleanup(item.desc);
-      tmp += '|`' + generateDefinedByLink(item.definedBy) + '`\n';
+      tmp += '|`' + generateDefinedByXref(item.definedBy) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -313,7 +313,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
     tmp += '\n[[extends]]\n';
     tmp += '== Extends\n';
     data.borrows.forEach((item) => {
-      tmp += '\n * link:' + baseURL + item.toLowerCase() + '.html[' + item + ']\n';
+      tmp += '\n * xref:' + basePath + item.toLowerCase() + '.adoc[' + item + ']\n';
     });
   }
 
