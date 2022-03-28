@@ -29,13 +29,13 @@ const escapeComments = (str: string): string =>
 const encodeBR = (str: string): string =>
   str.replace(/<br\s*\/?>/g, '\n');
 
-// convert <em> into _italics_ asciidoc
+// convert <em> into __italics__ asciidoc
 const encodeEM = (str: string): string =>
-  str.replace(/<\/?em>/g, '_');
+  str.replace(/<\/?em>/g, '__');
 
-// convert <strong> into *bold* asciidoc
+// convert <strong> into **bold** asciidoc
 const encodeStrong = (str: string): string =>
-  str.replace(/<\/?strong>/g, '*');
+  str.replace(/<\/?strong>/g, '**');
 
 // convert <code> into backtick asciidoc
 const encodeCode = (str: string) => {
@@ -58,13 +58,24 @@ const encodeLinks = (str: string): string => {
   }
 };
 
+// escape special asciidoc characters
+const specialChars = {
+  '|': '{vbar}',
+  '+': '{plus}',
+  '*': '{asterisk}'
+};
+const escapeSpecialChars = (str: string): string =>
+  str.replace(/[|+*]/g, (match) => specialChars[match] || match);
+
 // convert content that looks like asciidoc attributes (e.g {0}) to literal strings
+// Note: Special characters should not be escaped
+const specialAttrs = Object.values(specialChars);
 const escapeAttributes = (str: string): string =>
-  str.replace(/(\{\s*[\w\d-]+\s*\})/g, '+$1+');
+  str.replace(/(\{\s*[\w\d-]+\s*\})/g, (match) => specialAttrs.indexOf(match) !== -1 ? match : `+${match}+`);
 
 // runs a bunch of required cleanup filters, where embedded code/text can break asciidoc rendering
 const cleanup = (str: string): string => {
-  const filters = [ escapeComments, encodeBR, encodeEM, encodeStrong, encodeLinks, encodeCode, escapeAttributes ];
+  const filters = [ escapeSpecialChars, escapeAttributes, escapeComments, encodeBR, encodeEM, encodeStrong, encodeLinks, encodeCode ];
   return filters.reduce((acc, filter) => filter(acc), str);
 };
 
