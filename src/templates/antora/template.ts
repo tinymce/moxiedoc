@@ -158,7 +158,7 @@ const getMemberPages = (root: Api, templateDelegate: HandlebarsTemplateDelegate,
   data.events = sortMembers(data.events);
   data.keywords = sortMembers(data.keywords);
 
-  data.keywords = data.keywords.join(' ');
+  data.keywords = data.keywords.join(', ');
   return [{
     type: 'json',
     filename: createFileName(data, 'json'),
