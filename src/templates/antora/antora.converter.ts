@@ -27,7 +27,7 @@ const escapeComments = (str: string): string =>
 
 // convert BRs found into asciidoc \n
 const encodeBR = (str: string): string =>
-  str.replace(/<br\s*\/?>/g, '\n');
+  str.replace(/\s*<br\s*\/?>\s*/g, '\n');
 
 // convert <em> into __italics__ asciidoc
 const encodeEM = (str: string): string =>
@@ -318,8 +318,13 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
   // data.borrows = data.borrows || []
   // data.examples = data.examples || []
 
-  // summary
-  if (hasValue(data.summary)) {
+  // description
+  if (hasValue(data.desc)) {
+    tmp += '\n' + cleanup(data.desc) + '\n';
+  }
+
+  // summary if not part of the description
+  if (hasValue(data.summary) && (!hasValue(data.desc) || !data.desc.includes(data.summary))) {
     tmp += '\n' + cleanup(data.summary) + '\n';
   }
 

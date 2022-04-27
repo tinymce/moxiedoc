@@ -100,6 +100,7 @@ const getMemberPages = (root: Api, templateDelegate: HandlebarsTemplateDelegate,
   const data = type.toJSON();
   data.datapath = data.type + '_' + data.fullName.replace(/\./g, '_').toLowerCase();
   data.desc = data.desc.replace(/\n/g, ' ');
+  data.summary = data.summary.replace(/\n/g, ' ');
 
   data.constructors = [];
   data.methods = [];
