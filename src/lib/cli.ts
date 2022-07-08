@@ -16,6 +16,7 @@ program
   .option('--debug', 'debug output')
   .option('--dry', 'dry run only syntax check')
   .option('--fail-on-warning', 'fail if warnings are produced')
+  .option('-l, <name>/--legacy', 'output file structure, default: flat')
   .parse(process.argv);
 
 program.on('--help', () => {

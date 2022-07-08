@@ -17,6 +17,7 @@ export interface MoxiedocSettings {
   paths: string[];
   dry?: boolean;
   failOnWarning?: boolean;
+  legacy?: string;
 }
 
 export interface MoxiedocResult {
@@ -44,6 +45,7 @@ export interface MoxiedocResult {
 const process = (settings: MoxiedocSettings): MoxiedocResult => {
   settings.out = settings.out || 'tmp/out.zip';
   settings.template = settings.template || 'cli';
+  settings.legacy = settings.legacy || 'flat';
 
   if (settings.verbose) {
     Reporter.setLevel(Reporter.Level.INFO);
@@ -94,6 +96,8 @@ const process = (settings: MoxiedocSettings): MoxiedocResult => {
       builder.parser.parseFile(filePath);
     }
   });
+
+  builder.api.setStructure(settings.legacy);
 
   builder.api.removePrivates();
 
