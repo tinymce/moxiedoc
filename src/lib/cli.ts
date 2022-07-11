@@ -12,11 +12,11 @@ program
   .usage('[options] <dir ...>')
   .option('-o, --out <path>', 'output path, default: out')
   .option('-t, --template <template>', 'template name')
+  .option('-s, --structure <type>', 'output file structure, default: flat')
   .option('-v, --verbose', 'verbose output')
   .option('--debug', 'debug output')
   .option('--dry', 'dry run only syntax check')
   .option('--fail-on-warning', 'fail if warnings are produced')
-  .option('-l, <name>/--legacy', 'output file structure, default: flat')
   .parse(process.argv);
 
 program.on('--help', () => {

@@ -76,35 +76,24 @@ const cleanup = (str: string): string => {
   return filters.reduce((acc, filter) => filter(acc), str);
 };
 
-const getNameFromFullName = (name: string): string =>
-  name.split('.').slice(-1).join('');
-
 const getFilePathFromFullName = (name: string): string => {
   const filename = name.toLowerCase() === 'tinymce' ? 'tinymce.root' : name.toLowerCase();
   return 'apis/' + filename + '.adoc';
 };
 
 const getFilePathFromFullNameLegacy = (name: string): string => {
-  const folder = getNameFromFullName(name) + '/';
-  const filename = name.toLowerCase() === 'tinymce' ? 'root_tinymce' : name.toLowerCase();
+  const folder = name.split('.').slice(0, -1).join('.') + '/';
+  const filename = name.toLowerCase() === 'tinymce' ? 'tinymce/root_tinymce' : name.toLowerCase();
   return 'api/' + folder + filename + '.adoc';
 };
 
-const getFilePath = (structure: string): Function => {
-  switch (structure) {
-    case 'flat':
-      return getFilePathFromFullName;
+const getFilePath = (structure: string): Function =>
+  structure === 'legacy' ? getFilePathFromFullNameLegacy : getFilePathFromFullName;
 
-    case 'legacy':
-      return getFilePathFromFullNameLegacy;
-
-    default:
-      return getFilePathFromFullName;
-  }
+const generateXref = (name: string, structure: string, title?: string): string => {
+  title = title || name.split('.').slice(-1).join('');
+  return 'xref:' + getFilePath(structure)(name) + '[' + title + ']';
 };
-
-const generateXref = (name: string, structure: string): string =>
-  'xref:' + getFilePath(structure)(name) + '[' + getNameFromFullName(name) + ']';
 
 const generateTypeXref = (type: string, structure: string): string =>
   type.includes('tinymce', 0) ? generateXref(type, structure) : type;
@@ -380,6 +369,5 @@ const convert = (pages: PageOutput[][], structure: string): PageOutput[][] => pa
 
 export {
   getFilePath,
-  generateXref,
   convert
 };

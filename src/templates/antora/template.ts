@@ -16,22 +16,38 @@ interface NavFile {
 
 type PageOutput = AntoraTemplate.PageOutput;
 
-const BASE_PATH = process.env.BASE_PATH || '/_data/antora';
+const generateXref = (basePath: string, filename: string, title: string) =>
+  'xref:' + basePath + '/' + filename + '[' + title + ']';
 
 const navLine = (name: string, level: number): string =>
   '*'.repeat(level) + ' ' + name + '\n';
 
-const navToAdoc = (indexPage: NavFile, structure: string, depth: number, level?: number): string => {
-  level = level || 1;
-  // Api index page top level or blank
-  let adoc = level === 1 ? navLine(indexPage.title, level) : '';
+const navToAdoc = (indexPage: NavFile, structure: string): string => {
+  // Api index nav page top level
+  let adoc = navLine(indexPage.title, 1);
+  if (indexPage.pages) {
+    indexPage.pages.forEach((namespace) => {
+      const namespaceLine = structure === 'legacy' ? generateXref('api/' + namespace.path, namespace.path + '_nav.adoc', namespace.title) : namespace.title;
+      adoc += navLine(namespaceLine, 2);
+      if (namespace.pages) {
+        namespace.pages.forEach((pageFile) => {
+          const pagePath = structure === 'legacy' ? 'api/' + namespace.path : 'apis';
+          adoc += navLine(generateXref(pagePath, pageFile.path + '.adoc', pageFile.title), 3);
+        });
+      }
+    });
+  }
+  return adoc;
+};
 
-  indexPage.pages.forEach((namespace) => {
-    adoc += navLine(AntoraTemplate.generateXref(namespace.path, structure), level + 1);
-    if (level < depth) {
-      adoc += navToAdoc(namespace, structure, depth, level + 1);
-    }
-  });
+const namespaceNavToAdoc = (namespace: NavFile): string => {
+  let adoc = navLine(namespace.title, 1);
+  if (namespace.pages) {
+    namespace.pages.forEach((pageFile) => {
+      const namespaceLine = generateXref('api/' + namespace.path, pageFile.path + '.adoc', pageFile.title);
+      adoc += navLine(namespaceLine, 2);
+    });
+  }
   return adoc;
 };
 
@@ -80,7 +96,7 @@ const getNavFile = (types: Type[], structure: string): NavFile[] => {
 
   return [{
     title: 'API Reference',
-    path: BASE_PATH,
+    path: '/_data/antora',
     pages
   }];
 };
@@ -264,7 +280,7 @@ const template = (root: Api, toPath: string): void => {
 
   const nav = getNavFile(sortedTypes, structure);
   const indexPage = nav[0];
-  const adocNav = navToAdoc(indexPage, structure, 3);
+  const adocNav = navToAdoc(indexPage, structure);
 
   addPage({
     filename: '_data/nav.yml',
@@ -278,10 +294,9 @@ const template = (root: Api, toPath: string): void => {
 
   if (structure === 'legacy') {
     indexPage.pages.forEach((namespace) => {
-      const indexNav = navToAdoc(namespace, structure, 2);
       addPage({
-        filename: '_data/' + namespace.title + '_nav.adoc',
-        content: indexNav
+        filename: 'api/' + namespace.path + '/' + namespace.path + '_nav.adoc',
+        content: namespaceNavToAdoc(namespace)
       });
     });
   }

@@ -12,12 +12,12 @@ exports.Exporter = Exporter;
 export interface MoxiedocSettings {
   out?: string;
   template?: string;
+  structure?: string;
   verbose?: boolean;
   debug?: boolean;
   paths: string[];
   dry?: boolean;
   failOnWarning?: boolean;
-  legacy?: string;
 }
 
 export interface MoxiedocResult {
@@ -45,7 +45,7 @@ export interface MoxiedocResult {
 const process = (settings: MoxiedocSettings): MoxiedocResult => {
   settings.out = settings.out || 'tmp/out.zip';
   settings.template = settings.template || 'cli';
-  settings.legacy = settings.legacy || 'flat';
+  settings.structure = settings.structure || 'flat';
 
   if (settings.verbose) {
     Reporter.setLevel(Reporter.Level.INFO);
@@ -97,7 +97,7 @@ const process = (settings: MoxiedocSettings): MoxiedocResult => {
     }
   });
 
-  builder.api.setStructure(settings.legacy);
+  builder.api.setStructure(settings.structure);
 
   builder.api.removePrivates();
 
