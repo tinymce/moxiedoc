@@ -40,14 +40,19 @@ const navToAdoc = (indexPage: NavFile, structure: string): string => {
   return adoc;
 };
 
-const namespaceNavToAdoc = (namespace: NavFile): string => {
-  let adoc = navLine(namespace.title, 1);
+const indexToAdoc = (namespace: NavFile): string => {
+  let adoc = '= ' + namespace.title + '\n\n';
+  adoc += '[cols="1,1"]\n';
+  adoc += '|===\n\n';
   if (namespace.pages) {
     namespace.pages.forEach((pageFile) => {
-      const namespaceLine = generateXref('api/' + namespace.path, pageFile.path + '.adoc', pageFile.title);
-      adoc += navLine(namespaceLine, 2);
+      adoc += 'a|\n';
+      adoc += '[.lead]\n';
+      adoc += generateXref('api/' + namespace.path, pageFile.path + '.adoc', pageFile.title) + '\n\n';
     });
   }
+  adoc += 'a|\n\n';
+  adoc += '|===';
   return adoc;
 };
 
@@ -295,8 +300,8 @@ const template = (root: Api, toPath: string): void => {
   if (structure === 'legacy') {
     indexPage.pages.forEach((namespace) => {
       addPage({
-        filename: 'api/' + namespace.path + '/' + namespace.path + '_nav.adoc',
-        content: namespaceNavToAdoc(namespace)
+        filename: 'api/' + namespace.path + '/index_' + namespace.path + '.adoc',
+        content: indexToAdoc(namespace)
       });
     });
   }
