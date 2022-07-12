@@ -8,10 +8,10 @@ import { MoxiedocSettings, process as moxieDocProcess } from './moxiedoc';
 process.argv[1] = 'moxiedoc';
 
 program
-  .version('0.2.0')
+  .version('0.2.2')
   .usage('[options] <dir ...>')
   .option('-o, --out <path>', 'output path, default: out')
-  .option('-t, --template <template>', 'template name')
+  .option('-t, --template <template>', 'template name, default: cli')
   .option('-s, --structure <type>', 'output file structure, default: flat')
   .option('-v, --verbose', 'verbose output')
   .option('--debug', 'debug output')
