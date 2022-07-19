@@ -1,10 +1,10 @@
 # moxiedoc
 
-### Introduction
+## Introduction
 
 This project maintains Moxiedoc, a tool used to build API reference documentation. If you have any modifications you wish to contribute, fork this project, make the changes and submit a pull request. You will need to sign the contributors license agreement, which will be emailed to you upon creating the pull request.
 
-### Using Moxiedoc
+## Using Moxiedoc
 
 To create API reference documentation from a development version of moxiedoc, run:
 
@@ -13,7 +13,7 @@ yarn build
 node ./dist/lib/cli.js PATH/TO/API_FILE_FOLDER
 ```
 
-### Moxiedoc Options
+## Moxiedoc Options
 
 Moxiedoc provides the following options to customise the format of the output documentation:
 
@@ -27,7 +27,7 @@ Moxiedoc provides the following options to customise the format of the output do
 --fail-on-warning: fail if warnings are produced
 ```
 
-### Schema
+## Schema
 
 The output JSON takes the form of the following schema:
 

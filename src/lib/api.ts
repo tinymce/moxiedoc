@@ -7,20 +7,10 @@ class Api {
   private _rootTypes: Type[] = [];
   private _rootNamespaces: Namespace[] = [];
 
-  private _structure: string = 'flat';
-
   public static getNamespaceFromFullName(fullName: string): string {
     const chunks = fullName.split('.');
     chunks.pop();
     return chunks.join('.');
-  }
-
-  public setStructure(legacy: string): void {
-    this._structure = legacy;
-  }
-
-  public getStructure(): string {
-    return this._structure;
   }
 
   public getRootTypes(): Type[] {

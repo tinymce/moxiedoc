@@ -1,110 +1,13 @@
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
-import * as YAML from 'js-yaml';
 import { ZipWriter } from 'moxie-zip';
 import * as path from 'path';
+import { ExportStructure } from 'src/lib/exporter';
 
 import { Api } from '../../lib/api';
 import { Type } from '../../lib/type';
 import * as AntoraTemplate from './antora.converter';
-
-interface NavFile {
-  readonly title: string;
-  readonly path: string;
-  readonly pages?: NavFile[];
-}
-
-type PageOutput = AntoraTemplate.PageOutput;
-
-const generateXref = (basePath: string, filename: string, title: string) =>
-  'xref:' + basePath + '/' + filename + '[' + title + ']';
-
-const navLine = (name: string, level: number): string =>
-  '*'.repeat(level) + ' ' + name + '\n';
-
-const navToAdoc = (indexPage: NavFile, structure: string): string => {
-  // Api index nav page top level
-  let adoc = navLine(indexPage.title, 1);
-  if (indexPage.pages) {
-    indexPage.pages.forEach((namespace) => {
-      const namespaceLine = structure === 'legacy' ? generateXref('api/' + namespace.path, namespace.path + '_nav.adoc', namespace.title) : namespace.title;
-      adoc += navLine(namespaceLine, 2);
-      if (namespace.pages) {
-        namespace.pages.forEach((pageFile) => {
-          const pagePath = structure === 'legacy' ? 'api/' + namespace.path : 'apis';
-          adoc += navLine(generateXref(pagePath, pageFile.path + '.adoc', pageFile.title), 3);
-        });
-      }
-    });
-  }
-  return adoc;
-};
-
-const indexToAdoc = (namespace: NavFile): string => {
-  let adoc = '= ' + namespace.title + '\n\n';
-  adoc += '[cols="1,1"]\n';
-  adoc += '|===\n\n';
-  if (namespace.pages) {
-    namespace.pages.forEach((pageFile) => {
-      adoc += 'a|\n';
-      adoc += '[.lead]\n';
-      adoc += generateXref('api/' + namespace.path, pageFile.path + '.adoc', pageFile.title) + '\n\n';
-    });
-  }
-  adoc += 'a|\n\n';
-  adoc += '|===';
-  return adoc;
-};
-
-const getNamespaceFromFullName = (fullName: string) =>
-  fullName.split('.').slice(0, -1).join('.');
-
-const getNamespacesFromTypes = (types: Type[]): Record<string, string> => {
-  return types.reduce((namespaces: Record<string, string>, type: Type) => {
-    const fullName = type.fullName.toLowerCase();
-    const url = getNamespaceFromFullName(fullName);
-    if (url && !namespaces[url]) {
-      namespaces[url] = getNamespaceFromFullName(type.fullName);
-    }
-    return namespaces;
-  }, {});
-};
-
-/**
- * [getNavFile description]
- * @return {[type]} [description]
- */
-const getNavFile = (types: Type[], structure: string): NavFile[] => {
-  const namespaces = getNamespacesFromTypes(types);
-  const pages = Object.entries(namespaces).map(([ url, title ]): NavFile => {
-    const innerPages = types.filter((type) => {
-      const fullName = type.fullName.toLowerCase();
-      return getNamespaceFromFullName(fullName) === url;
-    }).map((type): NavFile => {
-      return { title: type.fullName, path: type.fullName.toLowerCase() };
-    });
-
-    if (url === 'tinymce') {
-      const rootPath = structure === 'legacy' ? 'root_tinymce' : 'tinymce.root';
-      innerPages.unshift({
-        title: 'tinymce',
-        path: rootPath
-      });
-    }
-
-    return {
-      title,
-      path: url,
-      pages: innerPages
-    };
-  });
-
-  return [{
-    title: 'API Reference',
-    path: '/_data/antora',
-    pages
-  }];
-};
+import { Util, PageOutput } from './util';
 
 /**
  * [description]
@@ -113,7 +16,7 @@ const getNavFile = (types: Type[], structure: string): NavFile[] => {
  * @param  {[type]} type [description]
  * @return {[type]}      [description]
  */
-const getMemberPages = (root: Api, templateDelegate: HandlebarsTemplateDelegate, type: Type): PageOutput[] => {
+const getMemberPages = (root: Api, templateDelegate: HandlebarsTemplateDelegate, util: Util, type: Type): PageOutput[] => {
   const members = type.getMembers(true);
   const data = type.toJSON();
   data.datapath = data.type + '_' + data.fullName.replace(/\./g, '_').toLowerCase();
@@ -174,13 +77,16 @@ const getMemberPages = (root: Api, templateDelegate: HandlebarsTemplateDelegate,
   data.keywords = sortMembers(data.keywords);
 
   data.keywords = data.keywords.join(', ');
+
+  const jsonFilePath = util.getJsonFilePath(data.type, data.fullName);
+  const adocFilePath = util.getFilePath(data.fullName);
   return [{
     type: 'json',
-    filename: ('_data/api/' + data.type + '_' + data.fullName.replace(/\./g, '_') + '.json').toLowerCase(),
+    filename: jsonFilePath,
     content: JSON.stringify(data, null, '  ')
   }, {
     type: 'adoc',
-    filename: AntoraTemplate.getFilePath(root.getStructure())(data.fullName),
+    filename: adocFilePath,
     content: templateDelegate(data)
   }];
 };
@@ -224,7 +130,7 @@ const compileTemplate = (filePath: string): HandlebarsTemplateDelegate => {
  * [addPageToArchive description]
  * @param {[type]} page [description]
  */
-const addPageToArchive = function (this: ZipWriter, page: { filename: string; content: string }) {
+const addPageToArchive = function (this: ZipWriter, page: PageOutput) {
   this.addData(page.filename, page.content);
 };
 
@@ -262,12 +168,13 @@ const getSyntaxString = (memberData: Record<string, any>) => {
  * [function description]
  * @param  {[type]} root   [description]
  * @param  {[type]} toPath [description]
+ * @param  {[type]} structure [description]
  * @return {[type]}        [description]
  */
-const template = (root: Api, toPath: string): void => {
+const template = (root: Api, toPath: string, structure: ExportStructure): void => {
+  const util = new Util(structure);
   const archive = new ZipWriter();
   const memberTemplate = compileTemplate('member.handlebars');
-  const structure = root.getStructure();
 
   // bind new archive to function
   const addPage = addPageToArchive.bind(archive);
@@ -283,33 +190,16 @@ const template = (root: Api, toPath: string): void => {
     }
   });
 
-  const nav = getNavFile(sortedTypes, structure);
-  const indexPage = nav[0];
-  const adocNav = navToAdoc(indexPage, structure);
+  const navPages = util.generateNavPages(sortedTypes);
 
-  addPage({
-    filename: '_data/nav.yml',
-    content: YAML.dump(nav)
+  navPages.forEach((page) => {
+    addPage(page);
   });
-
-  addPage({
-    filename: '_data/moxiedoc_nav.adoc',
-    content: adocNav
-  });
-
-  if (structure === 'legacy') {
-    indexPage.pages.forEach((namespace) => {
-      addPage({
-        filename: 'api/' + namespace.path + '/index_' + namespace.path + '.adoc',
-        content: indexToAdoc(namespace)
-      });
-    });
-  }
 
   // create all json and adoc for each item
-  const pages: PageOutput[][] = sortedTypes.map(getMemberPages.bind(null, root, memberTemplate));
+  const pages: PageOutput[][] = sortedTypes.map(getMemberPages.bind(null, root, memberTemplate, util));
 
-  const convertedPages = AntoraTemplate.convert(pages, structure);
+  const convertedPages = AntoraTemplate.convert(pages, util);
   flatten(convertedPages).forEach(addPage);
 
   archive.saveAs(toPath, (err) => {
