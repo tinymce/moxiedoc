@@ -7,7 +7,8 @@ import { ExportStructure } from 'src/lib/exporter';
 import { Api } from '../../lib/api';
 import { Type } from '../../lib/type';
 import * as AntoraTemplate from './antora.converter';
-import { Util, PageOutput } from './util';
+import { PageOutput } from './util';
+import * as Util from './util';
 
 /**
  * [description]
@@ -16,7 +17,7 @@ import { Util, PageOutput } from './util';
  * @param  {[type]} type [description]
  * @return {[type]}      [description]
  */
-const getMemberPages = (root: Api, templateDelegate: HandlebarsTemplateDelegate, util: Util, type: Type): PageOutput[] => {
+const getMemberPages = (root: Api, templateDelegate: HandlebarsTemplateDelegate, structure: ExportStructure, type: Type): PageOutput[] => {
   const members = type.getMembers(true);
   const data = type.toJSON();
   data.datapath = data.type + '_' + data.fullName.replace(/\./g, '_').toLowerCase();
@@ -78,8 +79,8 @@ const getMemberPages = (root: Api, templateDelegate: HandlebarsTemplateDelegate,
 
   data.keywords = data.keywords.join(', ');
 
-  const jsonFilePath = util.getJsonFilePath(data.type, data.fullName);
-  const adocFilePath = util.getFilePath(data.fullName);
+  const jsonFilePath = Util.getJsonFilePath(data.type, data.fullName);
+  const adocFilePath = Util.getFilePath(data.fullName, structure);
   return [{
     type: 'json',
     filename: jsonFilePath,
@@ -172,7 +173,6 @@ const getSyntaxString = (memberData: Record<string, any>) => {
  * @return {[type]}        [description]
  */
 const template = (root: Api, toPath: string, structure: ExportStructure): void => {
-  const util = new Util(structure);
   const archive = new ZipWriter();
   const memberTemplate = compileTemplate('member.handlebars');
 
@@ -190,16 +190,16 @@ const template = (root: Api, toPath: string, structure: ExportStructure): void =
     }
   });
 
-  const navPages = util.generateNavPages(sortedTypes);
+  const navPages = Util.generateNavPages(sortedTypes, structure);
 
   navPages.forEach((page) => {
     addPage(page);
   });
 
   // create all json and adoc for each item
-  const pages: PageOutput[][] = sortedTypes.map(getMemberPages.bind(null, root, memberTemplate, util));
+  const pages: PageOutput[][] = sortedTypes.map(getMemberPages.bind(null, root, memberTemplate, structure));
 
-  const convertedPages = AntoraTemplate.convert(pages, util);
+  const convertedPages = AntoraTemplate.convert(pages, structure);
   flatten(convertedPages).forEach(addPage);
 
   archive.saveAs(toPath, (err) => {

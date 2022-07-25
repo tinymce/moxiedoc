@@ -15,205 +15,197 @@ export interface PageOutput {
   readonly content: string;
 }
 
-/**
- * Utility for organising file structure within the antora template.
- *
- * @class moxiedoc.antora.Util
- */
-class Util {
-  private structure: ExportStructure;
-  private BASE_PATH: string;
+const BASE_PATH: string = process.env.BASE_PATH || '/_data/antora';
 
-  /**
-   * Constructs a new Util instance.
-   *
-   * @param
-   * @constructor
-   */
-  public constructor(structure: ExportStructure) {
-    this.structure = structure;
-    this.BASE_PATH = process.env.BASE_PATH || '/_data/antora';
+const generateNavPages = (sortedTypes: Type[], structure: ExportStructure): PageOutput[] => {
+  const nav = getNavFile(sortedTypes, structure);
+  const indexPage = nav[0];
+  const adocNav = navToAdoc(indexPage, structure);
+
+  const newNavPages = [] as PageOutput[];
+  newNavPages.push({
+    type: 'adoc',
+    filename: '_data/nav.yml',
+    content: YAML.dump(nav)
+  });
+
+  newNavPages.push({
+    type: 'adoc',
+    filename: '_data/moxiedoc_nav.adoc',
+    content: adocNav
+  });
+
+  switch (structure) {
+    case 'legacy':
+      return generateIndexPages(newNavPages, indexPage, structure);
+
+    case 'default':
+      return newNavPages;
   }
+};
 
-  public generateNavPages = (sortedTypes: Type[]): PageOutput[] => {
-    const nav = this.getNavFile(sortedTypes);
-    const indexPage = nav[0];
-    const adocNav = this.navToAdoc(indexPage);
+const getFilePath = (name: string, structure: ExportStructure): string => {
+  const fileName = name.toLowerCase() === 'tinymce' ? getRootPath(structure) : name.toLowerCase();
+  switch (structure) {
+    case 'legacy':
+      const folder = getNamespaceFromFullName(name) + '/';
+      return BASE_PATH + '/api/' + folder + '/' + fileName + '.adoc';
 
-    const newNavPages = [] as PageOutput[];
-    newNavPages.push({
-      type: 'adoc',
-      filename: '_data/nav.yml',
-      content: YAML.dump(nav)
+    case 'default':
+      return BASE_PATH + '/apis/' + fileName + '.adoc';
+  }
+};
+
+const getJsonFilePath = (type: string, fullName: string): string =>
+  (BASE_PATH + '/api/json/' + type + '_' + fullName.replace(/\./g, '_') + '.json').toLowerCase();
+
+const getNavFile = (types: Type[], structure: ExportStructure): NavFile[] => {
+  const namespaces = getNamespacesFromTypes(types);
+  const pages = Object.entries(namespaces).map(([ url, title ]): NavFile => {
+    const innerPages = types.filter((type) => {
+      const fullName = type.fullName.toLowerCase();
+      return getNamespaceFromFullName(fullName) === url;
+    }).map((type): NavFile => {
+      return { title: type.fullName, path: type.fullName.toLowerCase() };
     });
 
-    newNavPages.push({
-      type: 'adoc',
-      filename: '_data/moxiedoc_nav.adoc',
-      content: adocNav
-    });
-
-    switch (this.structure) {
-      case 'legacy':
-        return this.generateIndexPages(newNavPages, indexPage);
-
-      case 'default':
-        return newNavPages;
-    }
-  };
-
-  public getFilePath = (name: string): string => {
-    const fileName = name.toLowerCase() === 'tinymce' ? this.getRootPath() : name.toLowerCase();
-    switch (this.structure) {
-      case 'legacy':
-        const folder = this.getNamespaceFromFullName(name) + '/';
-        return this.BASE_PATH + '/api/' + folder + '/' + fileName + '.adoc';
-
-      case 'default':
-        return this.BASE_PATH + '/apis/' + fileName + '.adoc';
-    }
-  };
-
-  public getJsonFilePath = (type: string, fullName: string): string =>
-    (this.BASE_PATH + '/api/' + type + '_' + fullName.replace(/\./g, '_') + '.json').toLowerCase();
-
-  public generateXref = (name: string): string => {
-    const title = this.getTitleFromFullName(name);
-    return 'xref:' + this.getFilePath(name) + '[' + title + ']';
-  };
-
-  public generateTypeXref = (type: string): string => {
-    return type.includes('tinymce', 0) ? this.generateXref(type) : type;
-  };
-
-  private getNavFile(types: Type[]): NavFile[] {
-    const namespaces = this.getNamespacesFromTypes(types);
-    const pages = Object.entries(namespaces).map(([ url, title ]): NavFile => {
-      const innerPages = types.filter((type) => {
-        const fullName = type.fullName.toLowerCase();
-        return this.getNamespaceFromFullName(fullName) === url;
-      }).map((type): NavFile => {
-        return { title: type.fullName, path: type.fullName.toLowerCase() };
+    if (url === 'tinymce') {
+      innerPages.unshift({
+        title: 'tinymce',
+        path: getRootPath(structure)
       });
+    }
 
-      if (url === 'tinymce') {
-        innerPages.unshift({
-          title: 'tinymce',
-          path: this.getRootPath()
+    return {
+      title,
+      path: url,
+      pages: innerPages
+    };
+  });
+
+  return [{
+    title: 'API Reference',
+    path: BASE_PATH,
+    pages
+  }];
+};
+
+const navToAdoc = (indexPage: NavFile, structure: ExportStructure): string => {
+  // Api index nav page top level
+  let adoc = navLine(indexPage.title, 1);
+  if (indexPage.pages) {
+    indexPage.pages.forEach((namespace) => {
+      adoc += navLine(namespaceLine(namespace, structure), 2);
+      if (namespace.pages) {
+        namespace.pages.forEach((pageFile) => {
+          adoc += navLine(pageFileLine(pageFile, structure), 3);
         });
       }
-
-      return {
-        title,
-        path: url,
-        pages: innerPages
-      };
     });
-
-    return [{
-      title: 'API Reference',
-      path: this.BASE_PATH,
-      pages
-    }];
   }
+  return adoc;
+};
 
-  private navToAdoc(indexPage: NavFile): string {
-    // Api index nav page top level
-    let adoc = this.navLine(indexPage.title, 1);
-    if (indexPage.pages) {
-      indexPage.pages.forEach((namespace) => {
-        adoc += this.navLine(this.namespaceLine(namespace), 2);
-        if (namespace.pages) {
-          namespace.pages.forEach((pageFile) => {
-            adoc += this.navLine(this.pageFileLine(pageFile), 3);
-          });
-        }
-      });
-    }
-    return adoc;
-  }
-
-  private generateIndexPages(newNavPages: PageOutput[], indexPage: NavFile): PageOutput[] {
-    indexPage.pages.forEach((namespace) => {
-      newNavPages.push({
-        type: 'adoc',
-        filename: this.BASE_PATH + '/api/' + namespace.path + '/index.adoc',
-        content: this.indexToAdoc(namespace)
-      });
+const generateIndexPages = (newNavPages: PageOutput[], indexPage: NavFile, structure: ExportStructure): PageOutput[] => {
+  indexPage.pages.forEach((namespace) => {
+    newNavPages.push({
+      type: 'adoc',
+      filename: BASE_PATH + '/api/' + namespace.path + '/index.adoc',
+      content: indexToAdoc(namespace, structure)
     });
-    return newNavPages;
-  }
+  });
+  return newNavPages;
+};
 
-  private indexToAdoc(namespace: NavFile): string {
-    let adoc = '= ' + namespace.title + '\n\n';
-    adoc += '[cols="1,1"]\n';
-    adoc += '|===\n\n';
-    if (namespace.pages) {
-      namespace.pages.forEach((pageFile) => {
-        adoc += 'a|\n';
-        adoc += '[.lead]\n';
-        adoc += this.generateNavXref('api/' + this.getNamespaceFromFullName(namespace.path), pageFile.path + '.adoc', pageFile.title) + '\n\n';
-      });
+const indexToAdoc = (namespace: NavFile, structure: ExportStructure): string => {
+  let adoc = '= ' + namespace.title + '\n\n';
+  adoc += '[cols="1,1"]\n';
+  adoc += '|===\n\n';
+  if (namespace.pages) {
+    namespace.pages.forEach((pageFile) => {
+      adoc += 'a|\n';
+      adoc += '[.lead]\n';
+      adoc += pageFileLine(pageFile, structure) + '\n\n';
+    });
+  }
+  adoc += 'a|\n\n';
+  adoc += '|===';
+  return adoc;
+};
+
+const getNamespacesFromTypes = (types: Type[]): Record<string, string> => {
+  return types.reduce((namespaces: Record<string, string>, type: Type) => {
+    const fullName = type.fullName.toLowerCase();
+    const url = getNamespaceFromFullName(fullName);
+    if (url && !namespaces[url]) {
+      namespaces[url] = getNamespaceFromFullName(type.fullName);
     }
-    adoc += 'a|\n\n';
-    adoc += '|===';
-    return adoc;
+    return namespaces;
+  }, {});
+};
+
+const getRootPath = (structure: ExportStructure): string => {
+  switch (structure) {
+    case 'legacy':
+      return 'root_tinymce';
+
+    case 'default':
+      return 'tinymce.root';
   }
+};
 
-  private getNamespacesFromTypes(types: Type[]): Record<string, string> {
-    return types.reduce((namespaces: Record<string, string>, type: Type) => {
-      const fullName = type.fullName.toLowerCase();
-      const url = this.getNamespaceFromFullName(fullName);
-      if (url && !namespaces[url]) {
-        namespaces[url] = this.getNamespaceFromFullName(type.fullName);
-      }
-      return namespaces;
-    }, {});
+const namespaceLine = (namespace: NavFile, structure: ExportStructure): string => {
+  switch (structure) {
+    case 'legacy':
+      return generateNavXref('api/' + namespace.path, 'index.adoc', namespace.title);
+
+    case 'default':
+      return namespace.title;
   }
+};
 
-  private getRootPath(): string {
-    switch (this.structure) {
-      case 'legacy':
-        return 'tinymce.root_tinymce';
+const pageFileLine = (pageFile: NavFile, structure: ExportStructure): string => {
+  switch (structure) {
+    case 'legacy':
+      return generateNavXref('api/' + getNamespaceFromFullName(pageFile.path), pageFile.path + '.adoc', pageFile.title);
 
-      case 'default':
-        return 'tinymce.root';
-    }
+    case 'default':
+      return generateNavXref('apis', pageFile.path + '.adoc', pageFile.title);
   }
+};
 
-  private namespaceLine(namespace: NavFile): string {
-    switch (this.structure) {
-      case 'legacy':
-        return this.generateNavXref('api/' + namespace.path, 'index.adoc', namespace.title);
+const generateXref = (name: string, structure: ExportStructure): string => {
+  const title = getTitleFromFullName(name);
+  const fileName = name.toLowerCase() + '.adoc';
+  switch (structure) {
+    case 'legacy':
+      return generateNavXref('api/' + getNamespaceFromFullName(name.toLowerCase()), fileName, title);
 
-      case 'default':
-        return namespace.title;
-    }
+    case 'default':
+      return generateNavXref('apis/', fileName, title);
   }
+};
 
-  private pageFileLine(pageFile: NavFile): string {
-    switch (this.structure) {
-      case 'legacy':
-        return this.generateNavXref('api/' + this.getNamespaceFromFullName(pageFile.path), pageFile.path + '.adoc', pageFile.title);
+const generateTypeXref = (type: string, structure: ExportStructure): string => {
+  return type.includes('tinymce', 0) ? generateXref(type, structure) : type;
+};
 
-      case 'default':
-        return this.generateNavXref('apis', pageFile.path + '.adoc', pageFile.title);
-    }
-  }
+const generateNavXref = (basePath: string, filename: string, title: string): string =>
+  'xref:' + basePath + '/' + filename + '[' + title + ']';
 
-  private getNamespaceFromFullName = (fullName: string): string =>
-    fullName.split('.').slice(0, -1).join('.');
+const getNamespaceFromFullName = (fullName: string): string =>
+  fullName === 'tinymce' ? fullName : fullName.split('.').slice(0, -1).join('.');
 
-  private getTitleFromFullName = (fullName: string): string =>
-    fullName.split('.').slice(-1).join('');
+const getTitleFromFullName = (fullName: string): string =>
+  fullName.split('.').slice(-1).join('');
 
-  private generateNavXref = (basePath: string, filename: string, title: string): string =>
-    'xref:' + basePath + '/' + filename + '[' + title + ']';
-
-  private navLine = (name: string, level: number): string =>
-    '*'.repeat(level) + ' ' + name + '\n';
-}
+const navLine = (name: string, level: number): string =>
+  '*'.repeat(level) + ' ' + name + '\n';
 
 export {
-  Util
+  generateNavPages,
+  getFilePath,
+  getJsonFilePath,
+  generateXref,
+  generateTypeXref
 };
