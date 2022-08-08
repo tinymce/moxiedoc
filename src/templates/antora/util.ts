@@ -17,6 +17,15 @@ export interface PageOutput {
 
 const BASE_PATH: string = process.env.BASE_PATH || '/_data/antora';
 
+const namespaceDescriptions = {
+  'tinymce': 'Global APIs for working with the editor.',
+  'tinymce.dom': 'APIs for working with the DOM from within the editor.',
+  'tinymce.editor.ui': 'APIs for registering User Interface components.',
+  'tinymce.geom': 'Various rectangle APIs.',
+  'tinymce.html': 'APIs for working with HTML within the editor.',
+  'tinymce.util': 'Browser related APIs.'
+};
+
 const generateNavPages = (sortedTypes: Type[], structure: ExportStructure): PageOutput[] => {
   const nav = getNavFile(sortedTypes, structure);
   const indexPage = nav[0];
@@ -37,7 +46,7 @@ const generateNavPages = (sortedTypes: Type[], structure: ExportStructure): Page
 
   switch (structure) {
     case 'legacy':
-      return generateIndexPages(newNavPages, indexPage, structure);
+      return generateIndexPages(newNavPages, indexPage, sortedTypes, structure);
 
     case 'default':
       return newNavPages;
@@ -69,13 +78,6 @@ const getNavFile = (types: Type[], structure: ExportStructure): NavFile[] => {
       return { title: type.fullName, path: type.fullName.toLowerCase() };
     });
 
-    if (url === 'tinymce') {
-      innerPages.unshift({
-        title: 'tinymce',
-        path: getRootPath(structure)
-      });
-    }
-
     return {
       title,
       path: url,
@@ -106,26 +108,30 @@ const navToAdoc = (indexPage: NavFile, structure: ExportStructure): string => {
   return adoc;
 };
 
-const generateIndexPages = (newNavPages: PageOutput[], indexPage: NavFile, structure: ExportStructure): PageOutput[] => {
+const generateIndexPages = (newNavPages: PageOutput[], indexPage: NavFile, sortedTypes: Type[], structure: ExportStructure): PageOutput[] => {
   indexPage.pages.forEach((namespace) => {
+    const descriptions = getDescriptionsFromTypes(sortedTypes);
     newNavPages.push({
       type: 'adoc',
       filename: BASE_PATH + '/api/' + namespace.path + '/index.adoc',
-      content: indexToAdoc(namespace, structure)
+      content: indexToAdoc(namespace, descriptions, structure)
     });
   });
   return newNavPages;
 };
 
-const indexToAdoc = (namespace: NavFile, structure: ExportStructure): string => {
-  let adoc = '= ' + namespace.title + '\n\n';
+const indexToAdoc = (namespace: NavFile, descriptions: Record<string, string>, structure: ExportStructure): string => {
+  let adoc = '= ' + namespace.title + '\n';
+  adoc += '==' + namespaceDescriptions[namespace.title.toLowerCase()] + '\n\n';
   adoc += '[cols="1,1"]\n';
   adoc += '|===\n\n';
   if (namespace.pages) {
     namespace.pages.forEach((pageFile) => {
       adoc += 'a|\n';
       adoc += '[.lead]\n';
-      adoc += pageFileLine(pageFile, structure) + '\n\n';
+      adoc += pageFileLine(pageFile, structure) + '\n';
+      const description = descriptions[pageFile.path];
+      adoc += description + '\n\n';
     });
   }
   adoc += 'a|\n\n';
@@ -141,6 +147,16 @@ const getNamespacesFromTypes = (types: Type[]): Record<string, string> => {
       namespaces[url] = getNamespaceFromFullName(type.fullName);
     }
     return namespaces;
+  }, {});
+};
+
+const getDescriptionsFromTypes = (types: Type[]): Record<string, string> => {
+  return types.reduce((descriptions: Record<string, string>, type: Type) => {
+    const name = type.fullName.toLowerCase();
+    if (name && !descriptions[name]) {
+      descriptions[name] = type.desc;
+    }
+    return descriptions;
   }, {});
 };
 
@@ -165,12 +181,14 @@ const namespaceLine = (namespace: NavFile, structure: ExportStructure): string =
 };
 
 const pageFileLine = (pageFile: NavFile, structure: ExportStructure): string => {
+  const fileName = (pageFile.path === 'tinymce' ? getRootPath(structure) : pageFile.path) + '.adoc';
   switch (structure) {
     case 'legacy':
-      return generateNavXref('api/' + getNamespaceFromFullName(pageFile.path), pageFile.path + '.adoc', pageFile.title);
+      const folder = getNamespaceFromFullName(pageFile.path);
+      return generateNavXref('api/' + folder, fileName, pageFile.title);
 
     case 'default':
-      return generateNavXref('apis', pageFile.path + '.adoc', pageFile.title);
+      return generateNavXref('apis', fileName, pageFile.title);
   }
 };
 
