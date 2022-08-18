@@ -58,13 +58,13 @@ const generateNavXref = (basePath: string, filename: string, title: string): str
 
 const generateXref = (name: string, structure: ExportStructure): string => {
   const title = getTitleFromFullName(name);
-  const fileName = name.toLowerCase() + '.adoc';
+  const fileName = name.toLowerCase() === 'tinymce' ? getRootPath(structure) : name.toLowerCase();
   switch (structure) {
     case 'legacy':
-      return generateNavXref('api/' + getNamespaceFromFullName(name.toLowerCase()), fileName, title);
+      return generateNavXref('api/' + getNamespaceFromFullName(name.toLowerCase()), fileName + '.adoc', title);
 
     case 'default':
-      return generateNavXref('apis/', fileName, title);
+      return generateNavXref('apis', fileName + '.adoc', title);
   }
 };
 
@@ -83,7 +83,7 @@ const getFilePath = (name: string, structure: ExportStructure): string => {
       return BASE_PATH + '/api/' + folder + '/' + fileName + '.adoc';
 
     case 'default':
-      return BASE_PATH + '/apis/' + fileName + '.adoc';
+      return BASE_PATH + '/' + fileName + '.adoc';
   }
 };
 
