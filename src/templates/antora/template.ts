@@ -1,7 +1,4 @@
-import * as fs from 'fs';
-import * as Handlebars from 'handlebars';
 import { ZipWriter } from 'moxie-zip';
-import * as path from 'path';
 import { ExportStructure } from 'src/lib/exporter';
 
 import { Api } from '../../lib/api';
@@ -119,15 +116,6 @@ const flatten = <T>(array: T[][]): T[] => {
 };
 
 /**
- * [compileTemplate description]
- * @param  {[type]} filePath [description]
- * @return {[type]}          [description]
- */
-const compileTemplate = (filePath: string): HandlebarsTemplateDelegate => {
-  return Handlebars.compile(fs.readFileSync(path.join(__dirname, filePath)).toString());
-};
-
-/**
  * [addPageToArchive description]
  * @param {[type]} page [description]
  */
@@ -174,7 +162,7 @@ const getSyntaxString = (memberData: Record<string, any>) => {
  */
 const template = (root: Api, toPath: string, structure: ExportStructure): void => {
   const archive = new ZipWriter();
-  const memberTemplate = compileTemplate('member.handlebars');
+  const memberTemplate = Util.compileTemplate('member.handlebars');
 
   // bind new archive to function
   const addPage = addPageToArchive.bind(archive);
@@ -190,7 +178,14 @@ const template = (root: Api, toPath: string, structure: ExportStructure): void =
     }
   });
 
-  const navPages = Util.generateNavPages(sortedTypes, structure);
+  const indexPage = Util.getNavFile(sortedTypes);
+
+  const navPages = Util.generateNavPages(indexPage, structure);
+
+  if (structure === 'legacy') {
+    Util.generateIndexPages(indexPage, sortedTypes, memberTemplate, structure)
+      .forEach((pageOutput) => navPages.push(pageOutput));
+  }
 
   navPages.forEach((page) => {
     addPage(page);
