@@ -12,7 +12,7 @@
   },
   "scripts": {
     "prepublishOnly": "yarn build",
-    "copy-templates": "cd src && rsync -R templates/**/*.handlebars ../dist/ && cd ../",
+    "copy-templates": "cd src && copyfiles 'templates/**/*.handlebars' ../dist/ && cd ../",
     "build": "tsc && yarn copy-templates",
     "lint": "eslint src/**/*.ts",
     "test": "yarn mocha"
@@ -42,6 +42,7 @@
     "@types/mocha": "^9.0.0",
     "@types/node": "^18.7.9",
     "chai": "^4.3.4",
+    "copyfiles": "^2.4.1",
     "esm": "^3.2.25",
     "js-yaml": "^4.0.0",
     "mocha": "^9.1.2",
