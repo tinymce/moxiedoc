@@ -204,21 +204,20 @@ const indexToAdoc = (namespace: NavFile, template: HandlebarsTemplateDelegate, d
   ];
   if (namespace.pages) {
     indexPageLines.push(
-      '[cols="1,1"]\n',
-      '|===\n\n',
-      'a|\n\n',
-      '|==='
+      '[cols="1,2",options="header"]\n',
+      '|===\n',
+      '|API|Summary\n\n'
     );
     namespace.pages.forEach((pageFile) => {
       keywords.push(getNameFromFullName(pageFile.title));
       indexPageLines.push('a|\n');
       indexPageLines.push('[.lead]\n');
-      indexPageLines.push(pageFileLine(pageFile, structure) + '\n');
+      indexPageLines.push(pageFileLine(pageFile, structure) + ' |\n');
       const description = descriptions[pageFile.path];
       indexPageLines.push(description + '\n\n');
     });
-
   }
+  indexPageLines.push('|===\n');
   const data = {
     fullName: namespace.title,
     desc: namespaceDescriptions[namespace.title.toLowerCase()],
