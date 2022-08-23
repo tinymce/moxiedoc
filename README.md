@@ -20,7 +20,7 @@ Moxiedoc provides the following options to customise the format of the output do
 ```
 -o --out <path>: location of output files, default: 'tmp/out.zip'
 -t --template <template>: documentation type: default: 'cli'; 'antora', 'github', 'moxiewiki', 'singlehtml', 'tinymcenext', 'xml'
--s --structure <type>: default: 'flat', 'legacy'
+-s --structure <type>: default: 'default'; 'legacy'
 -v --verbose: verbose output
 --debug: debug output
 --dry: dry run only syntax check

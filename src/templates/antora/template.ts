@@ -183,13 +183,11 @@ const template = (root: Api, toPath: string, structure: ExportStructure): void =
   const navPages = Util.generateNavPages(indexPage, structure);
 
   if (structure === 'legacy') {
-    Util.generateIndexPages(indexPage, sortedTypes, memberTemplate, structure)
+    Util.generateLegacyIndexPages(indexPage, sortedTypes, memberTemplate, structure)
       .forEach((pageOutput) => navPages.push(pageOutput));
   }
 
-  navPages.forEach((page) => {
-    addPage(page);
-  });
+  navPages.forEach(addPage);
 
   // create all json and adoc for each item
   const pages: PageOutput[][] = sortedTypes.map(getMemberPages.bind(null, root, memberTemplate, structure));

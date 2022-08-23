@@ -13,7 +13,7 @@ interface NavFile {
 }
 
 export interface PageOutput {
-  readonly type: 'adoc' | 'json' | 'yml';
+  readonly type: 'adoc' | 'json';
   readonly filename: string;
   readonly content: string;
 }
@@ -73,7 +73,7 @@ const generateTypeXref = (type: string, structure: ExportStructure): string => {
 };
 
 const getJsonFilePath = (type: string, fullName: string): string =>
-  (BASE_PATH + '/api/json/' + type + '_' + fullName.replace(/\./g, '_') + '.json').toLowerCase();
+  ('_data/api/json/' + type + '_' + fullName.replace(/\./g, '_') + '.json').toLowerCase();
 
 const getFilePath = (name: string, structure: ExportStructure): string => {
   const fileName = name.toLowerCase() === 'tinymce' ? getRootPath(structure) : name.toLowerCase();
@@ -227,7 +227,8 @@ const indexToAdoc = (namespace: NavFile, template: HandlebarsTemplateDelegate, d
   return adoc;
 };
 
-const generateIndexPages = (indexPage: NavFile, sortedTypes: Type[], memberTemplate: HandlebarsTemplateDelegate, structure: ExportStructure): PageOutput[] => {
+const generateLegacyIndexPages =
+(indexPage: NavFile, sortedTypes: Type[], memberTemplate: HandlebarsTemplateDelegate, structure: ExportStructure): PageOutput[] => {
   const newNavPages = [] as PageOutput[];
   const descriptions = getDescriptionsFromTypes(sortedTypes);
   indexPage.pages.forEach((namespace) =>
@@ -244,7 +245,7 @@ export {
   compileTemplate,
   getNavFile,
   generateNavPages,
-  generateIndexPages,
+  generateLegacyIndexPages,
   getFilePath,
   getJsonFilePath,
   generateXref,

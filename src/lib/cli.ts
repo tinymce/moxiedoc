@@ -12,7 +12,7 @@ program
   .usage('[options] <dir ...>')
   .option('-o, --out <path>', 'output path, default: out')
   .option('-t, --template <template>', 'template name, default: cli')
-  .option('-s, --structure <type>', 'output file structure')
+  .option('-s, --structure <type>', 'output file structure, default: default')
   .option('-v, --verbose', 'verbose output')
   .option('--debug', 'debug output')
   .option('--dry', 'dry run only syntax check')

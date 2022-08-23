@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.3.0 - 2022-07-12
 
 ### Added
-- New `structure` option with default `flat` file structure or `legacy` nested folders.
+- New `structure` option for specifying `legacy` nested structure for antora docs, or `default` file structure.
 
 ## 0.2.1 - 2022-04-29
 
