@@ -87,7 +87,7 @@ const getFilePath = (name: string, structure: ExportStructure): string => {
   }
 };
 
-const namespaceLine = (namespace: NavFile, structure: ExportStructure): string => {
+const namespaceNavLine = (namespace: NavFile, structure: ExportStructure): string => {
   switch (structure) {
     case 'legacy':
       return generateNavXref('api/' + namespace.path, 'index.adoc', namespace.title);
@@ -97,7 +97,7 @@ const namespaceLine = (namespace: NavFile, structure: ExportStructure): string =
   }
 };
 
-const pageFileLine = (pageFile: NavFile, structure: ExportStructure): string => {
+const pageFileNavLine = (pageFile: NavFile, structure: ExportStructure): string => {
   const fileName = (pageFile.path === 'tinymce' ? getRootPath(structure) : pageFile.path) + '.adoc';
   switch (structure) {
     case 'legacy':
@@ -107,6 +107,12 @@ const pageFileLine = (pageFile: NavFile, structure: ExportStructure): string => 
     case 'default':
       return generateNavXref('apis', fileName, pageFile.title);
   }
+};
+
+const pageFileLegacyIndexLine = (pageFile: NavFile, structure: ExportStructure): string => {
+  const fileName = (pageFile.path === 'tinymce' ? getRootPath(structure) : pageFile.path) + '.adoc';
+  const folder = getNamespaceFromFullName(pageFile.path);
+  return generateNavXref('api/' + folder, fileName, getNameFromFullName(pageFile.title));
 };
 
 const getRootPath = (structure: ExportStructure): string => {
@@ -169,10 +175,10 @@ const navToAdoc = (indexPage: NavFile, structure: ExportStructure): string => {
   let adoc = navLine(indexPage.title, 1);
   if (indexPage.pages) {
     indexPage.pages.forEach((namespace) => {
-      adoc += navLine(namespaceLine(namespace, structure), 2);
+      adoc += navLine(namespaceNavLine(namespace, structure), 2);
       if (namespace.pages) {
         namespace.pages.forEach((pageFile) => {
-          adoc += navLine(pageFileLine(pageFile, structure), 3);
+          adoc += navLine(pageFileNavLine(pageFile, structure), 3);
         });
       }
     });
@@ -197,7 +203,8 @@ const generateNavPages = (indexPage: NavFile, structure: ExportStructure): PageO
   return navPages;
 };
 
-const indexToAdoc = (namespace: NavFile, template: HandlebarsTemplateDelegate, descriptions: Record<string, string>, structure: ExportStructure): string => {
+const legacyIndexToAdoc =
+(namespace: NavFile, template: HandlebarsTemplateDelegate, descriptions: Record<string, string>, structure: ExportStructure): string => {
   const keywords = [ getApiFromFullName(namespace.title) ];
   const indexPageLines = [
     '\n== ' + namespaceDescriptions[namespace.title.toLowerCase()] + '\n\n'
@@ -211,12 +218,15 @@ const indexToAdoc = (namespace: NavFile, template: HandlebarsTemplateDelegate, d
       keywords.push(getNameFromFullName(pageFile.title));
       indexPageLines.push('a|\n');
       indexPageLines.push('[.lead]\n');
-      indexPageLines.push(pageFileLine(pageFile, structure) + '\n\n');
+      indexPageLines.push(pageFileLegacyIndexLine(pageFile, structure) + '\n\n');
       const description = descriptions[pageFile.path];
       indexPageLines.push(description + '\n\n');
     });
+    if (namespace.pages.length % 2 !== 0) {
+      indexPageLines.push('a|\n');
+    }
+    indexPageLines.push('|===\n');
   }
-  indexPageLines.push('|===\n');
   const data = {
     fullName: namespace.title,
     desc: namespaceDescriptions[namespace.title.toLowerCase()],
@@ -234,7 +244,7 @@ const generateLegacyIndexPages =
     newNavPages.push({
       type: 'adoc',
       filename: BASE_PATH + '/api/' + namespace.path + '/index.adoc',
-      content: indexToAdoc(namespace, memberTemplate, descriptions, structure)
+      content: legacyIndexToAdoc(namespace, memberTemplate, descriptions, structure)
     })
   );
   return newNavPages;
