@@ -203,8 +203,12 @@ const generateNavPages = (indexPage: NavFile, structure: ExportStructure): PageO
   return navPages;
 };
 
-const legacyIndexToAdoc =
-(namespace: NavFile, template: HandlebarsTemplateDelegate, descriptions: Record<string, string>, structure: ExportStructure): string => {
+const legacyIndexToAdoc = (
+  namespace: NavFile,
+  template: HandlebarsTemplateDelegate,
+  descriptions: Record<string, string>,
+  structure: ExportStructure
+): string => {
   const keywords = [ getApiFromFullName(namespace.title) ];
   const indexPageLines = [
     '\n== ' + namespaceDescriptions[namespace.title.toLowerCase()] + '\n\n'
@@ -236,8 +240,12 @@ const legacyIndexToAdoc =
   return adoc;
 };
 
-const generateLegacyIndexPages =
-(indexPage: NavFile, sortedTypes: Type[], memberTemplate: HandlebarsTemplateDelegate, structure: ExportStructure): PageOutput[] => {
+const generateLegacyIndexPages = (
+  indexPage: NavFile,
+  sortedTypes: Type[],
+  memberTemplate: HandlebarsTemplateDelegate,
+  structure: ExportStructure
+): PageOutput[] => {
   const newNavPages = [] as PageOutput[];
   const descriptions = getDescriptionsFromTypes(sortedTypes);
   indexPage.pages.forEach((namespace) =>
