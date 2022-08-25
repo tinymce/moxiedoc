@@ -3,7 +3,7 @@ import * as matcher from 'matcher';
 import * as path from 'path';
 
 import { Builder } from './builder';
-import { Exporter } from './exporter';
+import { Exporter, ExportStructure } from './exporter';
 import * as Reporter from './reporter';
 
 exports.Builder = Builder;
@@ -12,6 +12,7 @@ exports.Exporter = Exporter;
 export interface MoxiedocSettings {
   out?: string;
   template?: string;
+  structure?: ExportStructure;
   verbose?: boolean;
   debug?: boolean;
   paths: string[];
@@ -44,6 +45,7 @@ export interface MoxiedocResult {
 const process = (settings: MoxiedocSettings): MoxiedocResult => {
   settings.out = settings.out || 'tmp/out.zip';
   settings.template = settings.template || 'cli';
+  settings.structure = settings.structure || 'default';
 
   if (settings.verbose) {
     Reporter.setLevel(Reporter.Level.INFO);
@@ -99,7 +101,8 @@ const process = (settings: MoxiedocSettings): MoxiedocResult => {
 
   if (!settings.dry) {
     const exporter = new Exporter({
-      template: settings.template
+      template: settings.template,
+      structure: settings.structure
     });
 
     exporter.exportTo(builder.api, settings.out);

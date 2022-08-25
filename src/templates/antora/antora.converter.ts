@@ -1,14 +1,9 @@
+
+import { ExportStructure } from '../../lib/exporter';
 import { Return } from '../../lib/member';
 import { Param } from '../../lib/param';
-
-export interface PageOutput {
-  readonly type: 'adoc' | 'json';
-  readonly filename: string;
-  readonly content: string;
-}
-
-// TODO: we can pass this through later
-const basePath = 'apis/';
+import { PageOutput } from './util';
+import * as Util from './util';
 
 const hasValue = <T>(x: T): x is NonNullable<T> => {
   // empty helper for strings, objects, arrays
@@ -79,20 +74,6 @@ const cleanup = (str: string): string => {
   return filters.reduce((acc, filter) => filter(acc), str);
 };
 
-const getNameFromFullName = (name: string): string =>
-  name.split('.').slice(-1).join('');
-
-const getFilePathFromFullName = (name: string): string => {
-  const filename = name.toLowerCase() === 'tinymce' ? 'tinymce.root' : name.toLowerCase();
-  return basePath + filename + '.adoc';
-};
-
-const generateTypeXref = (type: string): string =>
-  type.includes('tinymce', 0) ? 'xref:' + getFilePathFromFullName(type) + '[' + getNameFromFullName(type) + ']' : type;
-
-const generateDefinedByXref = (definedBy: string): string =>
-  'xref:' + getFilePathFromFullName(definedBy) + '[' + getNameFromFullName(definedBy) + ']';
-
 const generateExamples = (examples: Array<{ content: string }>): string => {
   let tmp = '\n==== Examples\n';
   examples.forEach((example) => {
@@ -104,24 +85,23 @@ const generateExamples = (examples: Array<{ content: string }>): string => {
   return tmp;
 };
 
-const generateParameters = (params: Param[]): string => {
+const generateParameters = (params: Param[], structure: ExportStructure): string => {
   let tmp = '\n==== Parameters\n';
   params.forEach((param) => {
-    tmp += '\n* `' + param.name + ' (' + param.types.map(generateTypeXref).join(' | ') + ')` - ' + cleanup(param.desc);
+    tmp += '\n* `' + param.name + ' (' + param.types.map((type) => Util.generateTypeXref(type, structure)).join(' | ') + ')` - ' + cleanup(param.desc);
   });
   return tmp + '\n';
 };
 
-const generateReturn = (ret: Return): string => {
+const generateReturn = (ret: Return, structure: ExportStructure): string => {
   let tmp = '\n==== Return value\n';
   ret.types.forEach((type) => {
-    tmp += '\n* `' + generateTypeXref(type) + '` - ' + cleanup(ret.desc);
+    tmp += '\n* `' + Util.generateTypeXref(type, structure) + '` - ' + cleanup(ret.desc);
   });
-  tmp += '\n';
-  return tmp;
+  return tmp += '\n';
 };
 
-const buildSummary = (data: Record<string, any>): string => {
+const buildSummary = (data: Record<string, any>, structure: ExportStructure): string => {
   let tmp = '';
 
   // settings
@@ -136,9 +116,9 @@ const buildSummary = (data: Record<string, any>): string => {
 
     data.settings.forEach((item) => {
       tmp += '|' + item.name;
-      tmp += '|`' + generateTypeXref(item.dataTypes[0]) + '`';
+      tmp += '|`' + Util.generateTypeXref(item.dataTypes[0], structure) + '`';
       tmp += '|' + cleanup(item.desc);
-      tmp += '|`' + generateDefinedByXref(item.definedBy) + '`\n';
+      tmp += '|`' + Util.generateXref(item.definedBy, structure) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -154,9 +134,9 @@ const buildSummary = (data: Record<string, any>): string => {
 
     data.properties.forEach((item) => {
       tmp += '|' + item.name;
-      tmp += '|`' + generateTypeXref(item.dataTypes[0]) + '`';
+      tmp += '|`' + Util.generateTypeXref(item.dataTypes[0], structure) + '`';
       tmp += '|' + cleanup(item.desc);
-      tmp += '|`' + generateDefinedByXref(item.definedBy) + '`\n';
+      tmp += '|`' + Util.generateXref(item.definedBy, structure) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -173,7 +153,7 @@ const buildSummary = (data: Record<string, any>): string => {
     data.constructors.forEach((item) => {
       tmp += '|xref:#' + item.name + '[' + item.name + '()]';
       tmp += '|' + cleanup(item.desc);
-      tmp += '|`' + generateDefinedByXref(item.definedBy) + '`\n';
+      tmp += '|`' + Util.generateXref(item.definedBy, structure) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -186,7 +166,7 @@ const buildSummary = (data: Record<string, any>): string => {
     tmp += '|===\n';
     tmp += '|Name|Summary|Defined by\n';
     data.methods.forEach((item) => {
-      tmp += '|xref:#' + item.name + '[' + item.name + '()]|' + cleanup(item.desc) + '|`' + generateDefinedByXref(item.definedBy) + '`\n';
+      tmp += '|xref:#' + item.name + '[' + item.name + '()]|' + cleanup(item.desc) + '|`' + Util.generateXref(item.definedBy, structure) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -204,7 +184,7 @@ const buildSummary = (data: Record<string, any>): string => {
     data.events.forEach((item) => {
       tmp += '|xref:#' + item.name + '[' + item.name + ']';
       tmp += '|' + cleanup(item.desc);
-      tmp += '|`' + generateDefinedByXref(item.definedBy) + '`\n';
+      tmp += '|`' + Util.generateXref(item.definedBy, structure) + '`\n';
     });
     tmp += '|===\n';
   }
@@ -212,7 +192,7 @@ const buildSummary = (data: Record<string, any>): string => {
   return tmp.length > 0 ? '\n[[summary]]\n== Summary\n' + tmp : tmp;
 };
 
-const buildConstructor = (data: Record<string, any>): string => {
+const buildConstructor = (data: Record<string, any>, structure: ExportStructure): string => {
   let tmp = '';
 
   if (hasValue(data.constructors)) {
@@ -233,11 +213,11 @@ const buildConstructor = (data: Record<string, any>): string => {
       }
 
       if (hasValue(constructor.params)) {
-        tmp += generateParameters(constructor.params);
+        tmp += generateParameters(constructor.params, structure);
       }
 
       if (hasValue(constructor.return) && hasValue(constructor.return.types)) {
-        tmp += generateReturn(constructor.return);
+        tmp += generateReturn(constructor.return, structure);
       }
     });
   }
@@ -245,7 +225,7 @@ const buildConstructor = (data: Record<string, any>): string => {
   return tmp;
 };
 
-const buildMethods = (data: Record<string, any>): string => {
+const buildMethods = (data: Record<string, any>, structure: ExportStructure): string => {
   let tmp = '';
 
   if (hasValue(data.methods)) {
@@ -265,11 +245,11 @@ const buildMethods = (data: Record<string, any>): string => {
       }
 
       if (hasValue(method.params)) {
-        tmp += generateParameters(method.params);
+        tmp += generateParameters(method.params, structure);
       }
 
       if (hasValue(method.return) && hasValue(method.return.types)) {
-        tmp += generateReturn(method.return);
+        tmp += generateReturn(method.return, structure);
       }
 
       tmp += `\n'''\n`;
@@ -279,7 +259,7 @@ const buildMethods = (data: Record<string, any>): string => {
   return tmp;
 };
 
-const buildEvents = (data: Record<string, any>): string => {
+const buildEvents = (data: Record<string, any>, structure: ExportStructure): string => {
   let tmp = '';
 
   // untested snippet, no events data
@@ -292,7 +272,7 @@ const buildEvents = (data: Record<string, any>): string => {
       tmp += cleanup(event.desc) + '\n';
 
       if (hasValue(event.params)) {
-        tmp += generateParameters(event.params);
+        tmp += generateParameters(event.params, structure);
       }
     });
   }
@@ -300,7 +280,7 @@ const buildEvents = (data: Record<string, any>): string => {
   return tmp;
 };
 
-const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
+const convert = (pages: PageOutput[][], structure: ExportStructure): PageOutput[][] => pages.map((page) => {
   // page[0] is json
   // page[1] is adoc
   const data = JSON.parse(page[0].content);
@@ -334,7 +314,7 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
     tmp += '\n[[extends]]\n';
     tmp += '== Extends\n';
     data.borrows.forEach((item) => {
-      tmp += '\n * xref:' + basePath + item.toLowerCase() + '.adoc[' + item + ']\n';
+      tmp += '\n * ' + Util.generateXref(item, structure) + '\n';
     });
   }
 
@@ -350,10 +330,10 @@ const convert = (pages: PageOutput[][]): PageOutput[][] => pages.map((page) => {
     });
   }
 
-  tmp += buildSummary(data);
-  tmp += buildConstructor(data);
-  tmp += buildMethods(data);
-  tmp += buildEvents(data);
+  tmp += buildSummary(data, structure);
+  tmp += buildConstructor(data, structure);
+  tmp += buildMethods(data, structure);
+  tmp += buildEvents(data, structure);
 
   // return the applied antora page mutation
   page[1] = {
