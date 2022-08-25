@@ -51,20 +51,20 @@ const getTitleFromFullName = (fullName: string): string =>
   fullName.split('.').slice(-1).join('');
 
 const navLine = (name: string, level: number): string =>
-  '*'.repeat(level) + ' ' + name + '\n';
+  '*'.repeat(level) + ` ${name}\n`;
 
 const generateNavXref = (basePath: string, filename: string, title: string): string =>
-  'xref:' + basePath + '/' + filename + '[' + title + ']';
+  `xref:${basePath}/${filename}[${title}]`;
 
 const generateXref = (name: string, structure: ExportStructure): string => {
   const title = getTitleFromFullName(name);
   const fileName = name.toLowerCase() === 'tinymce' ? getRootPath(structure) : name.toLowerCase();
   switch (structure) {
     case 'legacy':
-      return generateNavXref('api/' + getNamespaceFromFullName(name.toLowerCase()), fileName + '.adoc', title);
+      return generateNavXref(`api/${getNamespaceFromFullName(name.toLowerCase())}`, `${fileName}.adoc`, title);
 
     case 'default':
-      return generateNavXref('apis', fileName + '.adoc', title);
+      return generateNavXref('apis', `${fileName}.adoc`, title);
   }
 };
 
@@ -73,24 +73,24 @@ const generateTypeXref = (type: string, structure: ExportStructure): string => {
 };
 
 const getJsonFilePath = (type: string, fullName: string): string =>
-  ('_data/api/json/' + type + '_' + fullName.replace(/\./g, '_') + '.json').toLowerCase();
+  (`_data/api/json/${type}_${fullName.replace(/\./g, '_')}.json`).toLowerCase();
 
 const getFilePath = (name: string, structure: ExportStructure): string => {
   const fileName = name.toLowerCase() === 'tinymce' ? getRootPath(structure) : name.toLowerCase();
   switch (structure) {
     case 'legacy':
-      const folder = getNamespaceFromFullName(name) + '/';
-      return BASE_PATH + '/api/' + folder + '/' + fileName + '.adoc';
+      const folder = getNamespaceFromFullName(name);
+      return `${BASE_PATH}/api/${folder}/${fileName}.adoc`;
 
     case 'default':
-      return BASE_PATH + '/' + fileName + '.adoc';
+      return `${BASE_PATH}/${fileName}.adoc`;
   }
 };
 
 const namespaceNavLine = (namespace: NavFile, structure: ExportStructure): string => {
   switch (structure) {
     case 'legacy':
-      return generateNavXref('api/' + namespace.path, 'index.adoc', namespace.title);
+      return generateNavXref(`api/${namespace.path}`, 'index.adoc', namespace.title);
 
     case 'default':
       return namespace.title;
@@ -102,7 +102,7 @@ const pageFileNavLine = (pageFile: NavFile, structure: ExportStructure): string 
   switch (structure) {
     case 'legacy':
       const folder = getNamespaceFromFullName(pageFile.path);
-      return generateNavXref('api/' + folder, fileName, pageFile.title);
+      return generateNavXref(`api/${folder}`, fileName, pageFile.title);
 
     case 'default':
       return generateNavXref('apis', fileName, pageFile.title);
@@ -112,7 +112,7 @@ const pageFileNavLine = (pageFile: NavFile, structure: ExportStructure): string 
 const pageFileLegacyIndexLine = (pageFile: NavFile, structure: ExportStructure): string => {
   const fileName = (pageFile.path === 'tinymce' ? getRootPath(structure) : pageFile.path) + '.adoc';
   const folder = getNamespaceFromFullName(pageFile.path);
-  return generateNavXref('api/' + folder, fileName, getNameFromFullName(pageFile.title));
+  return generateNavXref(`api/${folder}`, fileName, getNameFromFullName(pageFile.title));
 };
 
 const getRootPath = (structure: ExportStructure): string => {
@@ -251,7 +251,7 @@ const generateLegacyIndexPages = (
   indexPage.pages.forEach((namespace) =>
     newNavPages.push({
       type: 'adoc',
-      filename: BASE_PATH + '/api/' + namespace.path + '/index.adoc',
+      filename: `${BASE_PATH}/api/${namespace.path}/index.adoc`,
       content: legacyIndexToAdoc(namespace, memberTemplate, descriptions, structure)
     })
   );
