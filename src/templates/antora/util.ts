@@ -246,7 +246,7 @@ const generateLegacyIndexPages = (
   memberTemplate: HandlebarsTemplateDelegate,
   structure: ExportStructure
 ): PageOutput[] => {
-  const newNavPages = [] as PageOutput[];
+  const newNavPages: PageOutput[] = [];
   const descriptions = getDescriptionsFromTypes(sortedTypes);
   indexPage.pages.forEach((namespace) =>
     newNavPages.push({

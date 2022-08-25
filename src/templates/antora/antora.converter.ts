@@ -1,6 +1,5 @@
 
-import { ExportStructure } from 'src/lib/exporter';
-
+import { ExportStructure } from '../../lib/exporter';
 import { Return } from '../../lib/member';
 import { Param } from '../../lib/param';
 import { PageOutput } from './util';
