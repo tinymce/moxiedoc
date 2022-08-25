@@ -1,7 +1,8 @@
 import { ZipWriter } from 'moxie-zip';
-import { ExportStructure } from 'src/lib/exporter';
 
 import { Api } from '../../lib/api';
+import { ExportStructure } from '../../lib/exporter';
+import * as Reporter from '../../lib/reporter';
 import { Type } from '../../lib/type';
 import * as AntoraTemplate from './antora.converter';
 import { PageOutput } from './util';
@@ -120,6 +121,7 @@ const flatten = <T>(array: T[][]): T[] => {
  * @param {[type]} page [description]
  */
 const addPageToArchive = function (this: ZipWriter, page: PageOutput) {
+  Reporter.info('Adding file to zip:', page.filename);
   this.addData(page.filename, page.content);
 };
 
