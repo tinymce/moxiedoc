@@ -22,7 +22,7 @@ const escapeComments = (str: string): string =>
 
 // convert BRs found into asciidoc \n
 const encodeBR = (str: string): string =>
-  str.replace(/\s*<br\s*\/?>\s*/g, '\n');
+  str.replace(/\s*<br\s*\/?>\s*/g, '\n\n\n');
 
 // convert <em> into __italics__ asciidoc
 const encodeEM = (str: string): string =>
