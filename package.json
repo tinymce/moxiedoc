@@ -1,6 +1,6 @@
 {
   "name": "@tinymce/moxiedoc",
-  "version": "0.3.0-rc",
+  "version": "0.3.0",
   "description": "A tool for generating API documentation",
   "author": "Tiny Technologies, Inc",
   "bugs": {
